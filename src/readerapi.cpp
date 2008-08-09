@@ -68,7 +68,7 @@ void ReaderApi::getSubscriptionList() {
 	qDebug() << __PRETTY_FUNCTION__;
 	
 	QNetworkRequest req(QUrl("http://www.google.com/reader/api/0/subscription/list"));
-	req.setRawHeader(QByteArray("Authorization"), ("GoogleLogin " + auth_).toUtf8());
+	//req.setRawHeader(QByteArray("Authorization"), ("GoogleLogin " + auth_).toUtf8());
 
 	QNetworkReply* reply = network_->get(req);
 
