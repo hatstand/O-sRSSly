@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
 #include <QNetworkRequest>
 #include <QStringList>
 
@@ -50,6 +51,11 @@ void ReaderApi::loginComplete() {
 
 	auth_ = auth["Auth"];
 	sid_ = auth["SID"];
+
+	QList<QNetworkCookie> cookies;
+	cookies << QNetworkCookie(QByteArray("SID"), sid_.toUtf8());
+	network_->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.google.com/"));
+	qDebug() << network_->cookieJar()->cookiesForUrl(QUrl("http://www.google.com/"));
 
 	getSubscriptionList();
 }
