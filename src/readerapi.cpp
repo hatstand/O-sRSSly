@@ -51,8 +51,6 @@ void ReaderApi::loginComplete() {
 	auth_ = auth["Auth"];
 	sid_ = auth["SID"];
 
-	qDebug() << 
-
 	getSubscriptionList();
 }
 

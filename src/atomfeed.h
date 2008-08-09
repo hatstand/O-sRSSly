@@ -3,9 +3,9 @@
 
 #include <QString>
 #include <QList>
+#include <QXmlStreamReader> // Do not change to class QXmlStreamReader (gcc 4.0.1)
 
 class QIODevice;
-class QXmlStreamReader;
 
 class AtomEntry
 {

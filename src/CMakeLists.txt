@@ -2,10 +2,12 @@
 SET(FEEDER-SOURCES
 	main.cpp
 	atomfeed.cpp
+	readerapi.cpp
 )
 
 # Header files that have Q_OBJECT in
 SET(FEEDER-MOC-HEADERS
+	readerapi.h
 )
 
 # UI files
