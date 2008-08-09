@@ -75,6 +75,8 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 		case QXmlStreamReader::StartElement:
 			if (s.name() == "title")
 				m_title = s.readElementText();
+			else if (s.name() == "id")
+				m_id = s.readElementText();
 			else if (s.name() == "entry")
 				m_entries << AtomEntry(s);
 			else
@@ -121,5 +123,16 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 			break;
 		}
 	}
+}
+
+QDebug operator <<(QDebug dbg, const AtomFeed& f)
+{
+	dbg.nospace() << "AtomFeed(" << f.title() << ", " << f.id() << ")\n";
+	foreach (const AtomEntry& e, f.entries())
+	{
+		dbg.nospace() << "  " << e;
+		dbg.nospace() << "\n";
+	}
+	return dbg.space();
 }
 

@@ -31,6 +31,7 @@ public:
 	
 	bool hasError() const { return m_error; }
 	
+	QString id() const { return m_id; }
 	QString title() const { return m_title; }
 	QList<AtomEntry> entries() const { return m_entries; }
 
@@ -38,9 +39,13 @@ private:
 	void parseFeed(QXmlStreamReader& s);
 	
 	bool m_error;
+	
+	QString m_id;
 	QString m_title;
 	QList<AtomEntry> m_entries;
 };
+
+QDebug operator <<(QDebug dbg, const AtomFeed& f);
 
 
 #endif

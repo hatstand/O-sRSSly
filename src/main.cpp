@@ -7,12 +7,10 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 	
-	AtomFeed* feed = new AtomFeed;
-	feed->parse("test.atom");
+	AtomFeed feed;
+	feed.parse("test.atom");
 	
-	qDebug() << feed->title();
-	foreach (const AtomEntry& e, feed->entries())
-		qDebug() << e;
+	qDebug() << feed;
 	
 	return 0;
 }
