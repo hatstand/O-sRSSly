@@ -23,11 +23,9 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e);
 class AtomFeed
 {
 public:
-	AtomFeed();
+	AtomFeed(const QString& fileName);
+	AtomFeed(QIODevice* device);
 	~AtomFeed();
-	
-	void parse(QIODevice* device);
-	void parse(const QString& fileName);
 	
 	bool hasError() const { return m_error; }
 	
@@ -36,6 +34,8 @@ public:
 	QList<AtomEntry> entries() const { return m_entries; }
 
 private:
+	void init();
+	void parse(QIODevice* device);
 	void parseFeed(QXmlStreamReader& s);
 	
 	bool m_error;

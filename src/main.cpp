@@ -7,8 +7,7 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 	
-	AtomFeed feed;
-	feed.parse("test.atom");
+	AtomFeed feed("test.atom");
 	
 	qDebug() << feed;
 	

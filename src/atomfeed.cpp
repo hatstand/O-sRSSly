@@ -23,20 +23,28 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e)
 	return dbg.space();
 }
 
-AtomFeed::AtomFeed()
-	: m_error(false)
+AtomFeed::AtomFeed(const QString& fileName)
 {
+	init();
+	
+	QFile file(fileName);
+	file.open(QIODevice::ReadOnly);
+	parse(&file);
+}
+
+AtomFeed::AtomFeed(QIODevice* device)
+{
+	init();
+	parse(device);
 }
 
 AtomFeed::~AtomFeed()
 {
 }
 
-void AtomFeed::parse(const QString& fileName)
+void AtomFeed::init()
 {
-	QFile file(fileName);
-	file.open(QIODevice::ReadOnly);
-	return parse(&file);
+	m_error = false;
 }
 
 void AtomFeed::parse(QIODevice* device)
