@@ -32,25 +32,14 @@ AtomFeed::~AtomFeed()
 {
 }
 
-QFuture<AtomFeed*> AtomFeed::parse(const QString& fileName)
-{
-	return QtConcurrent::run(new AtomFeed, &AtomFeed::doParseFilename, fileName);
-}
-
-QFuture<AtomFeed*> AtomFeed::parse(QIODevice* device)
-{
-	AtomFeed* feed = new AtomFeed;
-	return QtConcurrent::run(feed, &AtomFeed::doParseStream, device);
-}
-
-AtomFeed* AtomFeed::doParseFilename(const QString& fileName)
+void AtomFeed::parse(const QString& fileName)
 {
 	QFile file(fileName);
 	file.open(QIODevice::ReadOnly);
-	return doParseStream(&file);
+	return parse(&file);
 }
 
-AtomFeed* AtomFeed::doParseStream(QIODevice* device)
+void AtomFeed::parse(QIODevice* device)
 {
 	QXmlStreamReader s(device);
 	
@@ -74,8 +63,6 @@ AtomFeed* AtomFeed::doParseStream(QIODevice* device)
 	
 	if (s.hasError())
 		m_error = true;
-	
-	return this;
 }
 
 void AtomFeed::parseFeed(QXmlStreamReader& s)
