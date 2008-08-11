@@ -3,11 +3,14 @@ SET(FEEDER-SOURCES
 	main.cpp
 	atomfeed.cpp
 	readerapi.cpp
+	subscriptionlist.cpp
+	xmlutils.cpp
 )
 
 # Header files that have Q_OBJECT in
 SET(FEEDER-MOC-HEADERS
 	readerapi.h
+	subscriptionlist.h
 )
 
 # UI files

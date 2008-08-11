@@ -1,21 +1,11 @@
 #include "atomfeed.h"
+#include "xmlutils.h"
 
 #include <QXmlStreamReader>
 #include <QFile>
 #include <QtDebug>
 
-void ignoreElement(QXmlStreamReader& s)
-{
-	int level = 1;
-	while (level != 0 && !s.atEnd())
-	{
-		QXmlStreamReader::TokenType type = s.readNext();
-		if (type == QXmlStreamReader::StartElement)
-			level++;
-		else if (type == QXmlStreamReader::EndElement)
-			level--;
-	}
-}
+using namespace XmlUtils;
 
 QDebug operator <<(QDebug dbg, const AtomEntry& e)
 {

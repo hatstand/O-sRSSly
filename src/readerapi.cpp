@@ -1,4 +1,5 @@
 #include "readerapi.h"
+#include "subscriptionlist.h"
 
 #include <QDebug>
 #include <QNetworkAccessManager>
@@ -79,7 +80,13 @@ void ReaderApi::getSubscriptionList() {
 
 void ReaderApi::getSubscriptionListComplete() {
 	qDebug() << __PRETTY_FUNCTION__;
-	qDebug() << static_cast<QNetworkReply*>(sender())->readAll();
+	QByteArray xml(static_cast<QNetworkReply*>(sender())->readAll());
+
+	QXmlStreamReader s(xml);
+	SubscriptionList list(s);
+	foreach (Subscription sub, list.subscriptions()) {
+		qDebug() << sub;
+	}
 }
 
 void ReaderApi::networkError(QNetworkReply::NetworkError code) {
