@@ -1,9 +1,12 @@
 # Source files
 SET(FEEDER-SOURCES
-	main.cpp
 	apiaction.cpp
 	atomfeed.cpp
+	feedsmodel.cpp
+	feedview.cpp
 	readerapi.cpp
+	main.cpp
+	mainwindow.cpp
 	subscriptionlist.cpp
 	xmlutils.cpp
 )
@@ -11,12 +14,16 @@ SET(FEEDER-SOURCES
 # Header files that have Q_OBJECT in
 SET(FEEDER-MOC-HEADERS
 	apiaction.h
+	feedsmodel.h
+	feedview.h
+	mainwindow.h
 	readerapi.h
 	subscriptionlist.h
 )
 
 # UI files
 SET(FEEDER-UI
+	mainwindow.ui
 )
 
 # Resource files

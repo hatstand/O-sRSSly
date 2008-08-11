@@ -1,15 +1,15 @@
 #include <QApplication>
-#include <QtDebug>
 
-#include "atomfeed.h"
+#include "mainwindow.h"
 
-int main(int argc, char** argv)
-{
+int main (int argc, char** argv) {
 	QApplication app(argc, argv);
+
+	app.setApplicationName("Feeder");
+
+	MainWindow win;
+	win.show();
+
 	
-	AtomFeed feed("test.atom");
-	
-	qDebug() << feed;
-	
-	return 0;
+	return app.exec();
 }
