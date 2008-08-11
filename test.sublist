@@ -1,0 +1,27 @@
+<object>
+    <list name="subscriptions">
+        <object>
+            <string name="id">feed/http://rss.slashdot.org/Slashdot/slashdot</string>
+            <string name="title">Slashdot</string>
+            <string name="sortid">0B6755C4</string>
+            <list name="categories">
+                <object>
+                    <string name="id">user/03090586937824610679/label/Test</string>
+                    <string name="label">Test</string>
+                </object>
+                <object>
+                    <string name="id">user/03090586937824610679/label/Whee</string>
+                    <string name="label">Whee</string>
+                </object>
+            </list>
+            <number name="firstitemmsec">1218327022181</number>
+        </object>
+        <object>
+            <string name="id">feed/http://theregister.co.uk/headlines.rss</string>
+            <string name="title">The Register</string>
+            <string name="sortid">279B3A01</string>
+            <list name="categories"/>
+            <number name="firstitemmsec">1218220669852</number>
+        </object>
+    </list>
+</object>

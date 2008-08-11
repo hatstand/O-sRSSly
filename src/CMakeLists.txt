@@ -1,6 +1,7 @@
 # Source files
 SET(FEEDER-SOURCES
 	main.cpp
+	apiaction.cpp
 	atomfeed.cpp
 	readerapi.cpp
 	subscriptionlist.cpp
@@ -9,6 +10,7 @@ SET(FEEDER-SOURCES
 
 # Header files that have Q_OBJECT in
 SET(FEEDER-MOC-HEADERS
+	apiaction.h
 	readerapi.h
 	subscriptionlist.h
 )
