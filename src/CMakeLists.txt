@@ -2,6 +2,7 @@
 SET(FEEDER-SOURCES
 	apiaction.cpp
 	atomfeed.cpp
+	configuredialog.cpp
 	feedsmodel.cpp
 	feedview.cpp
 	readerapi.cpp
@@ -14,6 +15,7 @@ SET(FEEDER-SOURCES
 # Header files that have Q_OBJECT in
 SET(FEEDER-MOC-HEADERS
 	apiaction.h
+	configuredialog.h
 	feedsmodel.h
 	feedview.h
 	mainwindow.h
@@ -23,6 +25,7 @@ SET(FEEDER-MOC-HEADERS
 
 # UI files
 SET(FEEDER-UI
+	configuredialog.ui
 	mainwindow.ui
 )
 
