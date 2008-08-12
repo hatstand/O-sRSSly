@@ -44,8 +44,8 @@ QVariant TreeItem::data(int column) const {
 
 
 
-FeedItem::FeedItem(TreeItem* parent, const Subscription& s)
-	: TreeItem(parent, s.title()), subscription_(s) {
+FeedItem::FeedItem(TreeItem* parent, Data* data)
+	: TreeItem(parent, data->subscription_.title()), data_(data) {
 }
 
 int FeedItem::columnCount() const {
@@ -57,19 +57,19 @@ QVariant FeedItem::data(int column) const {
 		case 0:
 			return title_;
 		case 1:
-			return subscription_.id();
+			return data_->subscription_.id();
 		default:
 			return QVariant();
 	}
 }
 
-void FeedItem::update(const AtomFeed& feed) {
+void FeedItem::Data::update(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__;
 	feed_ = feed;
 }
 
-FolderItem::FolderItem(TreeItem* parent, const QString& name)
-	: TreeItem(parent, name) {
+FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
+	: TreeItem(parent, name), id_(id) {
 }
 
 int FolderItem::columnCount() const {
@@ -78,7 +78,7 @@ int FolderItem::columnCount() const {
 
 
 FeedsModel::FeedsModel(QObject* parent)
-	: QAbstractItemModel(parent), root_(0, "/"),
+	: QAbstractItemModel(parent), root_(0, "Root-Id", "/"),
 		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)) {
 
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
@@ -184,12 +184,40 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 	foreach (Subscription s, list.subscriptions()) {
 		qDebug() << "Adding..." << s.title();
-		FeedItem* feed = new FeedItem(&root_, s);
-		root_.appendChild(feed);
 
-		id_mappings_.insert(s.id(), feed);
+		// Create actual shared data.
+		FeedItem::Data* d = new FeedItem::Data(s);
+
+		id_mappings_.insert(s.id(), d);
+
+		// If it has no categories then insert at root level.
+		if (s.categories().isEmpty()) {
+			FeedItem* feed = new FeedItem(&root_, d);
+			root_.appendChild(feed);
+
+			continue;
+		}
+
+		typedef QPair<QString, QString> Category;
+		// Insert a FeedItem under every category.
+		foreach (Category c, s.categories()) {
+			qDebug() << "Adding category..." << c.first << c.second;
+			TreeItem* parent = 0;
+			if (folder_mappings_.contains(c.first)) {
+				parent = folder_mappings_[c.first];
+			} else {
+				FolderItem* f = new FolderItem(&root_, c.first, c.second);
+				root_.appendChild(f);
+				folder_mappings_.insert(c.first, f);
+				parent = f;
+			}
+
+			FeedItem* feed = new FeedItem(parent, d);
+			parent->appendChild(feed);
+		}
 	}
 
+	// Notify the view that the model has changed.
 	emit reset();
 }
 
@@ -211,7 +239,7 @@ void FeedsModel::subscriptionUpdated(AtomFeed feed) {
 
 	qDebug() << "Update for..." << atom_id;
 
-	QMap<QString, FeedItem*>::iterator it = id_mappings_.find(atom_id);
+	QMap<QString, FeedItem::Data*>::iterator it = id_mappings_.find(atom_id);
 	if (it != id_mappings_.end()) {
 		(*it)->update(feed);
 	}

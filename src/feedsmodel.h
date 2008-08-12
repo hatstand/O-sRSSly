@@ -4,12 +4,16 @@
 #include "atomfeed.h"
 #include "subscriptionlist.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <QAbstractItemModel>
 #include <QMap>
 #include <QModelIndex>
 #include <QUrl>
 
 class ReaderApi;
+
+using boost::shared_ptr;
 
 class TreeItem {
 public:
@@ -42,22 +46,31 @@ class FeedsModel;
 
 class FeedItem : public TreeItem {
 public:
-	FeedItem(TreeItem* parent, const Subscription& s);
+	struct Data {
+		Data(const Subscription& s) : subscription_(s) {}
+		void update(const AtomFeed& feed);
+		Subscription subscription_;
+		AtomFeed feed_;
+	};
+
+	FeedItem(TreeItem* parent, Data* data);
 	int columnCount() const;
 	QVariant data(int column) const;
 	TreeItem::Type rtti() const { return TreeItem::Feed; }
-	void update(const AtomFeed& feed);
-	const Subscription& subscription() const { return subscription_; }
+	const Subscription& subscription() const { return data_->subscription_; }
+
 private:
-	Subscription subscription_;
-	AtomFeed feed_;
+	shared_ptr<Data> data_;
 };
 
 class FolderItem : public TreeItem {
 public:
-	FolderItem(TreeItem* parent, const QString& name);
+	FolderItem(TreeItem* parent, const QString& id, const QString& name);
 	int columnCount() const;
 	TreeItem::Type rtti() const { return TreeItem::Folder; }
+
+private:
+	QString id_;
 };
 
 
@@ -91,7 +104,8 @@ private slots:
 private:
 	FolderItem root_;	
 	ReaderApi* api_;
-	QMap<QString, FeedItem*> id_mappings_;
+	QMap<QString, FeedItem::Data*> id_mappings_;
+	QMap<QString, FolderItem*> folder_mappings_;
 };
 
 
