@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>865</width>
-    <height>650</height>
+    <width>996</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,8 +17,8 @@
     <rect>
      <x>0</x>
      <y>28</y>
-     <width>865</width>
-     <height>597</height>
+     <width>996</width>
+     <height>671</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout" >
@@ -48,7 +48,14 @@
        <property name="orientation" >
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QListView" name="articles_" />
+       <widget class="QTableView" name="entries_" >
+        <property name="selectionBehavior" >
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="sortingEnabled" >
+         <bool>true</bool>
+        </property>
+       </widget>
        <widget class="QTextBrowser" name="contents_" />
       </widget>
      </widget>
@@ -60,7 +67,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>865</width>
+     <width>996</width>
      <height>28</height>
     </rect>
    </property>
@@ -77,8 +84,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>625</y>
-     <width>865</width>
+     <y>699</y>
+     <width>996</width>
      <height>25</height>
     </rect>
    </property>

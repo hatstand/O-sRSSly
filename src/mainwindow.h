@@ -1,4 +1,5 @@
 #include <QMainWindow>
+#include <QModelIndex>
 
 #include "ui_mainwindow.h"
 
@@ -13,6 +14,9 @@ public:
 
 public slots:
 	void showConfigure();
+
+private slots:
+	void subscriptionSelected(const QModelIndex& index);
 	
 private:
 	Ui_MainWindow ui_;

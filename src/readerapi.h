@@ -39,7 +39,7 @@ private slots:
 signals:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList);
-	void subscriptionArrived(AtomFeed);
+	void subscriptionArrived(AtomFeed*);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 

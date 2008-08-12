@@ -65,7 +65,7 @@ QVariant FeedItem::data(int column) const {
 
 void FeedItem::Data::update(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__;
-	feed_ = feed;
+	feed_.merge(feed);
 }
 
 FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
@@ -84,7 +84,7 @@ FeedsModel::FeedsModel(QObject* parent)
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
-	connect(api_, SIGNAL(subscriptionArrived(AtomFeed)), SLOT(subscriptionUpdated(AtomFeed)));
+	connect(api_, SIGNAL(subscriptionArrived(AtomFeed*)), SLOT(subscriptionUpdated(AtomFeed*)));
 
 	api_->login();
 }
@@ -233,16 +233,18 @@ void FeedsModel::update(const QModelIndex& index) {
 	api_->getSubscription(feed->subscription());
 }
 
-void FeedsModel::subscriptionUpdated(AtomFeed feed) {
-	QString atom_id(feed.id());
+void FeedsModel::subscriptionUpdated(AtomFeed* feed) {
+	QString atom_id(feed->id());
 	atom_id.remove(QRegExp("^tag:google.com,2005:reader/"));
 
 	qDebug() << "Update for..." << atom_id;
 
 	QMap<QString, FeedItem::Data*>::iterator it = id_mappings_.find(atom_id);
 	if (it != id_mappings_.end()) {
-		(*it)->update(feed);
+		(*it)->update(*feed);
 	}
+
+	delete feed;
 }
 
 bool FeedsModel::canFetchMore(const QModelIndex& index) const {
@@ -265,4 +267,17 @@ void FeedsModel::fetchMore(const QModelIndex& index) {
 		FeedItem* feed = static_cast<FeedItem*>(index.internalPointer());
 		api_->getSubscription(feed->subscription());
 	}
+}
+
+QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) {
+	if (!index.isValid())
+		return 0;
+	
+	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+	if (item->rtti() == TreeItem::Feed) {
+		FeedItem* feed = static_cast<FeedItem*>(item);
+		return feed->entries();
+	}
+
+	return 0;
 }

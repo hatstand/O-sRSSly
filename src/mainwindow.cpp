@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.contents_->setPlainText("Hello, World!");
 
 	ui_.feeds_->setModel(feeds_model_);
+
+	connect(ui_.feeds_, SIGNAL(activated(const QModelIndex&)),
+		SLOT(subscriptionSelected(const QModelIndex&)));
 }
 
 MainWindow::~MainWindow() {
@@ -21,4 +24,13 @@ MainWindow::~MainWindow() {
 
 void MainWindow::showConfigure() {
 	configure_dialog_->show();
+}
+
+void MainWindow::subscriptionSelected(const QModelIndex& index) {
+	qDebug() << __PRETTY_FUNCTION__;
+	QAbstractItemModel* model = feeds_model_->getEntries(index);
+	if (model) {
+		ui_.entries_->setModel(model);
+		ui_.entries_->resizeColumnToContents(0);
+	}
 }

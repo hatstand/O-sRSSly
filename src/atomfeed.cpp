@@ -80,7 +80,7 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 			else if (s.name() == "id")
 				m_id = s.readElementText();
 			else if (s.name() == "entry")
-				m_entries << AtomEntry(s);
+				m_entries.insert(AtomEntry(s));
 			else
 				ignoreElement(s);
 			
@@ -95,6 +95,69 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 			break;
 		}
 	}
+}
+
+void AtomFeed::merge(const AtomFeed& other) {
+	if (m_id != "" && m_id != other.m_id) {
+		qWarning() << "Attempting to merge non-matching feeds";
+		qDebug() << m_id << other.m_id;
+		return;
+	}
+
+	foreach (AtomEntry e, other.m_entries) {
+		m_entries.insert(e);
+	}
+
+	emit reset();
+}
+
+int AtomFeed::columnCount(const QModelIndex& parent) const {
+	// title, read/unread
+	return 2;
+}
+
+QVariant AtomFeed::data(const QModelIndex& index, int role) const {
+	if (!index.isValid())
+		return QVariant();
+	
+	if (role != Qt::DisplayRole)
+		return QVariant();
+	
+	if (index.row() > m_entries.size())
+		return QVariant();
+
+	// Ick
+	std::set<AtomEntry>::const_iterator it = m_entries.begin();
+	std::advance(it, index.row());
+
+	switch (index.column()) {
+		case 0:
+			return it->title;
+		case 1:
+			return (it->read ? "Read" : "Unread");
+		default:
+			return QVariant();
+	}
+}
+
+int AtomFeed::rowCount(const QModelIndex& parent) const {
+	return m_entries.size();
+}
+
+QVariant AtomFeed::headerData(int section, Qt::Orientation orientation, int role) const {
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+		switch (section) {
+			case 0:
+				return "Summary";
+			case 1:
+				return "Read/Unread";
+
+			default:
+				return QVariant();
+		}
+	}
+
+	return QVariant();
 }
 
 AtomEntry::AtomEntry(QXmlStreamReader& s)
@@ -114,6 +177,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				summary = s.readElementText();
 			else if (s.name() == "category" && s.attributes().value("label") == "read")
 				read = true;
+			else if (s.name() == "updated")
+				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
 			else
 				ignoreElement(s);
 			

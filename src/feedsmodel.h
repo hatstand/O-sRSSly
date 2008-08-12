@@ -58,6 +58,7 @@ public:
 	QVariant data(int column) const;
 	TreeItem::Type rtti() const { return TreeItem::Feed; }
 	const Subscription& subscription() const { return data_->subscription_; }
+	AtomFeed* entries() { return &data_->feed_; }
 
 private:
 	shared_ptr<Data> data_;
@@ -95,11 +96,12 @@ public:
 	TreeItem* root();
 
 	void update(const QModelIndex& index);
+	QAbstractItemModel* getEntries(const QModelIndex& index);
 
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
-	void subscriptionUpdated(AtomFeed feed);
+	void subscriptionUpdated(AtomFeed* feed);
 
 private:
 	FolderItem root_;	

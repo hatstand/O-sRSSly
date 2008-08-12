@@ -210,12 +210,14 @@ void ReaderApi::getSubscriptionComplete() {
 	qDebug() << __PRETTY_FUNCTION__;
 
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
-	AtomFeed feed(reply);
+	AtomFeed* feed = new AtomFeed(reply);
 
-	if (!feed.hasError())
+	if (!feed->hasError())
 		emit subscriptionArrived(feed);
-	else
+	else {
 		qWarning() << "Error parsing feed:" << reply->url();
+		delete feed;
+	}
 
 	reply->deleteLater();
 }
