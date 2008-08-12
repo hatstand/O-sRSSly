@@ -91,6 +91,10 @@ void Subscription::parseCategory(QXmlStreamReader& s) {
 	}
 }
 
+SubscriptionList::SubscriptionList(const SubscriptionList& other) {
+	subscriptions_ = other.subscriptions_;
+}
+
 SubscriptionList::SubscriptionList(QXmlStreamReader& s) {
 	bool inside_list = false;
 	while (!s.atEnd()) {

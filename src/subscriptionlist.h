@@ -28,6 +28,7 @@ private:
 class SubscriptionList : public QObject {
 	Q_OBJECT
 public:
+	SubscriptionList(const SubscriptionList& other);
 	SubscriptionList(QXmlStreamReader& s);
 	const QList<Subscription>& subscriptions() const { return subscriptions_; }  
 private:

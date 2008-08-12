@@ -3,6 +3,7 @@
 
 #include "apiaction.h"
 #include "atomfeed.h"
+#include "subscriptionlist.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -16,6 +17,7 @@ public:
 	virtual ~ReaderApi();
 
 	bool isLoggedIn();
+	void login();
 	void getSubscriptionList();
 	void getUnread();
 	void setRead(const AtomEntry& e);
@@ -33,11 +35,16 @@ private slots:
 	void processActionQueue();
 
 signals:
+	void loggedIn();
+	void subscriptionListArrived(SubscriptionList);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 
 private:
 	QNetworkAccessManager* network_;
+
+	QString username_;
+	QString password_;
 
 	// Needed for editing things on Reader
 	QString auth_;

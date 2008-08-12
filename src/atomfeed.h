@@ -16,6 +16,7 @@ public:
 	QString id;
 	QString summary;
 	QString content;
+	bool read;
 };
 
 QDebug operator <<(QDebug dbg, const AtomEntry& e);

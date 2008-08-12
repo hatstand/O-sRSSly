@@ -1,4 +1,5 @@
 #include "feedsmodel.h"
+#include "readerapi.h"
 
 TreeItem::TreeItem(TreeItem* parent, const QString& title)
 	: parent_(parent), title_(title) {
@@ -70,7 +71,14 @@ int FolderItem::columnCount() const {
 
 
 FeedsModel::FeedsModel(QObject* parent)
-	: QAbstractItemModel(parent), root_(0, "/") {
+	: QAbstractItemModel(parent), root_(0, "/"),
+		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)) {
+
+	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
+	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
+		SLOT(subscriptionListArrived(SubscriptionList)));
+
+	api_->login();
 }
 
 FeedsModel::~FeedsModel() {
@@ -136,6 +144,9 @@ QModelIndex FeedsModel::parent(const QModelIndex& index) const {
 	if (parent_item == &root_)
 		return QModelIndex();
 
+	if (!parent_item)
+		return QModelIndex();
+
 	return createIndex(parent_item->row(), 0, parent_item);
 }
 
@@ -154,4 +165,29 @@ int FeedsModel::rowCount(const QModelIndex& parent) const {
 
 TreeItem* FeedsModel::root() {
 	return &root_;
+}
+
+void FeedsModel::loggedIn() {
+	api_->getSubscriptionList();
+}
+
+void FeedsModel::subscriptionListArrived(SubscriptionList list) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	FeedItem* begin = 0;
+	FeedItem* end = 0;
+
+	foreach (Subscription s, list.subscriptions()) {
+		qDebug() << "Adding..." << s.title();
+		FeedItem* feed = new FeedItem(&root_, s.title(),
+			QUrl("http://www.google.com/reader/atom/" + s.id()));
+		root_.appendChild(feed);
+
+		if (!begin)
+			begin = feed;
+
+		end = feed;
+	}
+
+	emit reset();
 }

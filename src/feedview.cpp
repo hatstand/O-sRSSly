@@ -24,6 +24,9 @@ FeedView::~FeedView() {
 
 void FeedView::contextMenuEvent(QContextMenuEvent* event) {
 	clicked_index_ = indexAt(event->pos());
+	if (!clicked_index_.isValid())
+		return;
+
 	TreeItem* item = static_cast<TreeItem*>(clicked_index_.internalPointer());
 
 	QPoint global_pos = mapToGlobal(event->pos());

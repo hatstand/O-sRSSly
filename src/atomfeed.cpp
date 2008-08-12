@@ -9,7 +9,7 @@ using namespace XmlUtils;
 
 QDebug operator <<(QDebug dbg, const AtomEntry& e)
 {
-	dbg.nospace() << "AtomEntry(" << e.title << ", " << e.id << ")";
+	dbg.nospace() << "AtomEntry(" << e.title << ", " << e.id << ", " << (e.read ? "read" : "unread") << ")";
 	return dbg.space();
 }
 
@@ -94,6 +94,7 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 }
 
 AtomEntry::AtomEntry(QXmlStreamReader& s)
+	: read(false)
 {
 	while (!s.atEnd())
 	{
@@ -107,6 +108,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				id = s.readElementText();
 			else if (s.name() == "summary")
 				summary = s.readElementText();
+			else if (s.name() == "category" && s.attributes().value("label") == "read")
+				read = true;
 			else
 				ignoreElement(s);
 			

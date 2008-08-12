@@ -1,10 +1,13 @@
 #ifndef FEEDS_MODEL_H
 #define FEEDS_MODEL_H
 
+#include "subscriptionlist.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QUrl>
+
+class ReaderApi;
 
 class TreeItem {
 public:
@@ -69,8 +72,13 @@ public:
 
 	TreeItem* root();
 
+private slots:
+	void loggedIn();
+	void subscriptionListArrived(SubscriptionList list);
+
 private:
 	FolderItem root_;	
+	ReaderApi* api_;
 };
 
 
