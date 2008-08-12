@@ -13,6 +13,10 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e)
 	return dbg.space();
 }
 
+AtomFeed::AtomFeed() {
+	init();
+}
+
 AtomFeed::AtomFeed(const QString& fileName)
 {
 	init();

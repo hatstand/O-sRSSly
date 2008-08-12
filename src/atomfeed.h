@@ -24,6 +24,7 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e);
 class AtomFeed
 {
 public:
+	AtomFeed();
 	AtomFeed(const QString& fileName);
 	AtomFeed(QIODevice* device);
 	~AtomFeed();

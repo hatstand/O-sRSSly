@@ -40,6 +40,10 @@ void FeedView::contextMenuEvent(QContextMenuEvent* event) {
 
 void FeedView::updateClicked() {
 	qDebug() << __PRETTY_FUNCTION__;
+
+	if (clicked_index_.isValid() && model()->canFetchMore(clicked_index_)) {
+		model()->fetchMore(clicked_index_);
+	}
 }
 
 void FeedView::renameFeedClicked() {

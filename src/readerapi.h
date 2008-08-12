@@ -19,6 +19,7 @@ public:
 	bool isLoggedIn();
 	void login();
 	void getSubscriptionList();
+	void getSubscription(const Subscription& s);
 	void getUnread();
 	void setRead(const AtomEntry& e);
 
@@ -28,6 +29,7 @@ private:
 private slots:
 	void loginComplete();
 	void getSubscriptionListComplete();
+	void getSubscriptionComplete();
 	void getUnreadComplete();
 	void getTokenComplete();
 	void networkError(QNetworkReply::NetworkError code);
@@ -37,6 +39,7 @@ private slots:
 signals:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList);
+	void subscriptionArrived(AtomFeed);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 
@@ -71,6 +74,8 @@ private:
 	static const QUrl kTokenUrl;
 	
 	static const QUrl kEditTagUrl;
+
+	static const QUrl kAtomUrl;
 };
 
 #endif

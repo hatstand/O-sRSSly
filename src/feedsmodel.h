@@ -1,9 +1,11 @@
 #ifndef FEEDS_MODEL_H
 #define FEEDS_MODEL_H
 
+#include "atomfeed.h"
 #include "subscriptionlist.h"
 
 #include <QAbstractItemModel>
+#include <QMap>
 #include <QModelIndex>
 #include <QUrl>
 
@@ -36,14 +38,19 @@ protected:
 	QString title_;
 };
 
+class FeedsModel;
+
 class FeedItem : public TreeItem {
 public:
-	FeedItem(TreeItem* parent, const QString& name, const QUrl& url);
+	FeedItem(TreeItem* parent, const Subscription& s);
 	int columnCount() const;
 	QVariant data(int column) const;
 	TreeItem::Type rtti() const { return TreeItem::Feed; }
+	void update(const AtomFeed& feed);
+	const Subscription& subscription() const { return subscription_; }
 private:
-	QUrl url_;
+	Subscription subscription_;
+	AtomFeed feed_;
 };
 
 class FolderItem : public TreeItem {
@@ -60,7 +67,9 @@ public:
 	FeedsModel(QObject* parent = 0);
 	~FeedsModel();
 
+	virtual bool canFetchMore(const QModelIndex& index) const;
 	QVariant data(const QModelIndex& index, int role) const;
+	virtual void fetchMore(const QModelIndex& index);
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	QVariant headerData(int section, Qt::Orientation orientation,
 		int role = Qt::DisplayRole) const;
@@ -72,13 +81,17 @@ public:
 
 	TreeItem* root();
 
+	void update(const QModelIndex& index);
+
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
+	void subscriptionUpdated(AtomFeed feed);
 
 private:
 	FolderItem root_;	
 	ReaderApi* api_;
+	QMap<QString, FeedItem*> id_mappings_;
 };
 
 

@@ -27,6 +27,9 @@ const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
 // Edit Urls
 const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/subscription/edit-tag");
 
+// Atom feed url base
+const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
+
 
 ReaderApi::ReaderApi(const QString& username, const QString& password, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
@@ -191,4 +194,28 @@ void ReaderApi::processActionQueue() {
 	} else if (token_.isEmpty() && !getting_token_) {
 		getToken();
 	}
+}
+
+void ReaderApi::getSubscription(const Subscription& s) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QNetworkRequest req((kAtomUrl.toString() + s.id()));
+	QNetworkReply* reply = network_->get(req);
+	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionComplete()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::getSubscriptionComplete() {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+	AtomFeed feed(reply);
+
+	if (!feed.hasError())
+		emit subscriptionArrived(feed);
+	else
+		qWarning() << "Error parsing feed:" << reply->url();
+
+	reply->deleteLater();
 }
