@@ -98,7 +98,7 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 }
 
 void AtomFeed::merge(const AtomFeed& other) {
-	if (m_id != "" && m_id != other.m_id) {
+	if (!m_id.isEmpty() && m_id != other.m_id) {
 		qWarning() << "Attempting to merge non-matching feeds";
 		qDebug() << m_id << other.m_id;
 		return;
