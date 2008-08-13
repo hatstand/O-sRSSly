@@ -1,7 +1,6 @@
 #ifndef ATOMFEED_H
 #define ATOMFEED_H
 
-#include <QAbstractTableModel>
 #include <QDateTime>
 #include <QString>
 #include <QXmlStreamReader> // Do not change to class QXmlStreamReader (gcc 4.0.1)
@@ -34,7 +33,7 @@ struct AtomCompare {
 
 QDebug operator <<(QDebug dbg, const AtomEntry& e);
 
-class AtomFeed : public QAbstractTableModel
+class AtomFeed
 {
 public:
 	AtomFeed();
@@ -49,12 +48,6 @@ public:
 	const std::set<AtomEntry, AtomCompare>& entries() const { return m_entries; }
 
 	void merge(const AtomFeed& other);
-
-	// QAbstractTableModel
-	virtual int columnCount(const QModelIndex& parent) const;
-	virtual QVariant data(const QModelIndex& index, int role) const;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	virtual int rowCount(const QModelIndex& parent) const;
 
 private:
 	void init();
