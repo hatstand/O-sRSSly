@@ -3,80 +3,6 @@
 
 #include <QRegExp>
 
-TreeItem::TreeItem(TreeItem* parent, const QString& title)
-	: parent_(parent), title_(title) {
-	
-}
-
-void TreeItem::appendChild(TreeItem* child) {
-	children_ << child;
-}
-
-TreeItem* TreeItem::child(int row) {
-	return children_.at(row);
-}
-
-int TreeItem::childCount() const {
-	return children_.size();
-}
-
-TreeItem* TreeItem::parent() {
-	return parent_;
-}
-
-QString TreeItem::title() const {
-	return title_;
-}
-
-int TreeItem::row() const {
-	if (parent_)
-		return parent_->children_.indexOf(const_cast<TreeItem*>(this));
-
-	return 0;
-}
-
-QVariant TreeItem::data(int column) const {
-	if (column == 0)
-		return title_;
-	
-	return QVariant();
-}
-
-
-
-FeedItem::FeedItem(TreeItem* parent, Data* data)
-	: TreeItem(parent, data->subscription_.title()), data_(data) {
-}
-
-int FeedItem::columnCount() const {
-	return 2;
-}
-
-QVariant FeedItem::data(int column) const {
-	switch (column) {
-		case 0:
-			return title_;
-		case 1:
-			return data_->subscription_.id();
-		default:
-			return QVariant();
-	}
-}
-
-void FeedItem::Data::update(const AtomFeed& feed) {
-	qDebug() << __PRETTY_FUNCTION__;
-	feed_.merge(feed);
-}
-
-FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
-	: TreeItem(parent, name), id_(id) {
-}
-
-int FolderItem::columnCount() const {
-	return 1;
-}
-
-
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent), root_(0, "Root-Id", "/"),
 		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)) {
@@ -274,10 +200,5 @@ QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) {
 		return 0;
 	
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-	if (item->rtti() == TreeItem::Feed) {
-		FeedItem* feed = static_cast<FeedItem*>(item);
-		return feed->entries();
-	}
-
-	return 0;
+	return item;
 }

@@ -3,12 +3,15 @@ SET(FEEDER-SOURCES
 	apiaction.cpp
 	atomfeed.cpp
 	configuredialog.cpp
+	feeditem.cpp
 	feedsmodel.cpp
 	feedview.cpp
+	folderitem.cpp
 	readerapi.cpp
 	main.cpp
 	mainwindow.cpp
 	subscriptionlist.cpp
+	treeitem.cpp
 	xmlutils.cpp
 )
 
@@ -16,11 +19,14 @@ SET(FEEDER-SOURCES
 SET(FEEDER-MOC-HEADERS
 	apiaction.h
 	configuredialog.h
+	feeditem.h
 	feedsmodel.h
 	feedview.h
+	folderitem.h
 	mainwindow.h
 	readerapi.h
 	subscriptionlist.h
+	treeitem.h
 )
 
 # UI files
