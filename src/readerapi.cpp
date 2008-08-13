@@ -70,7 +70,7 @@ void ReaderApi::loginComplete() {
 
 	QStringList list = data.split('\n');
 	QMap<QString, QString> auth;
-	foreach (QString s, list) {
+	foreach (const QString& s, list) {
 		if (s.isEmpty())
 			continue;
 
@@ -116,7 +116,7 @@ void ReaderApi::getSubscriptionListComplete() {
 
 	QXmlStreamReader s(xml);
 	SubscriptionList list(s);
-	foreach (Subscription sub, list.subscriptions()) {
+	foreach (const Subscription& sub, list.subscriptions()) {
 		qDebug() << sub;
 	}
 

@@ -182,7 +182,7 @@ void FeedsModel::loggedIn() {
 void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	qDebug() << __PRETTY_FUNCTION__;
 
-	foreach (Subscription s, list.subscriptions()) {
+	foreach (const Subscription& s, list.subscriptions()) {
 		qDebug() << "Adding..." << s.title();
 
 		// Create actual shared data.
@@ -200,7 +200,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 		typedef QPair<QString, QString> Category;
 		// Insert a FeedItem under every category.
-		foreach (Category c, s.categories()) {
+		foreach (const Category& c, s.categories()) {
 			qDebug() << "Adding category..." << c.first << c.second;
 			TreeItem* parent = 0;
 			if (folder_mappings_.contains(c.first)) {

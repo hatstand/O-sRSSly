@@ -126,7 +126,7 @@ QDebug operator <<(QDebug dbg, const Subscription& s) {
 	dbg.nospace() << "Subscription(" << s.id() << ", " << s.title() << ", " << s.sortid() << ", Categories(";
 	
 	typedef QPair<QString, QString> Category;
-	foreach (Category c, s.categories()) {
+	foreach (const Category& c, s.categories()) {
 		dbg.nospace() << "[" << c.first << ", " << c.second << "],";
 	}
 

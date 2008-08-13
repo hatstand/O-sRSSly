@@ -104,7 +104,7 @@ void AtomFeed::merge(const AtomFeed& other) {
 		return;
 	}
 
-	foreach (AtomEntry e, other.m_entries) {
+	foreach (const AtomEntry& e, other.m_entries) {
 		m_entries.insert(e);
 	}
 
