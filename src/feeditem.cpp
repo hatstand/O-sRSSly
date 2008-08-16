@@ -28,8 +28,7 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
 	
-	std::set<AtomEntry>::const_iterator it = data_->feed_.entries().begin();
-	std::advance(it, index.row());
+	AtomFeed::AtomList::const_iterator it = data_->feed_.entries().begin() + index.row();
 
 	switch (index.column()) {
 		case 0:

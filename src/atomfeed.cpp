@@ -7,6 +7,11 @@
 
 using namespace XmlUtils;
 
+std::size_t hash_value(const QString& s)
+{
+	return qHash(s);
+}
+
 QDebug operator <<(QDebug dbg, const AtomEntry& e)
 {
 	dbg.nospace() << "AtomEntry(" << e.title << ", " << e.id << ", " << (e.read ? "read" : "unread") << ")";
@@ -147,9 +152,9 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
 {
 	dbg.nospace() << "AtomFeed(" << f.title() << ", " << f.id() << ")\n";
-	foreach (const AtomEntry& e, f.entries())
+	for(AtomFeed::AtomList::const_iterator it = f.entries().begin(); it != f.entries().end(); ++it)
 	{
-		dbg.nospace() << "  " << e;
+		dbg.nospace() << "  " << *it;
 		dbg.nospace() << "\n";
 	}
 	return dbg.space();
