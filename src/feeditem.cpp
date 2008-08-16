@@ -28,13 +28,13 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
 	
-	AtomFeed::AtomList::const_iterator it = data_->feed_.entries().begin() + index.row();
+	const AtomEntry& e = data_->feed_.entries()[index.row()];
 
 	switch (index.column()) {
 		case 0:
-			return it->title;
+			return e.title;
 		case 1:
-			return (it->read ? "Read" : "Unread");
+			return (e.read ? "Read" : "Unread");
 		default:
 			return QVariant();
 	}
