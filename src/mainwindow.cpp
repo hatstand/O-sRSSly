@@ -10,12 +10,15 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionSettings, SIGNAL(activated()), SLOT(showConfigure()));
 
-	ui_.contents_->setPlainText("Hello, World!");
+	ui_.contents_->setContent("Hello, World!");
 
 	ui_.feeds_->setModel(feeds_model_);
 
 	connect(ui_.feeds_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(subscriptionSelected(const QModelIndex&)));
+
+	connect(ui_.entries_, SIGNAL(activated(const QModelIndex&)),
+		SLOT(entrySelected(const QModelIndex&)));
 }
 
 MainWindow::~MainWindow() {
@@ -33,4 +36,10 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 		ui_.entries_->setModel(model);
 		ui_.entries_->resizeColumnToContents(0);
 	}
+}
+
+void MainWindow::entrySelected(const QModelIndex& index) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	ui_.contents_->setContent(static_cast<const TreeItem*>(index.model())->summary(index).toUtf8());
 }

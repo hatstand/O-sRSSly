@@ -26,6 +26,8 @@ public:
 	const Subscription& subscription() const { return data_->subscription_; }
 	AtomFeed* entries() { return &data_->feed_; }
 
+	virtual QString summary(const QModelIndex& index) const;
+
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;
 	virtual int rowCount(const QModelIndex& parent) const;

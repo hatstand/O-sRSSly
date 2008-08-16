@@ -56,7 +56,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="contents_" />
+       <widget class="QWebView" name="contents_" />
       </widget>
      </widget>
     </item>

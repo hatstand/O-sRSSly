@@ -25,6 +25,8 @@ public:
 
 	QString title() const;
 
+	virtual QString summary(const QModelIndex& index) const = 0;
+
 	// QAbstractTableModel
 	virtual int columnCount(const QModelIndex& parent) const;
 	virtual QVariant data(const QModelIndex& index, int role) const = 0;

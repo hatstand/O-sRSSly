@@ -22,7 +22,7 @@ QVariant FolderItem::data(const QModelIndex& index, int role) const {
 	int row_index = index.row() - rows + (*it)->rowCount(index);
 
 	if (it == children_.end()) {
-		qDebug() << "Reached end";
+		qWarning() << "Reached end";
 		return QVariant();
 	}
 	
@@ -38,3 +38,22 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 	return rows;
 }
 
+
+QString FolderItem::summary(const QModelIndex& index) const {
+	int rows = 0;
+
+	QList<TreeItem*>::const_iterator it = children_.begin();
+
+	while (!(index.row() <= (rows += (*it)->rowCount(index)))) {
+		++it;
+	}
+
+	int row_index = index.row() - rows + (*it)->rowCount(index);
+
+	if (it == children_.end()) {
+		qWarning() << "Reached end.";
+		return QString();
+	}
+
+	return (*it)->summary((*it)->index(row_index, index.column()));
+}

@@ -17,6 +17,7 @@ public slots:
 
 private slots:
 	void subscriptionSelected(const QModelIndex& index);
+	void entrySelected(const QModelIndex& index);
 	
 private:
 	Ui_MainWindow ui_;
