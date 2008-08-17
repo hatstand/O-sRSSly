@@ -11,22 +11,8 @@ int FolderItem::columnCount() const {
 }
 
 QVariant FolderItem::data(const QModelIndex& index, int role) const {
-	int rows = 0;
-
-	QList<TreeItem*>::const_iterator it = children_.begin();
-
-	while (!(index.row() <= (rows += (*it)->rowCount(index)))) {
-		++it;
-	}
-
-	int row_index = index.row() - rows + (*it)->rowCount(index);
-
-	if (it == children_.end()) {
-		qWarning() << "Reached end";
-		return QVariant();
-	}
-	
-	return (*it)->data((*it)->index(row_index, index.column()), role);
+	QModelIndex item = getItem(index);
+	return item.model()->data(item, role);
 }
 
 int FolderItem::rowCount(const QModelIndex& parent) const {
@@ -40,20 +26,26 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 
 
 QString FolderItem::summary(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	return static_cast<const TreeItem*>(item.model())->summary(item);
+}
+
+QModelIndex FolderItem::getItem(const QModelIndex& index) const {
 	int rows = 0;
 
 	QList<TreeItem*>::const_iterator it = children_.begin();
 
-	while (!(index.row() <= (rows += (*it)->rowCount(index)))) {
+	while (index.row() > (rows += (*it)->rowCount(index))) {
 		++it;
+	}
+
+	if (it == children_.end()) {
+		qWarning() << "Reached end";
+		return QModelIndex();
 	}
 
 	int row_index = index.row() - rows + (*it)->rowCount(index);
 
-	if (it == children_.end()) {
-		qWarning() << "Reached end.";
-		return QString();
-	}
-
-	return (*it)->summary((*it)->index(row_index, index.column()));
+	return (*it)->index(row_index, index.column());
 }
