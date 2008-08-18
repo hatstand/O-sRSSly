@@ -52,3 +52,18 @@ QString FeedItem::summary(const QModelIndex& index) const {
 const AtomEntry& FeedItem::entry(const QModelIndex& index) const {
 	return data_->feed_.entries()[index.row()];
 }
+
+void FeedItem::setRead(const QModelIndex& index) {
+	qDebug() << __PRETTY_FUNCTION__;
+	if (!index.isValid())
+		return;
+
+	const AtomEntry& e = data_->feed_.entries()[index.row()];
+	if (e.read)
+		return;
+	
+	data_->feed_.setRead(e);
+
+	QModelIndex top_left = createIndex(index.row(), 1);
+	emit dataChanged(top_left, top_left);
+}

@@ -28,6 +28,7 @@ public:
 	const AtomEntry& entry(const QModelIndex& index) const;
 
 	virtual QString summary(const QModelIndex& index) const;
+	void setRead(const QModelIndex& index);
 
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;

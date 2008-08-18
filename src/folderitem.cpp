@@ -55,3 +55,13 @@ const AtomEntry& FolderItem::entry(const QModelIndex& index) const {
 
 	return static_cast<const TreeItem*>(item.model())->entry(item);
 }
+
+void FolderItem::setRead(const QModelIndex& index) {
+	if (!index.isValid())
+		return;
+	
+	QModelIndex i = getItem(index);
+
+	TreeItem* item = const_cast<TreeItem*>(static_cast<const TreeItem*>(i.model()));
+	item->setRead(i);
+}

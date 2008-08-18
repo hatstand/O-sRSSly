@@ -114,6 +114,17 @@ void AtomFeed::merge(const AtomFeed& other) {
 	}
 }
 
+void AtomFeed::setRead(const AtomEntry& e) {
+	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
+
+	if (it != m_entries.get<hash>().end()) {
+		AtomEntry f(*it);
+		f.read = true;
+
+		m_entries.get<hash>().replace(it, f);
+	}
+}
+
 AtomEntry::AtomEntry(QXmlStreamReader& s)
 	: read(false)
 {

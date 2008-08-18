@@ -75,6 +75,8 @@ public:
 
 	void merge(const AtomFeed& other);
 
+	void setRead(const AtomEntry& e);
+
 private:
 	void init();
 	void parse(QIODevice* device);

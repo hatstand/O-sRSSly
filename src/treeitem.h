@@ -30,6 +30,7 @@ public:
 	virtual QString summary(const QModelIndex& index) const = 0;
 
 	virtual const AtomEntry& entry(const QModelIndex& index) const = 0;
+	virtual void setRead(const QModelIndex& index) = 0;
 
 	// QAbstractTableModel
 	virtual int columnCount(const QModelIndex& parent) const;
