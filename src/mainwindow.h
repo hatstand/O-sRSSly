@@ -1,12 +1,16 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
+#include <boost/scoped_ptr.hpp>
+
 #include "ui_mainwindow.h"
 
 class ConfigureDialog;
 class FeedsModel;
 class Database;
 class QSortFilterProxyModel;
+
+using boost::scoped_ptr;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -32,6 +36,6 @@ private:
 
 	ConfigureDialog* configure_dialog_;
 	
-	Database* database_;
+	scoped_ptr<Database> database_;
 
 };

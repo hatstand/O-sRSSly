@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 }
 
 MainWindow::~MainWindow() {
-	delete database_;
 }
 
 void MainWindow::showConfigure() {
