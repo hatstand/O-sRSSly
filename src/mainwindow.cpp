@@ -2,9 +2,12 @@
 #include "feedsmodel.h"
 #include "mainwindow.h"
 
+#include <QSortFilterProxyModel>
+
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags), feeds_model_(new FeedsModel(this)),
-	  feed_menu_(new QMenu(this)), configure_dialog_(new ConfigureDialog(this)) {
+	  sorted_entries_(0), feed_menu_(new QMenu(this)),
+	  configure_dialog_(new ConfigureDialog(this)) {
 	ui_.setupUi(this);
 
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
@@ -33,22 +36,29 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
 	QAbstractItemModel* model = feeds_model_->getEntries(index);
 	if (model) {
-		ui_.entries_->setModel(model);
+		if (!sorted_entries_) {
+			sorted_entries_ = new QSortFilterProxyModel(model);
+			ui_.entries_->setModel(sorted_entries_);
+		} else {
+			sorted_entries_->setSourceModel(model);
+		}
 		ui_.entries_->resizeColumnToContents(0);
 	}
 }
 
 void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
+	
+	QModelIndex real_index = sorted_entries_->mapToSource(index);
 
-	const TreeItem* item = static_cast<const TreeItem*>(index.model());
+	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
-	ui_.contents_->setContent(item->summary(index).toUtf8());
+	ui_.contents_->setContent(item->summary(real_index).toUtf8());
 
 	// Set read on server.
-	const AtomEntry& e = item->entry(index);
+	const AtomEntry& e = item->entry(real_index);
 	feeds_model_->setRead(e);
 
 	// Set read locally.
-	const_cast<TreeItem*>(item)->setRead(index);
+	const_cast<TreeItem*>(item)->setRead(real_index);
 }

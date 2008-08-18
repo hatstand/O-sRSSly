@@ -5,6 +5,7 @@
 
 class ConfigureDialog;
 class FeedsModel;
+class QSortFilterProxyModel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -23,6 +24,7 @@ private:
 	Ui_MainWindow ui_;
 
 	FeedsModel* feeds_model_;
+	QSortFilterProxyModel* sorted_entries_;
 	QMenu* feed_menu_;
 
 	ConfigureDialog* configure_dialog_;
