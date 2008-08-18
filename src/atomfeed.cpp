@@ -208,6 +208,8 @@ QList<AtomFeed*> AtomFeed::loadAll()
 	while (query.next())
 	{
 	}
+
+	return ret;
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
