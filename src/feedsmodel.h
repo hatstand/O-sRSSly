@@ -15,12 +15,14 @@ class AtomFeed;
 class ReaderApi;
 class TreeItem;
 
+// A tree model representing all the subscriptions and associated tags/folders.
 class FeedsModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	FeedsModel(QObject* parent = 0);
 	~FeedsModel();
 
+	// Whether there is more data we can get from Google.
 	virtual bool canFetchMore(const QModelIndex& index) const;
 	QVariant data(const QModelIndex& index, int role) const;
 	virtual void fetchMore(const QModelIndex& index);

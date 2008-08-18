@@ -187,6 +187,7 @@ bool FeedsModel::canFetchMore(const QModelIndex& index) const {
 }
 
 void FeedsModel::fetchMore(const QModelIndex& index) {
+	qDebug() << __PRETTY_FUNCTION__;
 	if (!index.isValid())
 		return;
 

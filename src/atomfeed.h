@@ -15,6 +15,7 @@
 class QIODevice;
 class QSqlQuery;
 
+// A single entry from an atom feed (ie. an article).
 class AtomEntry
 {
 public:
@@ -28,6 +29,7 @@ public:
 	bool read;
 };
 
+// Hash function for boost::multi_index
 std::size_t hash_value(const QString& s);
 
 struct AtomCompare {
@@ -41,12 +43,17 @@ struct AtomCompare {
 
 QDebug operator <<(QDebug dbg, const AtomEntry& e);
 
+// Contains all the known atom entries for a feed.
 class AtomFeed
 {
 public:
+	// multi_index tags.
 	struct hash{};
 	struct random{};
 
+	// Guarantees uniqueness by AtomEntry::id
+	// O(log n) lookup through hash
+	// O(1) random access.
 	typedef boost::multi_index_container<
 		AtomEntry,
 		boost::multi_index::indexed_by<
@@ -72,16 +79,23 @@ public:
 	
 	bool hasError() const { return m_error; }
 	
+	// Subscription id.
 	QString id() const { return m_id; }
+	// Subscription title.
 	QString title() const { return m_title; }
+	// Subscription url.
 	QUrl url() const { return m_url; }
+	// All the known Atom entries.
 	const AtomList& entries() const { return m_entries.get<random>(); }
 	
 	void load(const QString& id);
 	void save() const;
 
+	// Copy all the entries from the other AtomFeed into this one.
+	// New entries with duplicate ids are ignored.
 	void merge(const AtomFeed& other);
 
+	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);
 
 private:

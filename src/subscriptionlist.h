@@ -6,6 +6,9 @@
 #include <QPair>
 #include <QXmlStreamReader>
 
+// Contains the information about a subscription to a feed
+// Includes the folders/tags/categories.
+// Does not contain atom entries.
 class Subscription {
 public:
 	Subscription(QXmlStreamReader& s);
