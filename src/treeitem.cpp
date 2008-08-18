@@ -41,7 +41,7 @@ QVariant TreeItem::data(int column) const {
 
 
 int TreeItem::columnCount(const QModelIndex& parent) const {
-	return 2;
+	return 3;
 }
 
 QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -53,6 +53,8 @@ QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role
 			return "Title";
 		case 1:
 			return "Read/Unread";
+		case 2:
+			return "Date";
 
 		default:
 			return QVariant();

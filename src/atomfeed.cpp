@@ -134,9 +134,11 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 		switch (type)
 		{
 		case QXmlStreamReader::StartElement:
-			if (s.name() == "title")
-				title = s.readElementText();
-			else if (s.name() == "id")
+			if (s.name() == "title") {
+				QString temp = s.readElementText();
+				XmlUtils::unescape(temp);
+				title = temp;
+			} else if (s.name() == "id")
 				id = s.readElementText();
 			else if (s.name() == "summary")
 				summary = s.readElementText();

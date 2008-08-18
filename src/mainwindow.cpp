@@ -37,11 +37,11 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 	QAbstractItemModel* model = feeds_model_->getEntries(index);
 	if (model) {
 		if (!sorted_entries_) {
-			sorted_entries_ = new QSortFilterProxyModel(model);
+			sorted_entries_ = new QSortFilterProxyModel(this);
 			ui_.entries_->setModel(sorted_entries_);
-		} else {
-			sorted_entries_->setSourceModel(model);
 		}
+
+		sorted_entries_->setSourceModel(model);
 		ui_.entries_->resizeColumnToContents(0);
 	}
 }

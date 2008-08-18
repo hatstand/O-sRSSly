@@ -115,6 +115,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 		FeedItem::Data* d = new FeedItem::Data(s);
 
 		id_mappings_.insert(s.id(), d);
+		api_->getSubscription(s);
 
 		// If it has no categories then insert at root level.
 		if (s.categories().isEmpty()) {
@@ -141,6 +142,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 			FeedItem* feed = new FeedItem(parent, d);
 			parent->appendChild(feed);
 		}
+
 	}
 
 	// Notify the view that the model has changed.
@@ -204,5 +206,6 @@ QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) {
 }
 
 void FeedsModel::setRead(const AtomEntry& e) {
-	api_->setRead(e);
+	if (!e.read)
+		api_->setRead(e);
 }

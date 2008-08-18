@@ -12,3 +12,13 @@ void XmlUtils::ignoreElement(QXmlStreamReader& s)
 			level--;
 	}
 }
+
+QString& XmlUtils::unescape(QString& s) {
+	s.replace("&quot;", "\"");
+	s.replace("&amp;", "&");
+	s.replace("&lt;", "<");
+	s.replace("&gt;", ">");
+	s.replace("&#39;", "'");
+
+	return s;
+}
