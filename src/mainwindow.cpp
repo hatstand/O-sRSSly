@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionSettings, SIGNAL(activated()), SLOT(showConfigure()));
 
 	ui_.contents_->setContent("Hello, World!");
+	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+	connect(ui_.contents_, SIGNAL(linkClicked(const QUrl&)),
+		SLOT(externalLinkClicked(const QUrl&)));
 
 	ui_.feeds_->setModel(feeds_model_);
 
@@ -61,4 +64,14 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 	// Set read locally.
 	const_cast<TreeItem*>(item)->setRead(real_index);
+}
+
+void MainWindow::externalLinkClicked(const QUrl& url) {
+	qDebug() << __PRETTY_FUNCTION__;
+	
+	QWebView* view = new QWebView(this);
+	int index = ui_.tabs_->addTab(view, url.toString());
+	ui_.tabs_->setCurrentIndex(index);
+
+	view->setUrl(url);
 }

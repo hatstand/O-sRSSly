@@ -146,7 +146,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	}
 
 	// Notify the view that the model has changed.
-	emit reset();
+	reset();
 }
 
 void FeedsModel::update(const QModelIndex& index) {

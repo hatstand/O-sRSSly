@@ -19,6 +19,8 @@ public slots:
 private slots:
 	void subscriptionSelected(const QModelIndex& index);
 	void entrySelected(const QModelIndex& index);
+
+	void externalLinkClicked(const QUrl& url);
 	
 private:
 	Ui_MainWindow ui_;
