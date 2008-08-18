@@ -219,7 +219,7 @@ void ReaderApi::getSubscriptionComplete() {
 	qDebug() << __PRETTY_FUNCTION__;
 
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
-	AtomFeed* feed = new AtomFeed(reply);
+	AtomFeed* feed = new AtomFeed(reply->url(), reply);
 
 	if (!feed->hasError())
 		emit subscriptionArrived(feed);

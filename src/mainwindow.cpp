@@ -1,13 +1,14 @@
 #include "configuredialog.h"
 #include "feedsmodel.h"
 #include "mainwindow.h"
+#include "database.h"
 
 #include <QSortFilterProxyModel>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags), feeds_model_(new FeedsModel(this)),
 	  sorted_entries_(0), feed_menu_(new QMenu(this)),
-	  configure_dialog_(new ConfigureDialog(this)) {
+	  configure_dialog_(new ConfigureDialog(this)), database_(new Database) {
 	ui_.setupUi(this);
 
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
@@ -28,7 +29,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 }
 
 MainWindow::~MainWindow() {
-
+	delete database_;
 }
 
 void MainWindow::showConfigure() {

@@ -5,6 +5,7 @@
 
 class ConfigureDialog;
 class FeedsModel;
+class Database;
 class QSortFilterProxyModel;
 
 class MainWindow : public QMainWindow {
@@ -30,5 +31,7 @@ private:
 	QMenu* feed_menu_;
 
 	ConfigureDialog* configure_dialog_;
+	
+	Database* database_;
 
 };

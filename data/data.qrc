@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/" >
+		<file>inittables.sql</file>
+	</qresource>
+</RCC>

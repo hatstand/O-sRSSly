@@ -2,6 +2,10 @@
 
 #include "mainwindow.h"
 
+#include "database.h"
+#include "atomfeed.h"
+#include <QFile>
+
 int main (int argc, char** argv) {
 	QApplication app(argc, argv);
 
@@ -9,7 +13,6 @@ int main (int argc, char** argv) {
 
 	MainWindow win;
 	win.show();
-
 	
 	return app.exec();
 }
