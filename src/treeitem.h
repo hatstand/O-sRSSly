@@ -38,7 +38,7 @@ public:
 	// Get the atom summary for the given index.
 	virtual QString summary(const QModelIndex& index) const = 0;
 	// Gets the appropriate AtomEntry.
-	virtual const AtomEntry& entry(conost QModelIndex& index) const = 0;
+	virtual const AtomEntry& entry(const QModelIndex& index) const = 0;
 	// Sets the AtomEntry to read.
 	virtual void setRead(const QModelIndex& index) = 0;
 
