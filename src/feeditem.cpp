@@ -35,6 +35,8 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 			return e.title;
 		case 1:
 			return (e.read ? "Read" : "Unread");
+		case 2:
+			return e.date;
 		default:
 			return QVariant();
 	}

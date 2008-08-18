@@ -21,70 +21,72 @@
      <height>671</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout" >
-    <item row="0" column="0" >
-     <layout class="QHBoxLayout" name="horizontalLayout" >
-      <item>
-       <widget class="FeedView" name="feeds_" >
-        <property name="alternatingRowColors" >
-         <bool>true</bool>
-        </property>
-        <property name="selectionMode" >
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="selectionBehavior" >
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="uniformRowHeights" >
-         <bool>false</bool>
-        </property>
-        <property name="headerHidden" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout" >
-        <item>
-         <widget class="QTableView" name="entries_" >
-          <property name="selectionBehavior" >
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTabWidget" name="tabs_" >
-          <property name="currentIndex" >
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab" >
-           <property name="geometry" >
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>760</width>
-             <height>520</height>
-            </rect>
-           </property>
-           <attribute name="title" >
-            <string>Summary</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_2" >
-            <item row="0" column="0" >
-             <widget class="QWebView" name="contents_" />
-            </item>
-           </layout>
-          </widget>
-         </widget>
+   <widget class="QSplitter" name="splitter_2" >
+    <property name="geometry" >
+     <rect>
+      <x>5</x>
+      <y>5</y>
+      <width>1074</width>
+      <height>844</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="FeedView" name="feeds_" >
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior" >
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="uniformRowHeights" >
+      <bool>false</bool>
+     </property>
+     <property name="headerHidden" >
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QSplitter" name="splitter" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QTableView" name="entries_" >
+      <property name="selectionBehavior" >
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="sortingEnabled" >
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="tabs_" >
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>804</width>
+         <height>611</height>
+        </rect>
+       </property>
+       <attribute name="title" >
+        <string>Summary</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <item row="0" column="0" >
+         <widget class="QWebView" name="contents_" />
         </item>
        </layout>
-      </item>
-     </layout>
-    </item>
-   </layout>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
