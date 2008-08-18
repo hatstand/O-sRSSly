@@ -25,6 +25,7 @@ public:
 	TreeItem::Type rtti() const { return TreeItem::Feed; }
 	const Subscription& subscription() const { return data_->subscription_; }
 	AtomFeed* entries() { return &data_->feed_; }
+	const AtomEntry& entry(const QModelIndex& index) const;
 
 	virtual QString summary(const QModelIndex& index) const;
 

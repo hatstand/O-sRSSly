@@ -1,6 +1,8 @@
 #ifndef TREEITEM_H
 #define TREEITEM_H
 
+#include "atomfeed.h"
+
 #include <QAbstractTableModel>
 
 class TreeItem : public QAbstractTableModel {
@@ -26,6 +28,8 @@ public:
 	QString title() const;
 
 	virtual QString summary(const QModelIndex& index) const = 0;
+
+	virtual const AtomEntry& entry(const QModelIndex& index) const = 0;
 
 	// QAbstractTableModel
 	virtual int columnCount(const QModelIndex& parent) const;

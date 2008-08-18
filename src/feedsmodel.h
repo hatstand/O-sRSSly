@@ -38,6 +38,8 @@ public:
 	void update(const QModelIndex& index);
 	QAbstractItemModel* getEntries(const QModelIndex& index);
 
+	void setRead(const AtomEntry& e);
+
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);

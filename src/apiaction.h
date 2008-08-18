@@ -18,6 +18,8 @@ public:
 	QNetworkReply* reply() { return reply_; }
 
 	void start(QNetworkAccessManager* manager);
+
+	void addToken(const QByteArray& t);
 private:
 	// Request this object looks after.
 	QNetworkRequest request_;

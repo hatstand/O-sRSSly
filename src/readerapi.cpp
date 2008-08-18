@@ -25,7 +25,8 @@ const QUrl ReaderApi::kPrefsUrl("http://www.google.com/reader/api/0/preference/l
 const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
 
 // Edit Urls
-const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/subscription/edit-tag");
+const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/edit-tag");
+const char* ReaderApi::kReadTag("user/-/state/com.google/read");
 
 // Atom feed url base
 const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
@@ -33,7 +34,7 @@ const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
 
 ReaderApi::ReaderApi(const QString& username, const QString& password, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
-		username_(username), password_(password) {
+		username_(username), password_(password), getting_token_(false) {
 
 	// Catch SSL errors
 	connect(network_, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
@@ -178,8 +179,13 @@ void ReaderApi::getTokenComplete() {
 void ReaderApi::setRead(const AtomEntry& e) {
 	qDebug() << __PRETTY_FUNCTION__;
 
-	QNetworkRequest req(kEditTagUrl);
-	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation);
+	QString content;
+	content.sprintf("i=%s&a=%s&ac=edit", e.id.toStdString().c_str(), kReadTag);
+
+	QUrl url(kEditTagUrl);
+	url.addQueryItem("client", kApplicationSource);
+	QNetworkRequest req(url);
+	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
 
 	queued_actions_.enqueue(action);
 
@@ -187,8 +193,11 @@ void ReaderApi::setRead(const AtomEntry& e) {
 }
 
 void ReaderApi::processActionQueue() {
+	qDebug() << __PRETTY_FUNCTION__;
 	if (!token_.isEmpty() && !getting_token_) {
-		foreach (ApiAction* a, queued_actions_) {
+		while (!queued_actions_.isEmpty()) {
+			ApiAction* a = queued_actions_.dequeue();
+			a->addToken(token_.toUtf8());
 			a->start(network_);
 		}
 	} else if (token_.isEmpty() && !getting_token_) {

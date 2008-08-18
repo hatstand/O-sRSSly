@@ -13,6 +13,7 @@ ApiAction::~ApiAction() {
 }
 
 void ApiAction::start(QNetworkAccessManager* manager) {
+	qDebug() << __PRETTY_FUNCTION__ << request_.url();
 	switch (op_) {
 		case QNetworkAccessManager::HeadOperation:
 			reply_ = manager->head(request_);
@@ -38,5 +39,14 @@ void ApiAction::start(QNetworkAccessManager* manager) {
 }
 
 void ApiAction::requestFinished() {
+	qDebug() << __PRETTY_FUNCTION__ << reply_->error();
 	emit completed();
+}
+
+void ApiAction::addToken(const QByteArray& t) {
+	if (op_ == QNetworkAccessManager::PostOperation) {
+		content_ += "&T=";
+		content_ += t;
+	}
+	qDebug() << __PRETTY_FUNCTION__ << content_;
 }

@@ -202,3 +202,7 @@ QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) {
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
 	return item;
 }
+
+void FeedsModel::setRead(const AtomEntry& e) {
+	api_->setRead(e);
+}

@@ -16,6 +16,8 @@ public:
 
 	virtual QString summary(const QModelIndex& index) const;
 
+	const AtomEntry& entry(const QModelIndex& index) const;
+
 private:
 	QModelIndex getItem(const QModelIndex& index) const;
 	QString id_;

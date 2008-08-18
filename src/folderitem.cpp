@@ -49,3 +49,9 @@ QModelIndex FolderItem::getItem(const QModelIndex& index) const {
 
 	return (*it)->index(row_index, index.column());
 }
+
+const AtomEntry& FolderItem::entry(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	return static_cast<const TreeItem*>(item.model())->entry(item);
+}

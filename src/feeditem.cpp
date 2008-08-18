@@ -48,3 +48,7 @@ QString FeedItem::summary(const QModelIndex& index) const {
 	const AtomEntry& e = data_->feed_.entries()[index.row()];
 	return e.summary;
 }
+
+const AtomEntry& FeedItem::entry(const QModelIndex& index) const {
+	return data_->feed_.entries()[index.row()];
+}

@@ -74,6 +74,7 @@ private:
 	static const QUrl kTokenUrl;
 	
 	static const QUrl kEditTagUrl;
+	static const char* kReadTag;
 
 	static const QUrl kAtomUrl;
 };

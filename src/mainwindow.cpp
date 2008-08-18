@@ -41,5 +41,10 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
 
-	ui_.contents_->setContent(static_cast<const TreeItem*>(index.model())->summary(index).toUtf8());
+	const TreeItem* item = static_cast<const TreeItem*>(index.model());
+
+	ui_.contents_->setContent(item->summary(index).toUtf8());
+
+	const AtomEntry& e = item->entry(index);
+	feeds_model_->setRead(e);
 }
