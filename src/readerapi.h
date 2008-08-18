@@ -19,7 +19,7 @@ public:
 	bool isLoggedIn();
 	void login();
 	void getSubscriptionList();
-	void getSubscription(const Subscription& s);
+	void getSubscription(const Subscription& s, const QString& continuation = "");
 	void getUnread();
 	void setRead(const AtomEntry& e);
 

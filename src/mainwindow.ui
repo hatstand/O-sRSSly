@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>996</width>
-    <height>724</height>
+    <width>1151</width>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,83 +17,79 @@
     <rect>
      <x>0</x>
      <y>28</y>
-     <width>996</width>
-     <height>671</height>
+     <width>1151</width>
+     <height>827</height>
     </rect>
    </property>
-   <widget class="QSplitter" name="splitter_2" >
-    <property name="geometry" >
-     <rect>
-      <x>5</x>
-      <y>5</y>
-      <width>1074</width>
-      <height>844</height>
-     </rect>
-    </property>
-    <property name="orientation" >
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <widget class="FeedView" name="feeds_" >
-     <property name="alternatingRowColors" >
-      <bool>true</bool>
-     </property>
-     <property name="selectionMode" >
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior" >
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="uniformRowHeights" >
-      <bool>false</bool>
-     </property>
-     <property name="headerHidden" >
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QSplitter" name="splitter" >
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="QTableView" name="entries_" >
-      <property name="selectionBehavior" >
-       <enum>QAbstractItemView::SelectRows</enum>
+   <layout class="QGridLayout" name="gridLayout" >
+    <item row="0" column="0" >
+     <widget class="QSplitter" name="splitter_2" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="sortingEnabled" >
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QTabWidget" name="tabs_" >
-      <property name="currentIndex" >
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="tab" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>804</width>
-         <height>611</height>
-        </rect>
+      <widget class="FeedView" name="feeds_" >
+       <property name="alternatingRowColors" >
+        <bool>true</bool>
        </property>
-       <attribute name="title" >
-        <string>Summary</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2" >
-        <item row="0" column="0" >
-         <widget class="QWebView" name="contents_" />
-        </item>
-       </layout>
+       <property name="selectionMode" >
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior" >
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <property name="uniformRowHeights" >
+        <bool>false</bool>
+       </property>
+       <property name="headerHidden" >
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QSplitter" name="splitter" >
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTableView" name="entries_" >
+        <property name="selectionBehavior" >
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="sortingEnabled" >
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QTabWidget" name="tabs_" >
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>856</width>
+           <height>592</height>
+          </rect>
+         </property>
+         <attribute name="title" >
+          <string>Summary</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_2" >
+          <item row="0" column="0" >
+           <widget class="QWebView" name="contents_" />
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </widget>
      </widget>
-    </widget>
-   </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>996</width>
+     <width>1151</width>
      <height>28</height>
     </rect>
    </property>
@@ -110,8 +106,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>699</y>
-     <width>996</width>
+     <y>855</y>
+     <width>1151</width>
      <height>25</height>
     </rect>
    </property>

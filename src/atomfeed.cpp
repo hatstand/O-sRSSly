@@ -7,6 +7,8 @@
 #include <QSqlQuery>
 #include <QVariant>
 
+const char* AtomFeed::kReaderXmlNamespace = "http://www.google.com/schemas/reader/atom/";
+
 using namespace XmlUtils;
 
 std::size_t hash_value(const QString& s)
@@ -81,14 +83,17 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 				m_id = s.readElementText();
 			else if (s.name() == "entry")
 				m_entries.insert(AtomEntry(s));
+			else if (s.namespaceUri() == kReaderXmlNamespace && s.name() == "continuation")
+				m_continuation = s.readElementText();
 			else
 				ignoreElement(s);
 			
 			break;
 			
 		case QXmlStreamReader::EndElement:
-			if (s.name() == "feed")
+			if (s.name() == "feed") {
 				return;
+			}
 			break;
 		
 		default:
@@ -107,6 +112,8 @@ void AtomFeed::merge(const AtomFeed& other) {
 	foreach (const AtomEntry& e, other.m_entries) {
 		m_entries.insert(e);
 	}
+
+	m_continuation = other.m_continuation;
 }
 
 void AtomFeed::setRead(const AtomEntry& e) {

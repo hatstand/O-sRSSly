@@ -50,7 +50,7 @@ private slots:
 private:
 	FolderItem root_;	
 	ReaderApi* api_;
-	QMap<QString, FeedItem::Data*> id_mappings_;
+	QMap<QString, FeedItemData*> id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
 };
 

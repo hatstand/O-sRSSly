@@ -205,10 +205,14 @@ void ReaderApi::processActionQueue() {
 	}
 }
 
-void ReaderApi::getSubscription(const Subscription& s) {
-	qDebug() << __PRETTY_FUNCTION__;
+void ReaderApi::getSubscription(const Subscription& s, const QString& continuation) {
+	qDebug() << __PRETTY_FUNCTION__ << continuation;
 
-	QNetworkRequest req((kAtomUrl.toString() + s.id()));
+	QUrl url(kAtomUrl.toString() + s.id());
+	if (!continuation.isEmpty())
+		url.addQueryItem("c", continuation);
+
+	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
 	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),

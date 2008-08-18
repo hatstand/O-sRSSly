@@ -1,7 +1,8 @@
 #include "feeditem.h"
 
-FeedItem::FeedItem(TreeItem* parent, Data* data)
+FeedItem::FeedItem(TreeItem* parent, FeedItemData* data)
 	: TreeItem(parent, data->subscription_.title()), data_(data) {
+	connect(data, SIGNAL(updated()), SLOT(feedUpdated()));
 }
 
 int FeedItem::columnCount() const {
@@ -19,9 +20,11 @@ QVariant FeedItem::data(int column) const {
 	}
 }
 
-void FeedItem::Data::update(const AtomFeed& feed) {
+void FeedItemData::FeedItemData::update(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__;
 	feed_.merge(feed);
+
+	emit updated();
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
@@ -68,4 +71,8 @@ void FeedItem::setRead(const QModelIndex& index) {
 
 	QModelIndex top_left = createIndex(index.row(), 1);
 	emit dataChanged(top_left, top_left);
+}
+
+void FeedItem::feedUpdated() {
+	reset();
 }

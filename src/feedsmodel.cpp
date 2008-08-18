@@ -112,7 +112,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 		qDebug() << "Adding..." << s.title();
 
 		// Create actual shared data.
-		FeedItem::Data* d = new FeedItem::Data(s);
+		FeedItemData* d = new FeedItemData(s);
 
 		id_mappings_.insert(s.id(), d);
 		api_->getSubscription(s);
@@ -167,7 +167,7 @@ void FeedsModel::subscriptionUpdated(AtomFeed* feed) {
 
 	qDebug() << "Update for..." << atom_id;
 
-	QMap<QString, FeedItem::Data*>::iterator it = id_mappings_.find(atom_id);
+	QMap<QString, FeedItemData*>::iterator it = id_mappings_.find(atom_id);
 	if (it != id_mappings_.end()) {
 		(*it)->update(*feed);
 	}
@@ -194,7 +194,7 @@ void FeedsModel::fetchMore(const QModelIndex& index) {
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
 	if (item->rtti() == TreeItem::Feed) {
 		FeedItem* feed = static_cast<FeedItem*>(index.internalPointer());
-		api_->getSubscription(feed->subscription());
+		api_->getSubscription(feed->subscription(), feed->entries()->continuation());
 	}
 }
 

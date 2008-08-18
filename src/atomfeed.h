@@ -87,6 +87,8 @@ public:
 	QUrl url() const { return m_url; }
 	// All the known Atom entries.
 	const AtomList& entries() const { return m_entries.get<random>(); }
+
+	const QString& continuation() const { return m_continuation; }
 	
 	void load(const QString& id);
 	void save() const;
@@ -110,7 +112,11 @@ private:
 	QString m_id;
 	QString m_title;
 	QUrl m_url;
+	// Magic string which represents to Google where we got up to in downloading entries.
+	QString m_continuation;
 	AtomEntryList m_entries;
+
+	static const char* kReaderXmlNamespace;
 };
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f);
