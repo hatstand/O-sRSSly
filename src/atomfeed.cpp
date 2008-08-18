@@ -79,9 +79,10 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 		case QXmlStreamReader::StartElement:
 			if (s.name() == "title")
 				m_title = s.readElementText();
-			else if (s.name() == "id")
+			else if (s.name() == "id") {
 				m_id = s.readElementText();
-			else if (s.name() == "entry")
+				m_id.remove(QRegExp("^tag:google.com,2005:reader/"));
+			} else if (s.name() == "entry")
 				m_entries.insert(AtomEntry(s));
 			else if (s.namespaceUri() == kReaderXmlNamespace && s.name() == "continuation")
 				m_continuation = s.readElementText();

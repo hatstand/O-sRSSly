@@ -10,7 +10,6 @@ FeedsModel::FeedsModel(QObject* parent)
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
-	connect(api_, SIGNAL(subscriptionArrived(AtomFeed*)), SLOT(subscriptionUpdated(AtomFeed*)));
 
 	api_->login();
 }
@@ -112,10 +111,10 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 		qDebug() << "Adding..." << s.title();
 
 		// Create actual shared data.
-		FeedItemData* d = new FeedItemData(s);
+		FeedItemData* d = new FeedItemData(s, api_);
 
 		id_mappings_.insert(s.id(), d);
-		api_->getSubscription(s);
+		d->update();
 
 		// If it has no categories then insert at root level.
 		if (s.categories().isEmpty()) {
@@ -149,64 +148,10 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	reset();
 }
 
-void FeedsModel::update(const QModelIndex& index) {
-	if (!index.isValid())
-		return;
-	
-	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-	if (item->rtti() != TreeItem::Feed)
-		return;
-	
-	FeedItem* feed = static_cast<FeedItem*>(item);
-	api_->getSubscription(feed->subscription());
-}
-
-void FeedsModel::subscriptionUpdated(AtomFeed* feed) {
-	QString atom_id(feed->id());
-	atom_id.remove(QRegExp("^tag:google.com,2005:reader/"));
-
-	qDebug() << "Update for..." << atom_id;
-
-	QMap<QString, FeedItemData*>::iterator it = id_mappings_.find(atom_id);
-	if (it != id_mappings_.end()) {
-		(*it)->update(*feed);
-	}
-
-	delete feed;
-}
-
-bool FeedsModel::canFetchMore(const QModelIndex& index) const {
-	if (!index.isValid())
-		return false;
-	
-	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-	if (item->rtti() == TreeItem::Feed)
-		return true;
-
-	return false;
-}
-
-void FeedsModel::fetchMore(const QModelIndex& index) {
-	qDebug() << __PRETTY_FUNCTION__;
-	if (!index.isValid())
-		return;
-
-	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-	if (item->rtti() == TreeItem::Feed) {
-		FeedItem* feed = static_cast<FeedItem*>(index.internalPointer());
-		api_->getSubscription(feed->subscription(), feed->entries()->continuation());
-	}
-}
-
-QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) {
+QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) const {
 	if (!index.isValid())
 		return 0;
 	
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
 	return item;
-}
-
-void FeedsModel::setRead(const AtomEntry& e) {
-	if (!e.read)
-		api_->setRead(e);
 }

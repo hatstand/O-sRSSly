@@ -23,9 +23,7 @@ public:
 	~FeedsModel();
 
 	// Whether there is more data we can get from Google.
-	virtual bool canFetchMore(const QModelIndex& index) const;
 	QVariant data(const QModelIndex& index, int role) const;
-	virtual void fetchMore(const QModelIndex& index);
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	QVariant headerData(int section, Qt::Orientation orientation,
 		int role = Qt::DisplayRole) const;
@@ -36,16 +34,11 @@ public:
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
 
 	TreeItem* root();
-
-	void update(const QModelIndex& index);
-	QAbstractItemModel* getEntries(const QModelIndex& index);
-
-	void setRead(const AtomEntry& e);
+	QAbstractItemModel* getEntries(const QModelIndex& index) const;
 
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
-	void subscriptionUpdated(AtomFeed* feed);
 
 private:
 	FolderItem root_;	

@@ -39,7 +39,6 @@ void ApiAction::start(QNetworkAccessManager* manager) {
 }
 
 void ApiAction::requestFinished() {
-	qDebug() << __PRETTY_FUNCTION__ << reply_->error();
 	emit completed();
 }
 
@@ -48,5 +47,4 @@ void ApiAction::addToken(const QByteArray& t) {
 		content_ += "&T=";
 		content_ += t;
 	}
-	qDebug() << __PRETTY_FUNCTION__ << content_;
 }

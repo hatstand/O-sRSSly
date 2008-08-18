@@ -16,11 +16,9 @@ protected:
 private slots:
 	void updateClicked();
 	void renameFeedClicked();
-	void renameFolderClicked();
 
 private:
 	QMenu* feed_menu_;
-	QMenu* folder_menu_;
 
 	QModelIndex clicked_index_;
 };

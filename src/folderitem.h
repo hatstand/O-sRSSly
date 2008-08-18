@@ -21,6 +21,8 @@ public:
 	virtual QVariant data(const QModelIndex& index, int role) const;
 	// The total number of rows from all the children.
 	virtual int rowCount(const QModelIndex& parent) const;
+	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
+	virtual void fetchMore(const QModelIndex& parent);
 
 	virtual QString summary(const QModelIndex& index) const;
 

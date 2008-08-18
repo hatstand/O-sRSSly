@@ -206,8 +206,6 @@ void ReaderApi::processActionQueue() {
 }
 
 void ReaderApi::getSubscription(const Subscription& s, const QString& continuation) {
-	qDebug() << __PRETTY_FUNCTION__ << continuation;
-
 	QUrl url(kAtomUrl.toString() + s.id());
 	if (!continuation.isEmpty())
 		url.addQueryItem("c", continuation);
@@ -220,16 +218,13 @@ void ReaderApi::getSubscription(const Subscription& s, const QString& continuati
 }
 
 void ReaderApi::getSubscriptionComplete() {
-	qDebug() << __PRETTY_FUNCTION__;
-
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
-	AtomFeed* feed = new AtomFeed(reply->url(), reply);
+	AtomFeed feed(reply->url(), reply);
 
-	if (!feed->hasError())
+	if (!feed.hasError())
 		emit subscriptionArrived(feed);
 	else {
 		qWarning() << "Error parsing feed:" << reply->url();
-		delete feed;
 	}
 
 	reply->deleteLater();

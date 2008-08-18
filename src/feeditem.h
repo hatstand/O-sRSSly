@@ -9,18 +9,31 @@
 
 using boost::shared_ptr;
 
+class ReaderApi;
+
 class FeedItemData : public QObject {
 	Q_OBJECT
 public:
-	FeedItemData(const Subscription& s) : subscription_(s) {}
+	FeedItemData(const Subscription& s, ReaderApi* api) : subscription_(s), api_(api) {}
+	void setRead(const AtomEntry& e);
+
+	const AtomFeed::AtomList& entries() { return feed_.entries(); }
+	const Subscription& subscription() { return subscription_; }
+
+	void update();
+
+private slots:
 	void update(const AtomFeed& feed);
+
+signals:
+	void updated();
+
+private:
 	// The feed id & title etc.
 	Subscription subscription_;
 	// The atom entries.
 	AtomFeed feed_;
-
-signals:
-	void updated();
+	ReaderApi* api_;
 };
 
 /*
@@ -39,8 +52,7 @@ public:
 	int columnCount() const;
 	QVariant data(int column) const;
 	TreeItem::Type rtti() const { return TreeItem::Feed; }
-	const Subscription& subscription() const { return data_->subscription_; }
-	AtomFeed* entries() { return &data_->feed_; }
+	const Subscription& subscription() const { return data_->subscription(); }
 	const AtomEntry& entry(const QModelIndex& index) const;
 
 	virtual QString summary(const QModelIndex& index) const;
@@ -50,6 +62,9 @@ public:
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;
 	virtual int rowCount(const QModelIndex& parent) const;
+
+	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
+	virtual void fetchMore(const QModelIndex& parent);
 
 private slots:
 	void feedUpdated();

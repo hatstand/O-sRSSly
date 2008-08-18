@@ -58,10 +58,6 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 	ui_.contents_->setContent(item->summary(real_index).toUtf8());
 
-	// Set read on server.
-	const AtomEntry& e = item->entry(real_index);
-	feeds_model_->setRead(e);
-
 	// Set read locally.
 	const_cast<TreeItem*>(item)->setRead(real_index);
 }

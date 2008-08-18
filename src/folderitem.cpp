@@ -24,6 +24,11 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 	return rows;
 }
 
+void FolderItem::fetchMore(const QModelIndex& parent) {
+	foreach (TreeItem* item, children_) {
+		item->fetchMore(parent);
+	}
+}
 
 QString FolderItem::summary(const QModelIndex& index) const {
 	QModelIndex item = getItem(index);

@@ -1,7 +1,9 @@
 #include "feeditem.h"
+#include "readerapi.h"
+
 
 FeedItem::FeedItem(TreeItem* parent, FeedItemData* data)
-	: TreeItem(parent, data->subscription_.title()), data_(data) {
+	: TreeItem(parent, data->subscription().title()), data_(data) {
 	connect(data, SIGNAL(updated()), SLOT(feedUpdated()));
 }
 
@@ -14,24 +16,36 @@ QVariant FeedItem::data(int column) const {
 		case 0:
 			return title_;
 		case 1:
-			return data_->subscription_.id();
+			return data_->subscription().id();
 		default:
 			return QVariant();
 	}
 }
 
-void FeedItemData::FeedItemData::update(const AtomFeed& feed) {
-	qDebug() << __PRETTY_FUNCTION__;
-	feed_.merge(feed);
+void FeedItemData::update() {
+	api_->getSubscription(subscription_, feed_.continuation());
+	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
+}
 
-	emit updated();
+void FeedItemData::update(const AtomFeed& feed) {
+	if (feed.id() == subscription_.id()) {
+		qDebug() << "Update arrived for..." << subscription_.id();
+		disconnect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), this, 0);
+		feed_.merge(feed);
+		emit updated();
+	}
+}
+
+void FeedItemData::setRead(const AtomEntry& e) {
+	feed_.setRead(e);
+	api_->setRead(e);
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
 	
-	const AtomEntry& e = data_->feed_.entries()[index.row()];
+	const AtomEntry& e = data_->entries().at(index.row());
 
 	switch (index.column()) {
 		case 0:
@@ -46,16 +60,16 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 }
 
 int FeedItem::rowCount(const QModelIndex& parent) const {
-	return data_->feed_.entries().size();
+	return data_->entries().size();
 }
 
 QString FeedItem::summary(const QModelIndex& index) const {
-	const AtomEntry& e = data_->feed_.entries()[index.row()];
+	const AtomEntry& e = data_->entries().at(index.row());
 	return e.summary;
 }
 
 const AtomEntry& FeedItem::entry(const QModelIndex& index) const {
-	return data_->feed_.entries()[index.row()];
+	return data_->entries().at(index.row());
 }
 
 void FeedItem::setRead(const QModelIndex& index) {
@@ -63,11 +77,11 @@ void FeedItem::setRead(const QModelIndex& index) {
 	if (!index.isValid())
 		return;
 
-	const AtomEntry& e = data_->feed_.entries()[index.row()];
+	const AtomEntry& e = data_->entries().at(index.row());
 	if (e.read)
 		return;
 	
-	data_->feed_.setRead(e);
+	data_->setRead(e);
 
 	QModelIndex top_left = createIndex(index.row(), 1);
 	emit dataChanged(top_left, top_left);
@@ -75,4 +89,8 @@ void FeedItem::setRead(const QModelIndex& index) {
 
 void FeedItem::feedUpdated() {
 	reset();
+}
+
+void FeedItem::fetchMore(const QModelIndex&) {
+	data_->update();
 }
