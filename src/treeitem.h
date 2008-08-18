@@ -38,6 +38,11 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	virtual int rowCount(const QModelIndex& parent) const = 0;
 
+public slots:
+	virtual void childReset();
+	virtual void childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right);
+
+
 protected:
 	TreeItem* parent_;
 	QList<TreeItem*> children_;

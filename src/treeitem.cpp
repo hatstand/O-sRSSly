@@ -2,7 +2,11 @@
 
 TreeItem::TreeItem(TreeItem* parent, const QString& title)
 	: parent_(parent), title_(title) {
-	
+	if (parent) {
+		connect(this, SIGNAL(reset()), parent, SLOT(childReset()));
+		connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+			parent, SLOT(childChanged(const QModelIndex&, const QModelIndex&)));
+	}
 }
 
 void TreeItem::appendChild(TreeItem* child) {
@@ -63,3 +67,10 @@ QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role
 	return QVariant();
 }
 
+void TreeItem::childReset() {
+	emit reset();
+}
+
+void TreeItem::childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right) {
+	emit reset();
+}

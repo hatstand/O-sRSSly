@@ -65,3 +65,20 @@ void FolderItem::setRead(const QModelIndex& index) {
 	TreeItem* item = const_cast<TreeItem*>(static_cast<const TreeItem*>(i.model()));
 	item->setRead(i);
 }
+
+void FolderItem::childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right) {
+	TreeItem* item = static_cast<TreeItem*>(sender());
+
+	int rows = 0;
+	for (QList<TreeItem*>::const_iterator it = children_.begin(); it != children_.end(); ++it) {
+		if (*it == item)
+			break;
+
+		rows += (*it)->rowCount(QModelIndex());
+	}
+
+	QModelIndex top_left_new = createIndex(rows + top_left.row(), top_left.column());
+	QModelIndex bottom_right_new = createIndex(rows + bottom_right.row(), bottom_right.column());
+
+	emit dataChanged(top_left_new, bottom_right_new);
+}

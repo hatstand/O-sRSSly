@@ -19,6 +19,9 @@ public:
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);
 
+public slots:
+	virtual void childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right);
+
 private:
 	QModelIndex getItem(const QModelIndex& index) const;
 	QString id_;
