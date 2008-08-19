@@ -7,7 +7,8 @@
 
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent), root_(0, "Root-Id", "/"),
-		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)) {
+		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)),
+		deleting_(false) {
 
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
@@ -17,6 +18,7 @@ FeedsModel::FeedsModel(QObject* parent)
 }
 
 FeedsModel::~FeedsModel() {
+	deleting_ = true;
 }
 
 QVariant FeedsModel::data(const QModelIndex& index, int role) const {
@@ -211,23 +213,46 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 	}
 
 	if (parent.isValid()) {
+		// Dropped on an actual TreeItem.
 		TreeItem* item = static_cast<TreeItem*>(parent.internalPointer());
 		// Climb up the tree until we find a folder.
 		while (item->rtti() != TreeItem::Folder) {
 			item = item->parent();
 		}
 
-		foreach (QString s, new_items.keys()) {
-			qDebug() << "Adding:" << s << "to:" << item->id();
-			if (s.startsWith("feed")) {
-				QMap<QString, weak_ptr<FeedItemData> >::const_iterator it = id_mappings_.find(s);
-				if (it != id_mappings_.end()) {
+		// Add each item to the category.
+		QMap<QString,QString>::const_iterator it = new_items.begin();
+		for (; it != new_items.end(); ++it) {
+			qDebug() << "Adding:" << it.key() << "to:" << item->id();
+			// Make sure it's really a feed and not a folder.
+			if (it.key().startsWith("feed")) {
+				// Find the appropriate data.
+				QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it.key());
+				if (jt != id_mappings_.end()) {
+					// Insert the new FeedItem into the tree.
 					QModelIndex index = createIndex(item->row(), 0, item);
 					beginInsertRows(index, item->childCount(), item->childCount());
-					FeedItem* new_feed = new FeedItem(item, shared_ptr<FeedItemData>(*it));
+					FeedItem* new_feed = new FeedItem(item, shared_ptr<FeedItemData>(*jt));
 					item->appendChild(new_feed);
 					new_feed->addCategory(qMakePair(item->id(), item->title()));
 					endInsertRows();	
+				}
+
+				// Remove from root.
+				if (it.value() == "Root-Id") {
+					// This was dropped from the root. We should remove the root FeedItem.
+					for (int i = 0; i < root_.childCount(); ++i) {
+						if (root_.child(i)->id() == it.key()) {
+							// Remove FeedItem
+							QModelIndex index = createIndex(root_.row(), 0, &root_);
+							//beginRemoveRows(index, i, i);
+							delete root_.child(i);
+							//endRemoveRows();
+							reset();
+
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -253,12 +278,13 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 				}
 
 				QModelIndex index = createIndex(folder->row(), 0, folder);
-				beginRemoveRows(index, i, i);
+				//beginRemoveRows(index, i, i);
 				// Temporarily grab a reference to the FeedItemData
 				shared_ptr<FeedItemData> data(jt.value());
 				data->removeCategory(it.value());
 				delete child;
-				endRemoveRows();
+				//endRemoveRows();
+				reset();
 
 				// If we have the last reference, then we should add the Feed to the root of the tree.
 				if (data.unique()) {
@@ -277,6 +303,9 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 }
 
 void FeedsModel::dataDestroyed(QObject* object) {
+	if (deleting_)
+		return;
+
 	QMap<QString, weak_ptr<FeedItemData> >::iterator it = id_mappings_.begin();
 	for (; it != id_mappings_.end(); ++it) {
 		if (it.value().lock().get() == static_cast<FeedItemData*>(object)) {

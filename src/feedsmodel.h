@@ -56,6 +56,8 @@ private:
 	ReaderApi* api_;
 	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
+
+	bool deleting_;
 };
 
 

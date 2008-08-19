@@ -19,6 +19,7 @@ public:
 	};
 
 	TreeItem(TreeItem* parent = 0, const QString& title = QString());
+	virtual ~TreeItem();
 
 	// TreeModel stuff.
 	void appendChild(TreeItem* child);

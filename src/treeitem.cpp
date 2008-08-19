@@ -9,6 +9,10 @@ TreeItem::TreeItem(TreeItem* parent, const QString& title)
 	}
 }
 
+TreeItem::~TreeItem() {
+	qDeleteAll(children_);
+}
+
 void TreeItem::appendChild(TreeItem* child) {
 	children_ << child;
 	connect(child, SIGNAL(destroyed(QObject*)), SLOT(childDestroyed(QObject*)));

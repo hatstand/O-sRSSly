@@ -25,6 +25,8 @@ private slots:
 	void subscriptionSelected(const QModelIndex& index);
 	void entrySelected(const QModelIndex& index);
 
+	void entryModelDeleted(QObject* object);
+
 	void externalLinkClicked(const QUrl& url);
 	
 private:
