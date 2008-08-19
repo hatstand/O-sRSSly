@@ -13,6 +13,9 @@ int FolderItem::columnCount() const {
 
 QVariant FolderItem::data(const QModelIndex& index, int role) const {
 	QModelIndex item = getItem(index);
+	if (!item.isValid())
+		return QVariant();
+	
 	return item.model()->data(item, role);
 }
 
@@ -42,7 +45,7 @@ QModelIndex FolderItem::getItem(const QModelIndex& index) const {
 
 	QList<TreeItem*>::const_iterator it = children_.begin();
 
-	while (index.row() > (rows += (*it)->rowCount(index))) {
+	while (index.row() >= (rows += (*it)->rowCount(index))) {
 		++it;
 	}
 
