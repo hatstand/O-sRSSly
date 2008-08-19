@@ -35,8 +35,6 @@ public slots:
 private:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
-	// id from Google.
-	QString id_;
 };
 
 #endif

@@ -33,6 +33,12 @@ public:
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
 
+	virtual Qt::DropActions supportedDropActions() const { return Qt::CopyAction | Qt::MoveAction; }
+	virtual QStringList mimeTypes() const;
+	virtual QMimeData* mimeData(const QModelIndexList& indices) const;
+	virtual bool dropMimeData(const QMimeData* data,
+		Qt::DropAction action, int row, int column, const QModelIndex& parent);
+
 	TreeItem* root();
 	QAbstractItemModel* getEntries(const QModelIndex& index) const;
 

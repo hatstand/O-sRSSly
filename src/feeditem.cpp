@@ -4,6 +4,7 @@
 
 FeedItem::FeedItem(TreeItem* parent, FeedItemData* data)
 	: TreeItem(parent, data->subscription().title()), data_(data) {
+	id_ = data->subscription().id();
 	connect(data, SIGNAL(updated()), SLOT(feedUpdated()));
 }
 

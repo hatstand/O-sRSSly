@@ -3,7 +3,8 @@
 #include <QDebug>
 
 FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
-	: TreeItem(parent, name), id_(id) {
+	: TreeItem(parent, name) {
+	id_ = id;
 }
 
 int FolderItem::columnCount() const {

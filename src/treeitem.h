@@ -35,6 +35,8 @@ public:
 
 	QString title() const;
 
+	virtual QString id() const { return id_; }
+
 	// Get the atom summary for the given index.
 	virtual QString summary(const QModelIndex& index) const = 0;
 	// Gets the appropriate AtomEntry.
@@ -61,6 +63,7 @@ protected:
 	TreeItem* parent_;
 	QList<TreeItem*> children_;
 	QString title_;
+	QString id_;
 };
 
 #endif

@@ -14,6 +14,10 @@ FeedView::FeedView(QWidget* parent)
 
 	connect(update, SIGNAL(triggered()), SLOT(updateClicked()));
 	connect(rename_feed, SIGNAL(triggered()), SLOT(renameFeedClicked()));
+
+	setDragEnabled(true);
+	setDragDropMode(QAbstractItemView::InternalMove);
+	setDropIndicatorShown(true);
 }
 
 FeedView::~FeedView() {

@@ -1,7 +1,9 @@
 #include "feedsmodel.h"
 #include "readerapi.h"
 
+#include <QMimeData>
 #include <QRegExp>
+#include <QStringList>
 
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent), root_(0, "Root-Id", "/"),
@@ -40,7 +42,7 @@ Qt::ItemFlags FeedsModel::flags(const QModelIndex& index) const {
 	if (!index.isValid())
 		return 0;
 
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 QVariant FeedsModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -154,4 +156,75 @@ QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) const {
 	
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
 	return item;
+}
+
+QStringList FeedsModel::mimeTypes() const {
+	QStringList types;
+	types << "application/x-feeder";
+	return types;
+}
+
+QMimeData* FeedsModel::mimeData(const QModelIndexList& indices) const {
+	QMimeData* mime_data = new QMimeData();
+	QByteArray encoded_data;
+
+	QDataStream stream(&encoded_data, QIODevice::WriteOnly);
+
+	foreach (const QModelIndex& index, indices) {
+		if (index.isValid()) {
+			TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+			QString text = item->id();
+			if (text.isEmpty())
+				continue;
+			
+			stream << text;
+		}
+	}
+
+	mime_data->setData("application/x-feeder", encoded_data);
+	return mime_data;
+}
+
+bool FeedsModel::dropMimeData(const QMimeData* data,
+	Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+	qDebug() << __PRETTY_FUNCTION__ << action;
+
+	if (action == Qt::IgnoreAction)
+		return true;
+	
+	if (!data->hasFormat("application/x-feeder"))
+		return false;
+
+	QByteArray encoded_data = data->data("application/x-feeder");
+	QDataStream stream(&encoded_data, QIODevice::ReadOnly);
+	QStringList new_items;
+
+	while (!stream.atEnd()) {
+		QString text;
+		stream >> text;
+		new_items << text;
+	}
+
+	if (parent.isValid()) {
+		TreeItem* item = static_cast<TreeItem*>(parent.internalPointer());
+		// Climb up the tree until we find a folder.
+		while (item->rtti() != TreeItem::Folder) {
+			item = item->parent();
+		}
+
+		foreach (QString s, new_items) {
+			qDebug() << "Adding:" << s << "to:" << item->id();
+			if (s.startsWith("feed")) {
+				QMap<QString, FeedItemData*>::const_iterator it = id_mappings_.find(s);
+				if (it != id_mappings_.end()) {
+					beginInsertRows(parent, item->childCount(), item->childCount());
+					FeedItem* new_feed = new FeedItem(item, *it);
+					item->appendChild(new_feed);
+					endInsertRows();	
+				}
+			}
+		}
+	}
+
+	return true;
 }
