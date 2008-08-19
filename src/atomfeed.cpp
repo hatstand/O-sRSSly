@@ -149,6 +149,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				read = true;
 			else if (s.name() == "updated")
 				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
+			else if (s.name() == "link")
+				link = QUrl(s.attributes().value("href").toString());
 			else
 				ignoreElement(s);
 			

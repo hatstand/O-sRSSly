@@ -15,6 +15,10 @@ QVariant FolderItem::data(const QModelIndex& index, int role) const {
 	QModelIndex item = getItem(index);
 	if (!item.isValid())
 		return QVariant();
+
+	// Return the feed name
+	if (index.column() == 3 && role == Qt::DisplayRole)
+		return static_cast<const TreeItem*>(item.model())->title();
 	
 	return item.model()->data(item, role);
 }
@@ -37,6 +41,9 @@ void FolderItem::fetchMore(const QModelIndex& parent) {
 QString FolderItem::summary(const QModelIndex& index) const {
 	QModelIndex item = getItem(index);
 
+	if (!item.isValid())
+		return QString();
+
 	return static_cast<const TreeItem*>(item.model())->summary(item);
 }
 
@@ -56,7 +63,11 @@ QModelIndex FolderItem::getItem(const QModelIndex& index) const {
 
 	int row_index = index.row() - rows + (*it)->rowCount(index);
 
-	return (*it)->index(row_index, index.column());
+	int safe_column = index.column();
+	if (safe_column >= (*it)->columnCount(index))
+		safe_column = (*it)->columnCount(index) - 1;
+
+	return (*it)->index(row_index, safe_column);
 }
 
 const AtomEntry& FolderItem::entry(const QModelIndex& index) const {
@@ -70,6 +81,9 @@ void FolderItem::setRead(const QModelIndex& index) {
 		return;
 	
 	QModelIndex i = getItem(index);
+
+	if (!i.isValid())
+		return;
 
 	TreeItem* item = const_cast<TreeItem*>(static_cast<const TreeItem*>(i.model()));
 	item->setRead(i);

@@ -26,6 +26,7 @@ public:
 	QString summary;
 	QString content;
 	QDateTime date;
+	QUrl link;
 	bool read;
 };
 

@@ -23,6 +23,7 @@ public:
 	virtual int rowCount(const QModelIndex& parent) const;
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
+	virtual int columnCount(const QModelIndex& parent) const { return 4; }
 
 	virtual QString summary(const QModelIndex& index) const;
 
