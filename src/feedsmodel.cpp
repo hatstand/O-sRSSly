@@ -220,6 +220,7 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 					beginInsertRows(parent, item->childCount(), item->childCount());
 					FeedItem* new_feed = new FeedItem(item, *it);
 					item->appendChild(new_feed);
+					new_feed->addCategory(qMakePair(item->id(), item->title()));
 					endInsertRows();	
 				}
 			}

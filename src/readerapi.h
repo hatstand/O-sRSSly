@@ -22,6 +22,7 @@ public:
 	void getSubscription(const Subscription& s, const QString& continuation = "");
 	void getUnread();
 	void setRead(const AtomEntry& e);
+	void addCategory(const Subscription& s, const QString& category);
 
 private:
 	void getToken();
@@ -75,6 +76,7 @@ private:
 	
 	static const QUrl kEditTagUrl;
 	static const char* kReadTag;
+	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;
 };

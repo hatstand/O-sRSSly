@@ -91,6 +91,10 @@ void Subscription::parseCategory(QXmlStreamReader& s) {
 	}
 }
 
+void Subscription::addCategory(const QPair<QString,QString>& category) {
+	categories_ << category;
+}
+
 SubscriptionList::SubscriptionList(const SubscriptionList& other) {
 	subscriptions_ = other.subscriptions_;
 }

@@ -22,6 +22,8 @@ public:
 
 	void update();
 
+	void addCategory(const QPair<QString,QString>& category);
+
 private slots:
 	void update(const AtomFeed& feed);
 
@@ -58,6 +60,7 @@ public:
 	virtual QString summary(const QModelIndex& index) const;
 	// Sets an atom entry to read status (local only).
 	void setRead(const QModelIndex& index);
+	void addCategory(const QPair<QString,QString>& category);
 
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;

@@ -42,6 +42,11 @@ void FeedItemData::setRead(const AtomEntry& e) {
 	api_->setRead(e);
 }
 
+void FeedItemData::addCategory(const QPair<QString,QString>& category) {
+	subscription_.addCategory(category);
+	api_->addCategory(subscription_, category.first);
+}
+
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
@@ -94,4 +99,8 @@ void FeedItem::feedUpdated() {
 
 void FeedItem::fetchMore(const QModelIndex&) {
 	data_->update();
+}
+
+void FeedItem::addCategory(const QPair<QString,QString>& category) {
+	data_->addCategory(category);
 }

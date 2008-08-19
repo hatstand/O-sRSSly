@@ -27,6 +27,7 @@ const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
 // Edit Urls
 const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/edit-tag");
 const char* ReaderApi::kReadTag("user/-/state/com.google/read");
+const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/subscription/edit");
 
 // Atom feed url base
 const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
@@ -189,6 +190,22 @@ void ReaderApi::setRead(const AtomEntry& e) {
 
 	queued_actions_.enqueue(action);
 
+	processActionQueue();
+}
+
+void ReaderApi::addCategory(const Subscription& s, const QString& category) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QString content;
+	content.sprintf("s=%s&a=%s&ac=edit",
+		s.id().toStdString().c_str(), category.toStdString().c_str());
+	
+	QUrl url(kEditSubscriptionUrl);
+	url.addQueryItem("client", kApplicationSource);
+	QNetworkRequest req(url);
+	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
+
+	queued_actions_.enqueue(action);
 	processActionQueue();
 }
 
