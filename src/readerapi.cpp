@@ -196,9 +196,23 @@ void ReaderApi::setRead(const AtomEntry& e) {
 void ReaderApi::addCategory(const Subscription& s, const QString& category) {
 	qDebug() << __PRETTY_FUNCTION__;
 
+	editCategory(s, category, true);
+}
+
+void ReaderApi::removeCategory(const Subscription& s, const QString& category) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	editCategory(s, category, false);
+}
+
+void ReaderApi::editCategory(const Subscription& s, const QString& category, bool add) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	const char* add_remove = (add ? "a" : "r");
+
 	QString content;
-	content.sprintf("s=%s&a=%s&ac=edit",
-		s.id().toStdString().c_str(), category.toStdString().c_str());
+	content.sprintf("s=%s&%s=%s&ac=edit",
+		s.id().toStdString().c_str(), add_remove, category.toStdString().c_str());
 	
 	QUrl url(kEditSubscriptionUrl);
 	url.addQueryItem("client", kApplicationSource);

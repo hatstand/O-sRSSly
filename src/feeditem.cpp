@@ -2,10 +2,10 @@
 #include "readerapi.h"
 
 
-FeedItem::FeedItem(TreeItem* parent, FeedItemData* data)
+FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)
 	: TreeItem(parent, data->subscription().title()), data_(data) {
 	id_ = data->subscription().id();
-	connect(data, SIGNAL(updated()), SLOT(feedUpdated()));
+	connect(data.get(), SIGNAL(updated()), SLOT(feedUpdated()));
 }
 
 int FeedItem::columnCount() const {
@@ -21,6 +21,10 @@ QVariant FeedItem::data(int column) const {
 		default:
 			return QVariant();
 	}
+}
+
+FeedItemData::~FeedItemData() {
+	qDebug() << __PRETTY_FUNCTION__;
 }
 
 void FeedItemData::update() {
@@ -45,6 +49,12 @@ void FeedItemData::setRead(const AtomEntry& e) {
 void FeedItemData::addCategory(const QPair<QString,QString>& category) {
 	subscription_.addCategory(category);
 	api_->addCategory(subscription_, category.first);
+}
+
+void FeedItemData::removeCategory(const QString& category) {
+	qDebug() << "Removing" << category << "from" << subscription_.id();
+	subscription_.removeCategory(category);
+	api_->removeCategory(subscription_, category);
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {

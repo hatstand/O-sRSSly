@@ -11,6 +11,7 @@ TreeItem::TreeItem(TreeItem* parent, const QString& title)
 
 void TreeItem::appendChild(TreeItem* child) {
 	children_ << child;
+	connect(child, SIGNAL(destroyed(QObject*)), SLOT(childDestroyed(QObject*)));
 }
 
 TreeItem* TreeItem::child(int row) {
@@ -73,4 +74,8 @@ void TreeItem::childReset() {
 
 void TreeItem::childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right) {
 	emit reset();
+}
+
+void TreeItem::childDestroyed(QObject* object) {
+	children_.removeAll(static_cast<TreeItem*>(object));
 }

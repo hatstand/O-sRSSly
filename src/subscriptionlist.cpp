@@ -95,6 +95,16 @@ void Subscription::addCategory(const QPair<QString,QString>& category) {
 	categories_ << category;
 }
 
+void Subscription::removeCategory(const QString& category) {
+	QList<QPair<QString, QString> >::iterator it = categories_.begin();
+	for (; it != categories_.end(); ++it) {
+		if (it->first == category) {
+			categories_.erase(it);
+			break;
+		}
+	}
+}
+
 SubscriptionList::SubscriptionList(const SubscriptionList& other) {
 	subscriptions_ = other.subscriptions_;
 }

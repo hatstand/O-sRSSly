@@ -40,7 +40,7 @@ int FeedsModel::columnCount(const QModelIndex& parent) const {
 
 Qt::ItemFlags FeedsModel::flags(const QModelIndex& index) const {
 	if (!index.isValid())
-		return 0;
+		return Qt::ItemIsDropEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
@@ -113,9 +113,10 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 		qDebug() << "Adding..." << s.title();
 
 		// Create actual shared data.
-		FeedItemData* d = new FeedItemData(s, api_);
+		shared_ptr<FeedItemData> d(new FeedItemData(s, api_));
 
 		id_mappings_.insert(s.id(), d);
+		connect(d.get(), SIGNAL(destroyed(QObject*)), SLOT(dataDestroyed(QObject*)));
 		d->update();
 
 		// If it has no categories then insert at root level.
@@ -176,8 +177,10 @@ QMimeData* FeedsModel::mimeData(const QModelIndexList& indices) const {
 			QString text = item->id();
 			if (text.isEmpty())
 				continue;
+
+			QString category = item->parent()->id();
 			
-			stream << text;
+			stream << text << category;
 		}
 	}
 
@@ -197,12 +200,14 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 
 	QByteArray encoded_data = data->data("application/x-feeder");
 	QDataStream stream(&encoded_data, QIODevice::ReadOnly);
-	QStringList new_items;
+	// Map from subscription id -> category
+	QMap<QString,QString> new_items;
 
 	while (!stream.atEnd()) {
-		QString text;
+		QString text, category;
 		stream >> text;
-		new_items << text;
+		stream >> category;
+		new_items.insert(text, category);
 	}
 
 	if (parent.isValid()) {
@@ -212,20 +217,71 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 			item = item->parent();
 		}
 
-		foreach (QString s, new_items) {
+		foreach (QString s, new_items.keys()) {
 			qDebug() << "Adding:" << s << "to:" << item->id();
 			if (s.startsWith("feed")) {
-				QMap<QString, FeedItemData*>::const_iterator it = id_mappings_.find(s);
+				QMap<QString, weak_ptr<FeedItemData> >::const_iterator it = id_mappings_.find(s);
 				if (it != id_mappings_.end()) {
-					beginInsertRows(parent, item->childCount(), item->childCount());
-					FeedItem* new_feed = new FeedItem(item, *it);
+					QModelIndex index = createIndex(item->row(), 0, item);
+					beginInsertRows(index, item->childCount(), item->childCount());
+					FeedItem* new_feed = new FeedItem(item, shared_ptr<FeedItemData>(*it));
 					item->appendChild(new_feed);
 					new_feed->addCategory(qMakePair(item->id(), item->title()));
 					endInsertRows();	
 				}
 			}
 		}
+	} else {
+		// Dropped outside of tree -> Remove from the folder.
+		QMap<QString,QString>::const_iterator it = new_items.begin();
+		for (; it != new_items.end(); ++it) {
+			QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it.key());
+			if (jt != id_mappings_.end()) {
+				qDebug() << "Removing category...";
+				QMap<QString,FolderItem*>::const_iterator kt = folder_mappings_.find(it.value());
+				if (kt == folder_mappings_.end())
+					continue;
+
+				FolderItem* folder = *kt;
+				int i = 0;
+				TreeItem* child = 0;
+				for (; i < folder->childCount(); ++i) {
+					if (folder->child(i)->id() == it.key()) {
+						child = folder->child(i);
+						break;
+					}
+				}
+
+				QModelIndex index = createIndex(folder->row(), 0, folder);
+				beginRemoveRows(index, i, i);
+				// Temporarily grab a reference to the FeedItemData
+				shared_ptr<FeedItemData> data(jt.value());
+				data->removeCategory(it.value());
+				delete child;
+				endRemoveRows();
+
+				// If we have the last reference, then we should add the Feed to the root of the tree.
+				if (data.unique()) {
+					qDebug() << "Adding feed to root as removed from all categories";
+					QModelIndex index = createIndex(root_.row(), 0, &root_);
+					beginInsertRows(index, root_.childCount(), root_.childCount());
+					FeedItem* feed = new FeedItem(&root_, data);
+					root_.appendChild(feed);
+					endInsertRows();
+				}
+			}
+		}
 	}
 
 	return true;
+}
+
+void FeedsModel::dataDestroyed(QObject* object) {
+	QMap<QString, weak_ptr<FeedItemData> >::iterator it = id_mappings_.begin();
+	for (; it != id_mappings_.end(); ++it) {
+		if (it.value().lock().get() == static_cast<FeedItemData*>(object)) {
+			id_mappings_.erase(it);
+			return;
+		}
+	}
 }

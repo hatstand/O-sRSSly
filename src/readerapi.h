@@ -23,9 +23,11 @@ public:
 	void getUnread();
 	void setRead(const AtomEntry& e);
 	void addCategory(const Subscription& s, const QString& category);
+	void removeCategory(const Subscription& s, const QString& category);
 
 private:
 	void getToken();
+	void editCategory(const Subscription& s, const QString& category, bool add);
 
 private slots:
 	void loginComplete();
@@ -39,7 +41,7 @@ private slots:
 
 signals:
 	void loggedIn();
-	void subscriptionListArrived(SubscriptionList);
+	void subscriptionListArrived(const SubscriptionList&);
 	void subscriptionArrived(const AtomFeed&);
 	// Emitted when an auth token has been received.
 	void tokenReady();

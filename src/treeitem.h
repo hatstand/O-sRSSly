@@ -57,6 +57,8 @@ public slots:
 	virtual void childReset();
 	// Called when a child's data changes. Indices are from the child.
 	virtual void childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right);
+	// Called when a child is destroyed.
+	virtual void childDestroyed(QObject* object);
 
 
 protected:

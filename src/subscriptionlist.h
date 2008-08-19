@@ -17,6 +17,7 @@ public:
 	QString sortid() const { return sortid_; }
 	const QList<QPair<QString, QString> >& categories() const { return categories_; }
 	void addCategory(const QPair<QString,QString>& category);
+	void removeCategory(const QString& category);
 
 private:
 	void parseCategories(QXmlStreamReader& s);

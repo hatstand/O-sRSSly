@@ -15,6 +15,7 @@ class FeedItemData : public QObject {
 	Q_OBJECT
 public:
 	FeedItemData(const Subscription& s, ReaderApi* api) : subscription_(s), api_(api) {}
+	~FeedItemData();
 	void setRead(const AtomEntry& e);
 
 	const AtomFeed::AtomList& entries() { return feed_.entries(); }
@@ -23,6 +24,7 @@ public:
 	void update();
 
 	void addCategory(const QPair<QString,QString>& category);
+	void removeCategory(const QString& category);
 
 private slots:
 	void update(const AtomFeed& feed);
@@ -50,7 +52,7 @@ public:
 	 * The data only exists once (shared_ptr).
 	 */
 
-	FeedItem(TreeItem* parent, FeedItemData* data);
+	FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data);
 	int columnCount() const;
 	QVariant data(int column) const;
 	TreeItem::Type rtti() const { return TreeItem::Feed; }

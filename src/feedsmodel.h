@@ -6,6 +6,7 @@
 #include "subscriptionlist.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include <QAbstractItemModel>
 #include <QMap>
@@ -14,6 +15,9 @@
 class AtomFeed;
 class ReaderApi;
 class TreeItem;
+
+using boost::shared_ptr;
+using boost::weak_ptr;
 
 // A tree model representing all the subscriptions and associated tags/folders.
 class FeedsModel : public QAbstractItemModel {
@@ -45,11 +49,12 @@ public:
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
+	void dataDestroyed(QObject*);
 
 private:
 	FolderItem root_;	
 	ReaderApi* api_;
-	QMap<QString, FeedItemData*> id_mappings_;
+	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
 };
 
