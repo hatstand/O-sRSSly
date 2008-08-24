@@ -22,6 +22,8 @@ public:
 	AtomEntry(QXmlStreamReader& s);
 	AtomEntry(const QSqlQuery& query);
 	
+	const QString& previewText() const;
+	
 	QString title;
 	QString id;
 	QString summary;
@@ -31,6 +33,9 @@ public:
 	bool read;
 	
 	qint64 rowid;
+
+private:
+	QString previewText_;
 };
 
 // Hash function for boost::multi_index

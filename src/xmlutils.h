@@ -7,6 +7,7 @@
 namespace XmlUtils {
 	void ignoreElement(QXmlStreamReader& s);
 	QString& unescape(QString& s);
+	QString& stripTags(QString& s);
 };
 
 #endif

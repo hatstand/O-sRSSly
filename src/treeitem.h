@@ -13,11 +13,6 @@
 class TreeItem : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	enum Type {
-		Feed = 0,
-		Folder
-	};
-
 	TreeItem(TreeItem* parent = 0, const QString& title = QString());
 	virtual ~TreeItem();
 	
@@ -33,8 +28,6 @@ public:
 	// Get some actual data. Default implementation returns just the title.
 	virtual QVariant data(int column) const;
 	TreeItem* parent();
-
-	virtual Type rtti() const = 0;
 
 	QString title() const;
 

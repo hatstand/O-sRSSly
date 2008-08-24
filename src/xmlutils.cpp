@@ -22,3 +22,9 @@ QString& XmlUtils::unescape(QString& s) {
 
 	return s;
 }
+
+QString& XmlUtils::stripTags(QString& s) {
+	s.replace(QRegExp("<[^>]+>"), "");
+	
+	return s;
+}

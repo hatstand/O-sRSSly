@@ -15,6 +15,7 @@ SET(FEEDER-SOURCES
 	xmlutils.cpp
 	database.cpp
 	settings.cpp
+	entryview.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -30,6 +31,7 @@ SET(FEEDER-MOC-HEADERS
 	subscriptionlist.h
 	treeitem.h
 	settings.h
+	entryview.h
 )
 
 # UI files

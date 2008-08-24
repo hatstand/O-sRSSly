@@ -13,7 +13,6 @@ public:
 	FolderItem(TreeItem* parent, const QSqlQuery& query);
 	
 	int columnCount() const;
-	TreeItem::Type rtti() const { return TreeItem::Folder; }
 
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.

@@ -211,6 +211,19 @@ AtomEntry::AtomEntry(const QSqlQuery& query) {
 	read = query.value(7).toBool();
 }
 
+const QString& AtomEntry::previewText() const {
+	using namespace XmlUtils;
+	
+	if (previewText_.isNull())
+	{
+		// Mwhahaha
+		QString& previewTextRef(const_cast<AtomEntry*>(this)->previewText_);
+		previewTextRef = summary.simplified();
+		unescape(stripTags(previewTextRef));
+	}
+	return previewText_;
+}
+
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
 {
 	dbg.nospace() << "AtomFeed(" << f.title() << ", " << f.id() << ")\n";

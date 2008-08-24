@@ -2,5 +2,6 @@
 	<qresource prefix="/" >
 		<file>inittables.sql</file>
 		<file>google.png</file>
+		<file>star.png</file>
 	</qresource>
 </RCC>

@@ -56,10 +56,7 @@ QVariant FeedsModel::data(const QModelIndex& index, int role) const {
 }
 
 int FeedsModel::columnCount(const QModelIndex& parent) const {
-	if (parent.isValid())
-		return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
-	else
-		return root_.columnCount();
+	return 1;
 }
 
 Qt::ItemFlags FeedsModel::flags(const QModelIndex& index) const {
@@ -250,7 +247,7 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 		// Dropped on an actual TreeItem.
 		TreeItem* item = static_cast<TreeItem*>(parent.internalPointer());
 		// Climb up the tree until we find a folder.
-		while (item->rtti() != TreeItem::Folder) {
+		while (qobject_cast<FolderItem*>(item) == NULL) {
 			item = item->parent();
 		}
 

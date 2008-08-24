@@ -59,7 +59,6 @@ public:
 	FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data);
 	int columnCount() const;
 	QVariant data(int column) const;
-	TreeItem::Type rtti() const { return TreeItem::Feed; }
 	const Subscription& subscription() const { return data_->subscription(); }
 	const AtomEntry& entry(const QModelIndex& index) const;
 
@@ -69,6 +68,7 @@ public:
 	void addCategory(const QPair<QString,QString>& category);
 
 	// QAbstractTableModel
+	virtual int columnCount(const QModelIndex& parent) const;
 	virtual QVariant data(const QModelIndex& index, int role) const;
 	virtual int rowCount(const QModelIndex& parent) const;
 

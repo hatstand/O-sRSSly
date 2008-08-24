@@ -48,7 +48,6 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 
 		sorted_entries_->setSourceModel(model);
 		connect(model, SIGNAL(destroyed(QObject*)), SLOT(entryModelDeleted(QObject*)));
-		ui_.entries_->resizeColumnToContents(0);
 	}
 }
 

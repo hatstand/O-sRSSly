@@ -114,6 +114,10 @@ void FeedItemData::save() {
 	feed_.saveEntries();
 }
 
+int FeedItem::columnCount(const QModelIndex& parent) const {
+	return 4;
+}
+
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
@@ -127,6 +131,8 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 			return (e.read ? "Read" : "Unread");
 		case 2:
 			return e.date;
+		case 3:
+			return e.previewText();
 		default:
 			return QVariant();
 	}
