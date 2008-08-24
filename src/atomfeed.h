@@ -20,6 +20,7 @@ class AtomEntry
 {
 public:
 	AtomEntry(QXmlStreamReader& s);
+	AtomEntry(const QSqlQuery& query);
 	
 	QString title;
 	QString id;
@@ -28,6 +29,8 @@ public:
 	QDateTime date;
 	QUrl link;
 	bool read;
+	
+	qint64 rowid;
 };
 
 // Hash function for boost::multi_index
@@ -74,6 +77,7 @@ public:
 
 	AtomFeed();
 	AtomFeed(const QUrl& url, QIODevice* data);
+	AtomFeed(const QSqlQuery& query);
 	~AtomFeed();
 	
 	bool hasError() const { return m_error; }
@@ -95,6 +99,8 @@ public:
 
 	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);
+	
+	void saveEntries();
 
 private:
 	void parse(QIODevice* device);

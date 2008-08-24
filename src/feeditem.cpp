@@ -36,6 +36,7 @@ FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
 
 FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
 	: subscription_(query),
+	  feed_(query),
 	  api_(api),
 	  rowid_(query.value(0).toLongLong())
 {
@@ -56,6 +57,7 @@ void FeedItemData::update(const AtomFeed& feed) {
 		disconnect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), this, 0);
 		feed_.merge(feed);
 		emit updated();
+		save();
 	}
 }
 
@@ -78,6 +80,7 @@ void FeedItemData::removeCategory(const QString& category) {
 void FeedItemData::save() {
 	QSqlQuery query;
 	
+	// Save the feed itself
 	if (rowid_ == -1) {
 		query.prepare("INSERT INTO Feed (subscriptionId, subscriptionTitle, subscriptionSortId) VALUES (:id, :title, :sortId)");
 		query.bindValue(":id", subscription_.id());
@@ -99,12 +102,16 @@ void FeedItemData::save() {
 		query.exec();
 	}
 	
+	// Save the list of tags it has
 	query.prepare("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
 	foreach (const Category& category, subscription_.categories()) {
 		query.bindValue(":feedId", subscription_.id());
 		query.bindValue(":tagId", category.first);
 		query.exec();
 	}
+	
+	// Save its entries
+	feed_.saveEntries();
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {

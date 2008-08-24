@@ -21,10 +21,12 @@ CREATE TABLE IF NOT EXISTS Feed
 
 CREATE TABLE IF NOT EXISTS Entry
 (
+	feedId TEXT,
 	title TEXT,
 	id TEXT,
 	summary TEXT,
 	content TEXT,
-	date INTEGER,
+	date TEXT,
+	link TEXT,
 	read INTEGER
 )

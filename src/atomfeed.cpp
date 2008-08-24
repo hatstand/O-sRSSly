@@ -34,6 +34,21 @@ AtomFeed::AtomFeed(const QUrl& url, QIODevice* device)
 	parse(device);
 }
 
+AtomFeed::AtomFeed(const QSqlQuery& query)
+	: m_error(false),
+	  m_id(query.value(1).toString()),
+	  m_title(query.value(5).toString()),
+	  m_url(query.value(4).toString())
+{
+	QSqlQuery entryQuery;
+	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read FROM Entry WHERE feedId=:feedId");
+	entryQuery.bindValue(":feedId", m_id);
+	entryQuery.exec();
+	
+	while (entryQuery.next())
+		m_entries.insert(AtomEntry(entryQuery));
+}
+
 AtomFeed::~AtomFeed()
 {
 }
@@ -123,8 +138,31 @@ void AtomFeed::setRead(const AtomEntry& e) {
 	}
 }
 
+void AtomFeed::saveEntries() {
+	QSqlQuery query;
+	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read)");
+	query.bindValue(":feedId", m_id);
+	
+	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
+		const AtomEntry& entry(*it);
+		
+		if (entry.rowid != -1)
+			continue;
+		
+		query.bindValue(":title", entry.title);
+		query.bindValue(":id", entry.id);
+		query.bindValue(":summary", entry.summary);
+		query.bindValue(":content", entry.content);
+		query.bindValue(":date", entry.date.toString());
+		query.bindValue(":link", entry.link.toString());
+		query.bindValue(":read", QVariant(entry.read).toString());
+		query.exec();
+	}
+}
+
 AtomEntry::AtomEntry(QXmlStreamReader& s)
-	: read(false)
+	: read(false),
+	  rowid(-1)
 {
 	while (!s.atEnd())
 	{
@@ -160,6 +198,17 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 			break;
 		}
 	}
+}
+
+AtomEntry::AtomEntry(const QSqlQuery& query) {
+	rowid = query.value(0).toLongLong();
+	title = query.value(1).toString();
+	id = query.value(2).toString();
+	summary = query.value(3).toString();
+	content = query.value(4).toString();
+	date = QDateTime::fromString(query.value(5).toString());
+	link = query.value(6).toString();
+	read = query.value(7).toBool();
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
