@@ -357,7 +357,7 @@ void FeedsModel::load() {
 	}
 	
 	// Load feeds
-	query = QSqlQuery("SELECT ROWID, subscriptionId, subscriptionTitle, subscriptionSortId, feedUrl, feedTitle FROM Feed");
+	query = QSqlQuery("SELECT ROWID, id, title, sortId FROM Feed");
 	while (query.next())
 		addFeed(new FeedItemData(query, api_), false);
 }

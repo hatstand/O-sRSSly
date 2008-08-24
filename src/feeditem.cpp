@@ -82,7 +82,7 @@ void FeedItemData::save() {
 	
 	// Save the feed itself
 	if (rowid_ == -1) {
-		query.prepare("INSERT INTO Feed (subscriptionId, subscriptionTitle, subscriptionSortId) VALUES (:id, :title, :sortId)");
+		query.prepare("INSERT INTO Feed (id, title, sortId) VALUES (:id, :title, :sortId)");
 		query.bindValue(":id", subscription_.id());
 		query.bindValue(":title", subscription_.title());
 		query.bindValue(":sortId", subscription_.sortid());
@@ -90,7 +90,7 @@ void FeedItemData::save() {
 		
 		rowid_ = query.lastInsertId().toLongLong();
 	} else {
-		query.prepare("UPDATE Feed SET subscriptionId=:id, subscriptionTitle=:title, subscriptionSortId=:sortId WHERE ROWID=:rowid");
+		query.prepare("UPDATE Feed SET id=:id, title=:title, sortId=:sortId WHERE ROWID=:rowid");
 		query.bindValue(":id", subscription_.id());
 		query.bindValue(":title", subscription_.title());
 		query.bindValue(":sortId", subscription_.sortid());

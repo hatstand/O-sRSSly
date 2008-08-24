@@ -12,11 +12,9 @@ CREATE TABLE IF NOT EXISTS FeedTagMap
 
 CREATE TABLE IF NOT EXISTS Feed
 (
-	subscriptionId TEXT,
-	subscriptionTitle TEXT,
-	subscriptionSortId TEXT,
-	feedUrl TEXT,
-	feedTitle TEXT
+	id TEXT,
+	title TEXT,
+	sortId TEXT
 )
 
 CREATE TABLE IF NOT EXISTS Entry
