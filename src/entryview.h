@@ -29,6 +29,9 @@ public:
 	EntryView(QWidget* parent = 0);
 	virtual ~EntryView() {}
 
+protected slots:
+	void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
 private:
 	EntryDelegate* delegate_;
 };

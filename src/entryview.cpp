@@ -21,8 +21,19 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	QModelIndex title(index.sibling(index.row(), 0));
 	QModelIndex preview(index.sibling(index.row(), 3));
 	
-	// Draw line between items
 	QRect rect(option.rect);
+	QColor headingColor(Qt::black);
+	QColor previewColor(Qt::gray);
+	
+	// Draw selection background
+	if (option.state & QStyle::State_Selected)
+	{
+		painter->fillRect(rect, qApp->palette().color(QPalette::Highlight));
+		headingColor = qApp->palette().color(QPalette::HighlightedText);
+		//previewColor = Qt::
+	}
+	
+	// Draw line between items
 	painter->setPen(Qt::gray);
 	painter->drawLine(rect.bottomLeft(), rect.bottomRight());
 	
@@ -32,7 +43,7 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	rect.setTop(rect.top() + kMargin);
 	rect.setBottom(rect.bottom() - kMargin);
 	
-	painter->setPen(Qt::black);
+	painter->setPen(headingColor);
 	painter->setFont(headingFont_);
 	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, headingText);
 	
@@ -42,7 +53,7 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	if (rect.width() < 10)
 		return;
 	
-	painter->setPen(Qt::gray);
+	painter->setPen(previewColor);
 	painter->setFont(previewFont_);
 	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, previewText);
 }
@@ -58,5 +69,11 @@ EntryView::EntryView(QWidget* parent)
 	  delegate_(new EntryDelegate(this))
 {
 	setItemDelegate(delegate_);
+}
+
+void EntryView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+	if (selected.indexes().count() > 0)
+		emit activated(selected.indexes()[0]);
 }
 
