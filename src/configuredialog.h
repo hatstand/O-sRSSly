@@ -17,11 +17,14 @@ public:
 public slots:
 	void accept();
 	void show();
+	int exec();
 
 private slots:
 	void pageChanged(const QString& text);
 
 private:
+	void populateData();
+	
 	Ui::ConfigureDialog ui_;
 	Settings* settings_;
 };

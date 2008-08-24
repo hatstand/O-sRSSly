@@ -1,6 +1,7 @@
 #include "configuredialog.h"
 #include "feedsmodel.h"
 #include "mainwindow.h"
+#include "settings.h"
 
 #include <QSortFilterProxyModel>
 
@@ -28,6 +29,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	connect(ui_.entries_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(entrySelected(const QModelIndex&)));
+	
+	if (Settings::instance()->googleUsername().isNull())
+		if (configure_dialog_->exec() == QDialog::Rejected)
+			exit(0);
 }
 
 MainWindow::~MainWindow() {

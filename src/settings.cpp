@@ -16,12 +16,12 @@ Settings::Settings()
 
 QString Settings::googleUsername() const
 {
-	return m_settings.value("google/username", "timetabletest2@googlemail.com").toString();
+	return m_settings.value("google/username").toString();
 }
 
 QString Settings::googlePassword() const
 {
-	return m_settings.value("google/password", "timetabletestpassword").toString();
+	return m_settings.value("google/password").toString();
 }
 
 void Settings::setGoogleAccount(const QString& username, const QString& password)

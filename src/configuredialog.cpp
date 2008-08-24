@@ -8,6 +8,7 @@ ConfigureDialog::ConfigureDialog(QWidget* parent)
 	ui_.setupUi(this);
 	
 	connect(ui_.pageList_, SIGNAL(currentTextChanged(const QString&)), SLOT(pageChanged(const QString&)));
+	ui_.pageList_->setCurrentRow(0);
 }
 
 ConfigureDialog::~ConfigureDialog()
@@ -23,10 +24,20 @@ void ConfigureDialog::accept()
 
 void ConfigureDialog::show()
 {
+	populateData();
+	QDialog::show();
+}
+
+int ConfigureDialog::exec()
+{
+	populateData();
+	return QDialog::exec();
+}
+
+void ConfigureDialog::populateData()
+{
 	ui_.user_->setText(settings_->googleUsername());
 	ui_.password_->setText(settings_->googlePassword());
-	
-	QDialog::show();
 }
 
 void ConfigureDialog::pageChanged(const QString& text)

@@ -174,9 +174,9 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>pageList_</tabstop>
   <tabstop>user_</tabstop>
   <tabstop>password_</tabstop>
+  <tabstop>pageList_</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
