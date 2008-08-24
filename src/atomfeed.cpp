@@ -42,7 +42,7 @@ AtomFeed::AtomFeed(const QSqlQuery& query)
 {
 	QSqlQuery entryQuery;
 	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read FROM Entry WHERE feedId=:feedId");
-	entryQuery.bindValue(":feedId", m_id);
+	entryQuery.bindValue(":feedId", query.value(0).toLongLong());
 	entryQuery.exec();
 	
 	while (entryQuery.next())
@@ -138,10 +138,10 @@ void AtomFeed::setRead(const AtomEntry& e) {
 	}
 }
 
-void AtomFeed::saveEntries() {
+void AtomFeed::saveEntries(qint64 feedId) {
 	QSqlQuery query;
 	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read)");
-	query.bindValue(":feedId", m_id);
+	query.bindValue(":feedId", feedId);
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
 		const AtomEntry& entry(*it);

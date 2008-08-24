@@ -111,7 +111,7 @@ void FeedItemData::save() {
 	}
 	
 	// Save its entries
-	feed_.saveEntries();
+	feed_.saveEntries(rowid_);
 }
 
 int FeedItem::columnCount(const QModelIndex& parent) const {

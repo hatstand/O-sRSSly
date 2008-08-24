@@ -105,7 +105,7 @@ public:
 	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);
 	
-	void saveEntries();
+	void saveEntries(qint64 feedId);
 
 private:
 	void parse(QIODevice* device);
