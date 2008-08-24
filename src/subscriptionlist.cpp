@@ -50,7 +50,7 @@ Subscription::Subscription(const QSqlQuery& query) {
 	// Now load the list of categories
 	QSqlQuery categoryQuery;
 	categoryQuery.prepare("SELECT Tag.id, Tag.title FROM Tag INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId WHERE FeedTagMap.feedId=:feedId");
-	categoryQuery.bindValue(":feedId", id_);
+	categoryQuery.bindValue(":feedId", query.value(0).toLongLong());
 	categoryQuery.exec();
 	
 	while (categoryQuery.next())

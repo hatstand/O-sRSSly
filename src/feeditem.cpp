@@ -98,14 +98,14 @@ void FeedItemData::save() {
 		query.exec();
 		
 		query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
-		query.bindValue(":id", subscription_.id());
+		query.bindValue(":id", rowid_);
 		query.exec();
 	}
 	
 	// Save the list of tags it has
 	query.prepare("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
 	foreach (const Category& category, subscription_.categories()) {
-		query.bindValue(":feedId", subscription_.id());
+		query.bindValue(":feedId", rowid_);
 		query.bindValue(":tagId", category.first);
 		query.exec();
 	}
