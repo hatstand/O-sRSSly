@@ -15,8 +15,12 @@ public:
 private:
 	int itemHeight_;
 	QFont headingFont_;
+	QFont unreadFont_;
 	QFontMetrics headingMetrics_;
+	QFontMetrics unreadMetrics_;
 	QFont previewFont_;
+	
+	QIcon star_;
 	
 	static const int kMargin;
 	static const int kPreviewSpacing;

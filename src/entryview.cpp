@@ -9,17 +9,22 @@ const int EntryDelegate::kPreviewSpacing = 12;
 
 EntryDelegate::EntryDelegate(QObject* parent)
 	: QAbstractItemDelegate(parent),
-	  headingMetrics_(QApplication::font())
+	  headingMetrics_(QApplication::font()),
+	  unreadMetrics_(QApplication::font()),
+	  star_(":star.png")
 {
-	//headingFont_.setBold(true);
+	unreadFont_.setBold(true);
 	headingMetrics_ = QFontMetrics(headingFont_);
+	unreadMetrics_ = QFontMetrics(unreadFont_);
 	
 	itemHeight_ = qMax(32, QFontMetrics(headingFont_).height() + kMargin*2);
 }
 
 void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	QModelIndex title(index.sibling(index.row(), 0));
-	QModelIndex preview(index.sibling(index.row(), 3));
+	QString title(index.sibling(index.row(), 0).data().toString());
+	bool read(index.sibling(index.row(), 1).data().toBool());
+	QString preview(index.sibling(index.row(), 3).data().toString());
+	bool starred(index.sibling(index.row(), 4).data().toBool());
 	
 	QRect rect(option.rect);
 	QColor headingColor(Qt::black);
@@ -37,25 +42,29 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	painter->setPen(Qt::gray);
 	painter->drawLine(rect.bottomLeft(), rect.bottomRight());
 	
-	// Draw heading
-	QString headingText(title.data().toString());
+	// Draw star
 	rect.setLeft(rect.left() + kMargin);
 	rect.setTop(rect.top() + kMargin);
 	rect.setBottom(rect.bottom() - kMargin);
 	
+	QRect starRect(rect.left(), rect.top(), 22, rect.height());
+	painter->drawPixmap(starRect, star_.pixmap(22, 22, starred ? QIcon::Normal : QIcon::Disabled));
+	
+	// Draw heading
+	rect.setLeft(starRect.right() + kPreviewSpacing);
+	
 	painter->setPen(headingColor);
-	painter->setFont(headingFont_);
-	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, headingText);
+	painter->setFont(read ? headingFont_ : unreadFont_);
+	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
 	
 	// Draw preview
-	QString previewText(preview.data().toString());
-	rect.setLeft(headingMetrics_.width(headingText) + kMargin + kPreviewSpacing);
+	rect.setLeft(rect.left() + (read ? headingMetrics_ : unreadMetrics_).width(title) + kPreviewSpacing);
 	if (rect.width() < 10)
 		return;
 	
 	painter->setPen(previewColor);
 	painter->setFont(previewFont_);
-	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, previewText);
+	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, preview);
 }
 
 QSize EntryDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {

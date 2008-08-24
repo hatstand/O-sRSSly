@@ -128,11 +128,13 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 		case 0:
 			return e.title;
 		case 1:
-			return (e.read ? "Read" : "Unread");
+			return e.read;
 		case 2:
 			return e.date;
 		case 3:
 			return e.previewText();
+		case 4:
+			return false; // TODO: Starred
 		default:
 			return QVariant();
 	}
