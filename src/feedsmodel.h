@@ -50,9 +50,10 @@ private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
 	void dataDestroyed(QObject*);
+	void googleAccountChanged();
 
 private:
-	FolderItem root_;	
+	FolderItem root_;
 	ReaderApi* api_;
 	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;

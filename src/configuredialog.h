@@ -5,7 +5,10 @@
 
 #include <QDialog>
 
-class ConfigureDialog : public QDialog, public Ui::ConfigureDialog {
+class Settings;
+
+class ConfigureDialog : public QDialog
+{
 	Q_OBJECT
 public:
 	ConfigureDialog(QWidget* parent);
@@ -14,6 +17,13 @@ public:
 public slots:
 	void accept();
 	void show();
+
+private slots:
+	void pageChanged(const QString& text);
+
+private:
+	Ui::ConfigureDialog ui_;
+	Settings* settings_;
 };
 
 #endif

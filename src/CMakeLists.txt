@@ -14,6 +14,7 @@ SET(FEEDER-SOURCES
 	treeitem.cpp
 	xmlutils.cpp
 	database.cpp
+	settings.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -28,6 +29,7 @@ SET(FEEDER-MOC-HEADERS
 	readerapi.h
 	subscriptionlist.h
 	treeitem.h
+	settings.h
 )
 
 # UI files

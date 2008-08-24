@@ -1,5 +1,6 @@
 <RCC>
 	<qresource prefix="/" >
 		<file>inittables.sql</file>
+		<file>google.png</file>
 	</qresource>
 </RCC>

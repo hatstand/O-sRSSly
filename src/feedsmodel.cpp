@@ -1,24 +1,41 @@
 #include "feedsmodel.h"
 #include "readerapi.h"
+#include "settings.h"
 
 #include <QMimeData>
 #include <QRegExp>
 #include <QStringList>
 
 FeedsModel::FeedsModel(QObject* parent)
-	: QAbstractItemModel(parent), root_(0, "Root-Id", "/"),
-		api_(new ReaderApi("timetabletest2@googlemail.com", "timetabletestpassword", this)),
-		deleting_(false) {
-
-	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
-	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
-		SLOT(subscriptionListArrived(SubscriptionList)));
-
-	api_->login();
+	: QAbstractItemModel(parent),
+	  root_(0, "Root-Id", "/"),
+	  api_(NULL),
+	  deleting_(false)
+{
+	connect(Settings::instance(), SIGNAL(googleAccountChanged()), SLOT(googleAccountChanged()));
+	googleAccountChanged();
 }
 
 FeedsModel::~FeedsModel() {
 	deleting_ = true;
+}
+
+void FeedsModel::googleAccountChanged() {
+	// Clear any existing items in the model
+	root_.clear();
+	
+	// Make a new API instance
+	delete api_;
+	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), this);
+	
+	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
+	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
+		SLOT(subscriptionListArrived(SubscriptionList)));
+	
+	api_->login();
+	
+	// Notify any views that everything's disappeared
+	reset();
 }
 
 QVariant FeedsModel::data(const QModelIndex& index, int role) const {

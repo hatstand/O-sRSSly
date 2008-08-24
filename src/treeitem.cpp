@@ -10,7 +10,12 @@ TreeItem::TreeItem(TreeItem* parent, const QString& title)
 }
 
 TreeItem::~TreeItem() {
+	clear();
+}
+
+void TreeItem::clear() {
 	qDeleteAll(children_);
+	children_.clear();
 }
 
 void TreeItem::appendChild(TreeItem* child) {

@@ -20,6 +20,8 @@ public:
 
 	TreeItem(TreeItem* parent = 0, const QString& title = QString());
 	virtual ~TreeItem();
+	
+	void clear();
 
 	// TreeModel stuff.
 	void appendChild(TreeItem* child);
