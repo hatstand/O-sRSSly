@@ -1,9 +1,12 @@
 #include "feeditem.h"
 #include "readerapi.h"
 
+#include <QSqlQuery>
 
 FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)
-	: TreeItem(parent, data->subscription().title()), data_(data) {
+	: TreeItem(parent, data->subscription().title()),
+	  data_(data)
+{
 	id_ = data->subscription().id();
 	connect(data.get(), SIGNAL(updated()), SLOT(feedUpdated()));
 }
@@ -21,6 +24,21 @@ QVariant FeedItem::data(int column) const {
 		default:
 			return QVariant();
 	}
+}
+
+FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
+	: subscription_(s),
+	  api_(api),
+	  rowid_(-1)
+{
+	save();
+}
+
+FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
+	: subscription_(query),
+	  api_(api),
+	  rowid_(query.value(0).toLongLong())
+{
 }
 
 FeedItemData::~FeedItemData() {
@@ -55,6 +73,38 @@ void FeedItemData::removeCategory(const QString& category) {
 	qDebug() << "Removing" << category << "from" << subscription_.id();
 	subscription_.removeCategory(category);
 	api_->removeCategory(subscription_, category);
+}
+
+void FeedItemData::save() {
+	QSqlQuery query;
+	
+	if (rowid_ == -1) {
+		query.prepare("INSERT INTO Feed (subscriptionId, subscriptionTitle, subscriptionSortId) VALUES (:id, :title, :sortId)");
+		query.bindValue(":id", subscription_.id());
+		query.bindValue(":title", subscription_.title());
+		query.bindValue(":sortId", subscription_.sortid());
+		query.exec();
+		
+		rowid_ = query.lastInsertId().toLongLong();
+	} else {
+		query.prepare("UPDATE Feed SET subscriptionId=:id, subscriptionTitle=:title, subscriptionSortId=:sortId WHERE ROWID=:rowid");
+		query.bindValue(":id", subscription_.id());
+		query.bindValue(":title", subscription_.title());
+		query.bindValue(":sortId", subscription_.sortid());
+		query.bindValue(":rowid", rowid_);
+		query.exec();
+		
+		query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
+		query.bindValue(":id", subscription_.id());
+		query.exec();
+	}
+	
+	query.prepare("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
+	foreach (const Category& category, subscription_.categories()) {
+		query.bindValue(":feedId", subscription_.id());
+		query.bindValue(":tagId", category.first);
+		query.exec();
+	}
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {

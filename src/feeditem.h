@@ -14,7 +14,8 @@ class ReaderApi;
 class FeedItemData : public QObject {
 	Q_OBJECT
 public:
-	FeedItemData(const Subscription& s, ReaderApi* api) : subscription_(s), api_(api) {}
+	FeedItemData(const Subscription& s, ReaderApi* api);
+	FeedItemData(const QSqlQuery& query, ReaderApi* api);
 	~FeedItemData();
 	void setRead(const AtomEntry& e);
 
@@ -25,6 +26,8 @@ public:
 
 	void addCategory(const QPair<QString,QString>& category);
 	void removeCategory(const QString& category);
+	
+	void save();
 
 private slots:
 	void update(const AtomFeed& feed);
@@ -38,6 +41,7 @@ private:
 	// The atom entries.
 	AtomFeed feed_;
 	ReaderApi* api_;
+	qint64 rowid_;
 };
 
 /*

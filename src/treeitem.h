@@ -54,6 +54,8 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	// Number of atom entries within/below this node.
 	virtual int rowCount(const QModelIndex& parent) const = 0;
+	
+	virtual void save() {}
 
 public slots:
 	// Called when a child item is reset.
@@ -69,6 +71,7 @@ protected:
 	QList<TreeItem*> children_;
 	QString title_;
 	QString id_;
+	qint64 rowid_;
 };
 
 #endif

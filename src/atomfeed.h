@@ -76,8 +76,6 @@ public:
 	AtomFeed(const QUrl& url, QIODevice* data);
 	~AtomFeed();
 	
-	static QList<AtomFeed*> loadAll();
-	
 	bool hasError() const { return m_error; }
 	
 	// Subscription id.
@@ -91,9 +89,6 @@ public:
 
 	const QString& continuation() const { return m_continuation; }
 	
-	void load(const QString& id);
-	void save() const;
-
 	// Copy all the entries from the other AtomFeed into this one.
 	// New entries with duplicate ids are ignored.
 	void merge(const AtomFeed& other);
@@ -102,14 +97,11 @@ public:
 	void setRead(const AtomEntry& e);
 
 private:
-	void init();
-	void load(QSqlQuery& query);
 	void parse(QIODevice* device);
 	void parseFeed(QXmlStreamReader& s);
 	
 	bool m_error;
 	
-	qint64 m_dbId;
 	QString m_id;
 	QString m_title;
 	QUrl m_url;

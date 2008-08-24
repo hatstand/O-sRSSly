@@ -1,6 +1,7 @@
 #include "feedsmodel.h"
 #include "readerapi.h"
 #include "settings.h"
+#include "database.h"
 
 #include <QMimeData>
 #include <QRegExp>
@@ -10,10 +11,12 @@ FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent),
 	  root_(0, "Root-Id", "/"),
 	  api_(NULL),
+	  database_(new Database),
 	  deleting_(false)
 {
 	connect(Settings::instance(), SIGNAL(googleAccountChanged()), SLOT(googleAccountChanged()));
 	googleAccountChanged();
+	load();
 }
 
 FeedsModel::~FeedsModel() {
@@ -23,6 +26,8 @@ FeedsModel::~FeedsModel() {
 void FeedsModel::googleAccountChanged() {
 	// Clear any existing items in the model
 	root_.clear();
+	folder_mappings_.clear();
+	id_mappings_.clear();
 	
 	// Make a new API instance
 	delete api_;
@@ -130,44 +135,56 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 	foreach (const Subscription& s, list.subscriptions()) {
 		qDebug() << "Adding..." << s.title();
-
-		// Create actual shared data.
-		shared_ptr<FeedItemData> d(new FeedItemData(s, api_));
-
-		id_mappings_.insert(s.id(), d);
-		connect(d.get(), SIGNAL(destroyed(QObject*)), SLOT(dataDestroyed(QObject*)));
-		d->update();
-
-		// If it has no categories then insert at root level.
-		if (s.categories().isEmpty()) {
-			FeedItem* feed = new FeedItem(&root_, d);
-			root_.appendChild(feed);
-
+		
+		if (id_mappings_.contains(s.id()))
+		{
+			shared_ptr<FeedItemData> d(id_mappings_[s.id()]);
+			d.get()->update();
 			continue;
 		}
 
-		typedef QPair<QString, QString> Category;
-		// Insert a FeedItem under every category.
-		foreach (const Category& c, s.categories()) {
-			qDebug() << "Adding category..." << c.first << c.second;
-			TreeItem* parent = 0;
-			if (folder_mappings_.contains(c.first)) {
-				parent = folder_mappings_[c.first];
-			} else {
-				FolderItem* f = new FolderItem(&root_, c.first, c.second);
-				root_.appendChild(f);
-				folder_mappings_.insert(c.first, f);
-				parent = f;
-			}
-
-			FeedItem* feed = new FeedItem(parent, d);
-			parent->appendChild(feed);
-		}
-
+		addFeed(new FeedItemData(s, api_));
 	}
 
 	// Notify the view that the model has changed.
 	reset();
+}
+
+void FeedsModel::addFeed(FeedItemData* data, bool update)
+{
+	shared_ptr<FeedItemData> d(data);
+
+	id_mappings_.insert(d.get()->subscription().id(), d);
+	connect(d.get(), SIGNAL(destroyed(QObject*)), SLOT(dataDestroyed(QObject*)));
+	
+	if (update)
+		d->update();
+
+	// If it has no categories then insert at root level.
+	if (d.get()->subscription().categories().isEmpty()) {
+		FeedItem* feed = new FeedItem(&root_, d);
+		root_.appendChild(feed);
+
+		return;
+	}
+
+	// Insert a FeedItem under every category.
+	foreach (const Category& c, d.get()->subscription().categories()) {
+		qDebug() << "Adding category..." << c.first << c.second;
+		TreeItem* parent = 0;
+		if (folder_mappings_.contains(c.first)) {
+			parent = folder_mappings_[c.first];
+		} else {
+			FolderItem* f = new FolderItem(&root_, c.first, c.second);
+			f->save();
+			root_.appendChild(f);
+			folder_mappings_.insert(c.first, f);
+			parent = f;
+		}
+
+		FeedItem* feed = new FeedItem(parent, d);
+		parent->appendChild(feed);
+	}
 }
 
 QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) const {
@@ -330,4 +347,24 @@ void FeedsModel::dataDestroyed(QObject* object) {
 			return;
 		}
 	}
+}
+
+void FeedsModel::load() {
+	// Load tags
+	QSqlQuery query("SELECT ROWID, id, title FROM Tag");
+	while (query.next())
+	{
+		FolderItem* f = new FolderItem(&root_, query);
+		root_.appendChild(f);
+		folder_mappings_.insert(f->id(), f);
+	}
+	
+	// Load feeds
+	query = QSqlQuery("SELECT ROWID, subscriptionId, subscriptionTitle, subscriptionSortId, feedUrl, feedTitle FROM Feed");
+	while (query.next())
+		addFeed(new FeedItemData(query, api_), false);
+}
+
+void FeedsModel::save() {
+	
 }

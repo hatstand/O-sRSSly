@@ -1,7 +1,10 @@
 #include "treeitem.h"
 
 TreeItem::TreeItem(TreeItem* parent, const QString& title)
-	: parent_(parent), title_(title) {
+	: parent_(parent),
+	  title_(title),
+	  rowid_(-1)
+{
 	if (parent) {
 		connect(this, SIGNAL(modelReset()), parent, SLOT(childReset()));
 		connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),

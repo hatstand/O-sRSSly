@@ -1,10 +1,44 @@
 #include "folderitem.h"
 
 #include <QDebug>
+#include <QSqlQuery>
 
 FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
-	: TreeItem(parent, name) {
+	: TreeItem(parent, name)
+{
 	id_ = id;
+}
+
+FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query)
+	: TreeItem(parent)
+{
+	rowid_ = query.value(0).toLongLong();
+	id_ = query.value(1).toString();
+	title_ = query.value(2).toString();
+	
+	qDebug() << "Loaded folder" << rowid_ << id_ << title_;
+}
+
+void FolderItem::save()
+{
+	QSqlQuery query;
+	if (rowid_ == -1)
+	{
+		query.prepare("INSERT INTO Tag (id, title) VALUES (:id, :title)");
+		query.bindValue(":id", id_);
+		query.bindValue(":title", title_);
+		query.exec();
+		
+		rowid_ = query.lastInsertId().toLongLong();
+	}
+	else
+	{
+		query.prepare("UPDATE Tag SET id=:id, title=:title WHERE ROWID=:rowid");
+		query.bindValue(":id", id_);
+		query.bindValue(":title", title_);
+		query.bindValue(":rowid", rowid_);
+		query.exec();
+	}
 }
 
 int FolderItem::columnCount() const {

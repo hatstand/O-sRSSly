@@ -7,6 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include <QAbstractItemModel>
 #include <QMap>
@@ -15,8 +16,10 @@
 class AtomFeed;
 class ReaderApi;
 class TreeItem;
+class Database;
 
 using boost::shared_ptr;
+using boost::scoped_ptr;
 using boost::weak_ptr;
 
 // A tree model representing all the subscriptions and associated tags/folders.
@@ -45,6 +48,9 @@ public:
 
 	TreeItem* root();
 	QAbstractItemModel* getEntries(const QModelIndex& index) const;
+	
+	void load();
+	void save();
 
 private slots:
 	void loggedIn();
@@ -53,10 +59,13 @@ private slots:
 	void googleAccountChanged();
 
 private:
+	void addFeed(FeedItemData* data, bool update = true);
+	
 	FolderItem root_;
 	ReaderApi* api_;
 	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
+	scoped_ptr<Database> database_;
 
 	bool deleting_;
 };

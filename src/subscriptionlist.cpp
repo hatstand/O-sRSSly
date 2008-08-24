@@ -1,6 +1,9 @@
 #include "subscriptionlist.h"
 #include "xmlutils.h"
 
+#include <QSqlQuery>
+#include <QVariant>
+
 using namespace XmlUtils;
 
 Subscription::Subscription(QXmlStreamReader& s) {
@@ -36,6 +39,22 @@ Subscription::Subscription(QXmlStreamReader& s) {
 				break;
 		}
 	}
+}
+
+Subscription::Subscription(const QSqlQuery& query) {
+	// Load data about the subscription itself
+	id_ = query.value(1).toString();
+	title_ = query.value(2).toString();
+	sortid_ = query.value(3).toString();
+	
+	// Now load the list of categories
+	QSqlQuery categoryQuery;
+	categoryQuery.prepare("SELECT Tag.id, Tag.title FROM Tag INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId WHERE FeedTagMap.feedId=:feedId");
+	categoryQuery.bindValue(":feedId", id_);
+	categoryQuery.exec();
+	
+	while (categoryQuery.next())
+		addCategory(Category(categoryQuery.value(0).toString(), categoryQuery.value(1).toString()));
 }
 
 void Subscription::parseCategories(QXmlStreamReader& s) {
@@ -91,12 +110,12 @@ void Subscription::parseCategory(QXmlStreamReader& s) {
 	}
 }
 
-void Subscription::addCategory(const QPair<QString,QString>& category) {
+void Subscription::addCategory(const Category& category) {
 	categories_ << category;
 }
 
 void Subscription::removeCategory(const QString& category) {
-	QList<QPair<QString, QString> >::iterator it = categories_.begin();
+	QList<Category>::iterator it = categories_.begin();
 	for (; it != categories_.end(); ++it) {
 		if (it->first == category) {
 			categories_.erase(it);
@@ -139,7 +158,6 @@ SubscriptionList::SubscriptionList(QXmlStreamReader& s) {
 QDebug operator <<(QDebug dbg, const Subscription& s) {
 	dbg.nospace() << "Subscription(" << s.id() << ", " << s.title() << ", " << s.sortid() << ", Categories(";
 	
-	typedef QPair<QString, QString> Category;
 	foreach (const Category& c, s.categories()) {
 		dbg.nospace() << "[" << c.first << ", " << c.second << "],";
 	}

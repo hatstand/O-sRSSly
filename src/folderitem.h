@@ -10,6 +10,8 @@ class FolderItem : public TreeItem {
 	Q_OBJECT
 public:
 	FolderItem(TreeItem* parent, const QString& id, const QString& name);
+	FolderItem(TreeItem* parent, const QSqlQuery& query);
+	
 	int columnCount() const;
 	TreeItem::Type rtti() const { return TreeItem::Folder; }
 
@@ -29,6 +31,8 @@ public:
 
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);
+	
+	void save();
 
 public slots:
 	virtual void childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right);

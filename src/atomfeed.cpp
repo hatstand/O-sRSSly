@@ -22,25 +22,20 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e)
 	return dbg.space();
 }
 
-AtomFeed::AtomFeed() {
-	init();
+AtomFeed::AtomFeed()
+	: m_error(false)
+{
 }
 
 AtomFeed::AtomFeed(const QUrl& url, QIODevice* device)
-	: m_url(url)
+	: m_error(false),
+	  m_url(url)
 {
-	init();
 	parse(device);
 }
 
 AtomFeed::~AtomFeed()
 {
-}
-
-void AtomFeed::init()
-{
-	m_error = false;
-	m_dbId = -1;
 }
 
 void AtomFeed::parse(QIODevice* device)
@@ -165,61 +160,6 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 			break;
 		}
 	}
-}
-
-void AtomFeed::load(const QString& id)
-{
-	QSqlQuery query;
-	query.prepare("SELECT ROWID, url, id, title FROM feeds WHERE id=:id");
-	query.bindValue(":id", id);
-	query.exec();
-	
-	load(query);
-}
-
-void AtomFeed::load(QSqlQuery& query)
-{
-	m_dbId = query.value(0).toLongLong();
-	m_url = query.value(1).toString();
-	m_id = query.value(2).toString();
-	m_title = query.value(3).toString();
-}
-
-void AtomFeed::save() const
-{
-	QSqlQuery query;
-	if (m_dbId == -1)
-	{
-		query.prepare("INSERT INTO feeds (url, id, title) VALUES (:url, :id, :title)");
-		
-		query.bindValue(":url", m_url.toString());
-		query.bindValue(":id", m_id);
-		query.bindValue(":title", m_title);
-		
-		query.exec();
-		
-		const_cast<AtomFeed*>(this)->m_dbId = query.lastInsertId().toLongLong();
-	}
-	else
-	{
-		query.prepare("UPDATE FEEDS SET title=:title");
-		
-		query.bindValue(":title", m_title);
-		
-		query.exec();
-	}
-}
-
-QList<AtomFeed*> AtomFeed::loadAll()
-{
-	QList<AtomFeed*> ret;
-	
-	QSqlQuery query("SELECT ROWID, url, id, title FROM feeds");
-	while (query.next())
-	{
-	}
-
-	return ret;
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
