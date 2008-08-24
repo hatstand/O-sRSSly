@@ -14,7 +14,7 @@ int main (int argc, char** argv) {
 	app.setApplicationName("Feeder");
 
 	MainWindow win;
-	win.show();
+	win.showMaximized();
 	
 	return app.exec();
 }
