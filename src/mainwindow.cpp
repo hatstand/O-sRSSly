@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionSettings, SIGNAL(activated()), SLOT(showConfigure()));
 	
-	ui_.contents_->setContent("Hello, World!");
+	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
 	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 	connect(ui_.contents_, SIGNAL(linkClicked(const QUrl&)),
 		SLOT(externalLinkClicked(const QUrl&)));

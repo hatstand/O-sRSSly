@@ -9,5 +9,7 @@
 		<file>forward.png</file>
 		<file>stop.png</file>
 		<file>refresh.png</file>
+		<file>logo.png</file>
+		<file>welcome.html</file>
 	</qresource>
 </RCC>
