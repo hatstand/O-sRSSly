@@ -5,6 +5,7 @@
 #include "browser.h"
 
 #include <QSortFilterProxyModel>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
@@ -30,6 +31,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	connect(ui_.entries_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(entrySelected(const QModelIndex&)));
+	
+	connect(ui_.up_, SIGNAL(clicked()), ui_.entries_, SLOT(previous()));
+	connect(ui_.down_, SIGNAL(clicked()), ui_.entries_, SLOT(next()));
 	
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
@@ -65,6 +69,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
 	ui_.contents_->setContent(item->summary(real_index).toUtf8());
+	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
 
 	// Set read locally.
 	const_cast<TreeItem*>(item)->setRead(real_index);
@@ -95,8 +100,7 @@ void MainWindow::titleChanged(const QString& title) {
 	ui_.tabs_->setTabText(index, title);
 }
 
-void MainWindow::statusBarMessage(const QString& message)
-{
+void MainWindow::statusBarMessage(const QString& message) {
 	Browser* browser = static_cast<Browser*>(sender());
 	int index = ui_.tabs_->indexOf(browser);
 	
@@ -106,10 +110,27 @@ void MainWindow::statusBarMessage(const QString& message)
 	statusBar()->showMessage(message);
 }
 
-void MainWindow::iconChanged()
-{
+void MainWindow::iconChanged() {
 	Browser* browser = static_cast<Browser*>(sender());
 	int index = ui_.tabs_->indexOf(browser);
 	
 	ui_.tabs_->setTabIcon(index, browser->icon());
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event) {
+	switch (event->key()) {
+	case Qt::Key_N:
+	case Qt::Key_J:
+	case Qt::Key_Space:
+	case Qt::Key_Down:
+		ui_.entries_->next();
+		break;
+	case Qt::Key_P:
+	case Qt::Key_K:
+	case Qt::Key_Up:
+		ui_.entries_->previous();
+		break;
+	default:
+		break;
+	}
 }

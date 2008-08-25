@@ -27,6 +27,9 @@ private slots:
 	void statusBarMessage(const QString& message);
 	void iconChanged();
 	//void loadProgress(int loadProgress);
+
+protected:
+	void keyPressEvent(QKeyEvent* event);
 	
 private:
 	Ui_MainWindow ui_;

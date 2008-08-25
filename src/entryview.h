@@ -33,10 +33,15 @@ public:
 	EntryView(QWidget* parent = 0);
 	virtual ~EntryView() {}
 
+public slots:
+	void next();
+	void previous();
+
 protected slots:
 	void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
+	void moveSelection(int delta);
 	EntryDelegate* delegate_;
 };
 

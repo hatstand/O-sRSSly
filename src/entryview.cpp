@@ -80,9 +80,43 @@ EntryView::EntryView(QWidget* parent)
 	setItemDelegate(delegate_);
 }
 
-void EntryView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
-{
+void EntryView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	if (selected.indexes().count() > 0)
 		emit activated(selected.indexes()[0]);
+}
+
+void EntryView::next() {
+	moveSelection(+1);
+}
+
+void EntryView::previous() {
+	moveSelection(-1);
+}
+
+void EntryView::moveSelection(int delta) {
+	QModelIndexList selection(selectionModel()->selectedIndexes());
+	QModelIndex newSelection;
+	
+	if (model()->rowCount() == 0)
+		return;
+	
+	// Figure out which item we've got to select
+	if (selection.count() == 0)
+		newSelection = model()->index(0, 0);
+	else if (selection[0].row() + delta < 0)
+		return;
+	else
+		newSelection = selection[0].sibling(selection[0].row() + delta, 0);
+	
+	// Set our new selection
+	selectionModel()->select(newSelection, QItemSelectionModel::ClearAndSelect);
+	
+	// Repaint both the old selected item and the new selected item
+	setDirtyRegion(visualRect(newSelection));
+	if (selection.count() != 0)
+		setDirtyRegion(visualRect(selection[0]));
+	
+	// Scroll to the new one
+	scrollTo(newSelection);
 }
 
