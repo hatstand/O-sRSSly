@@ -23,6 +23,10 @@ private slots:
 	void entryModelDeleted(QObject* object);
 
 	void externalLinkClicked(const QUrl& url);
+	void titleChanged(const QString& title);
+	void statusBarMessage(const QString& message);
+	void iconChanged();
+	//void loadProgress(int loadProgress);
 	
 private:
 	Ui_MainWindow ui_;

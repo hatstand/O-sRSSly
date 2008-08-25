@@ -2,6 +2,7 @@
 #include "feedsmodel.h"
 #include "mainwindow.h"
 #include "settings.h"
+#include "browser.h"
 
 #include <QSortFilterProxyModel>
 
@@ -72,13 +73,43 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 void MainWindow::externalLinkClicked(const QUrl& url) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
-	QWebView* view = new QWebView(this);
-	int index = ui_.tabs_->addTab(view, url.toString());
+	Browser* browser = new Browser(this);
+	connect(browser, SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
+	connect(browser, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
+	connect(browser, SIGNAL(iconChanged()), SLOT(iconChanged()));
+	
+	int index = ui_.tabs_->addTab(browser, url.toString());
 	ui_.tabs_->setCurrentIndex(index);
 
-	view->setUrl(url);
+	browser->setUrl(url);
 }
 
 void MainWindow::entryModelDeleted(QObject* object) {
 	sorted_entries_->setSourceModel(0);
+}
+
+void MainWindow::titleChanged(const QString& title) {
+	Browser* browser = static_cast<Browser*>(sender());
+	int index = ui_.tabs_->indexOf(browser);
+	
+	ui_.tabs_->setTabText(index, title);
+}
+
+void MainWindow::statusBarMessage(const QString& message)
+{
+	Browser* browser = static_cast<Browser*>(sender());
+	int index = ui_.tabs_->indexOf(browser);
+	
+	if (index != ui_.tabs_->currentIndex())
+		return;
+	
+	statusBar()->showMessage(message);
+}
+
+void MainWindow::iconChanged()
+{
+	Browser* browser = static_cast<Browser*>(sender());
+	int index = ui_.tabs_->indexOf(browser);
+	
+	ui_.tabs_->setTabIcon(index, browser->icon());
 }

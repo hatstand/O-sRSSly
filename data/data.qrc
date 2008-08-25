@@ -3,5 +3,11 @@
 		<file>inittables.sql</file>
 		<file>google.png</file>
 		<file>star.png</file>
+		<file>up.png</file>
+		<file>down.png</file>
+		<file>back.png</file>
+		<file>forward.png</file>
+		<file>stop.png</file>
+		<file>refresh.png</file>
 	</qresource>
 </RCC>

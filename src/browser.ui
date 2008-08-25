@@ -1,0 +1,231 @@
+<ui version="4.0" >
+ <class>Browser</class>
+ <widget class="QWidget" name="Browser" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3" >
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="back_" >
+       <property name="toolTip" >
+        <string>Back</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../data/data.qrc" >
+         <normaloff>:/back.png</normaloff>:/back.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="forward_" >
+       <property name="toolTip" >
+        <string>Forward</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../data/data.qrc" >
+         <normaloff>:/forward.png</normaloff>:/forward.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="stack_" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>31</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QToolButton" name="reload_" >
+           <property name="toolTip" >
+            <string>Reload</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="../data/data.qrc" >
+             <normaloff>:/refresh.png</normaloff>:/refresh.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_2" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>31</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QToolButton" name="stop_" >
+           <property name="toolTip" >
+            <string>Stop</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="../data/data.qrc" >
+             <normaloff>:/stop.png</normaloff>:/stop.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="address_" />
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWebView" name="webView_" >
+     <property name="url" >
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="0" margin="0" />
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>address_</tabstop>
+  <tabstop>webView_</tabstop>
+  <tabstop>back_</tabstop>
+  <tabstop>forward_</tabstop>
+  <tabstop>reload_</tabstop>
+  <tabstop>stop_</tabstop>
+ </tabstops>
+ <includes/>
+ <resources>
+  <include location="../data/data.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>back_</sender>
+   <signal>clicked()</signal>
+   <receiver>webView_</receiver>
+   <slot>back()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>25</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>24</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>forward_</sender>
+   <signal>clicked()</signal>
+   <receiver>webView_</receiver>
+   <slot>forward()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>50</x>
+     <y>14</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>55</x>
+     <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>reload_</sender>
+   <signal>clicked()</signal>
+   <receiver>webView_</receiver>
+   <slot>reload()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>81</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>87</x>
+     <y>65</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stop_</sender>
+   <signal>clicked()</signal>
+   <receiver>webView_</receiver>
+   <slot>stop()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>78</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>88</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

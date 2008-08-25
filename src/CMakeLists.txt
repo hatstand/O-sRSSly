@@ -16,6 +16,7 @@ SET(FEEDER-SOURCES
 	database.cpp
 	settings.cpp
 	entryview.cpp
+	browser.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -32,12 +33,14 @@ SET(FEEDER-MOC-HEADERS
 	treeitem.h
 	settings.h
 	entryview.h
+	browser.h
 )
 
 # UI files
 SET(FEEDER-UI
 	configuredialog.ui
 	mainwindow.ui
+	browser.ui
 )
 
 # Resource files
