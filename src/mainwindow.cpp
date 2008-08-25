@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "settings.h"
 #include "browser.h"
+#include "xmlutils.h"
 
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	menuBar()->hide();
 	statusBar()->hide();
+	ui_.subtitleStack_->hide();
 
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
@@ -49,6 +51,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	connect(ui_.entries_, SIGNAL(canGoUpChanged(bool)), ui_.actionPrevious_, SLOT(setEnabled(bool)));
 	connect(ui_.entries_, SIGNAL(canGoDownChanged(bool)), ui_.actionNext_, SLOT(setEnabled(bool)));
+	
+	// Other things on the title bar
+	connect(ui_.seeOriginal_, SIGNAL(linkActivated(const QString&)), SLOT(seeOriginal(const QString&)));
 	
 	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull())
@@ -81,11 +86,22 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
 	QModelIndex real_index = sorted_entries_->mapToSource(index);
-
+	QModelIndex link = real_index.sibling(real_index.row(), 5);
 	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
-	ui_.contents_->setContent(item->summary(real_index).toUtf8());
 	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
+	
+	if (item->summary(real_index).length() == 0) {
+		ui_.contents_->setUrl(link.data().toUrl());
+		ui_.subtitleStack_->setCurrentIndex(1);
+	} else {
+		ui_.contents_->setContent(item->summary(real_index).toUtf8());
+		ui_.subtitleStack_->setCurrentIndex(0);
+		ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.data().toUrl().toString()) + "\">See original</a>");
+	}
+	
+	ui_.subtitleStack_->show();
+	ui_.tabs_->setCurrentIndex(0);
 
 	// Set read locally.
 	const_cast<TreeItem*>(item)->setRead(real_index);
@@ -131,5 +147,9 @@ void MainWindow::iconChanged() {
 	int index = ui_.tabs_->indexOf(browser);
 	
 	ui_.tabs_->setTabIcon(index, browser->icon());
+}
+
+void MainWindow::seeOriginal(const QString& url) {
+	externalLinkClicked(QUrl(url));
 }
 

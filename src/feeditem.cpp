@@ -121,7 +121,7 @@ void FeedItemData::save() {
 }
 
 int FeedItem::columnCount(const QModelIndex& parent) const {
-	return 4;
+	return 6;
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
@@ -141,6 +141,8 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 			return e.previewText();
 		case 4:
 			return false; // TODO: Starred
+		case 5:
+			return e.link;
 		default:
 			return QVariant();
 	}

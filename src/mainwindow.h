@@ -17,6 +17,7 @@ public slots:
 	void showConfigure();
 
 private slots:
+	void seeOriginal(const QString& url);
 	void subscriptionSelected(const QModelIndex& index);
 	void entrySelected(const QModelIndex& index);
 
