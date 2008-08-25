@@ -8,7 +8,7 @@ FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)
 	  data_(data)
 {
 	id_ = data->subscription().id();
-	connect(data.get(), SIGNAL(updated()), SLOT(feedUpdated()));
+	connect(data.get(), SIGNAL(rowsInserted(int, int)), SLOT(feedRowsInserted(int, int)));
 }
 
 int FeedItem::columnCount() const {
@@ -55,9 +55,15 @@ void FeedItemData::update(const AtomFeed& feed) {
 	if (feed.id() == subscription_.id()) {
 		qDebug() << "Update arrived for..." << subscription_.id();
 		disconnect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), this, 0);
+		
+		int beforeCount = feed_.entries().size();
 		feed_.merge(feed);
-		emit updated();
-		save();
+		int afterCount = feed_.entries().size();
+		
+		if (beforeCount != afterCount) {
+			emit rowsInserted(beforeCount, afterCount-1);
+			save();
+		}
 	}
 }
 
@@ -168,8 +174,9 @@ void FeedItem::setRead(const QModelIndex& index) {
 	emit dataChanged(top_left, top_left);
 }
 
-void FeedItem::feedUpdated() {
-	reset();
+void FeedItem::feedRowsInserted(int from, int to) {
+	beginInsertRows(QModelIndex(), from, to);
+	endInsertRows();
 }
 
 void FeedItem::fetchMore(const QModelIndex&) {

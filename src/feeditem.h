@@ -33,7 +33,7 @@ private slots:
 	void update(const AtomFeed& feed);
 
 signals:
-	void updated();
+	void rowsInserted(int from, int to);
 
 private:
 	// The feed id & title etc.
@@ -76,7 +76,7 @@ public:
 	virtual void fetchMore(const QModelIndex& parent);
 
 private slots:
-	void feedUpdated();
+	void feedRowsInserted(int from, int to);
 
 private:
 	shared_ptr<FeedItemData> data_;

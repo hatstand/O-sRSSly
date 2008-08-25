@@ -103,7 +103,9 @@ void EntryView::moveSelection(int delta) {
 	// Figure out which item we've got to select
 	if (selection.count() == 0)
 		newSelection = model()->index(0, 0);
-	else if (selection[0].row() + delta < 0)
+	else if (selection[0].row() + delta < 0 && delta < 0) // First one
+		return;
+	else if (selection[0].row() == model()->rowCount(selection[0].parent())-1 && delta > 0) // Last one
 		return;
 	else
 		newSelection = selection[0].sibling(selection[0].row() + delta, 0);
