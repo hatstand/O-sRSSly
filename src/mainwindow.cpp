@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	menuBar()->hide();
 	statusBar()->hide();
 	ui_.subtitleStack_->hide();
+	ui_.date_->hide();
 
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
@@ -90,9 +91,12 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	
 	QModelIndex real_index = sorted_entries_->mapToSource(index);
 	QUrl link(real_index.sibling(real_index.row(), 5).data().toUrl());
+	QDateTime date(real_index.sibling(real_index.row(), 2).data().toDateTime());
 	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
 	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
+	ui_.date_->setText(date.toString());
+	ui_.date_->show();
 	
 	switch (Settings::instance()->behaviour(item->id())) {
 		case Settings::Auto:
