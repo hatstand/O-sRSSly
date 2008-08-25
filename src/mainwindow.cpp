@@ -75,10 +75,12 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 	if (model) {
 		if (!sorted_entries_) {
 			sorted_entries_ = new QSortFilterProxyModel(this);
+			sorted_entries_->setDynamicSortFilter(true);
 			ui_.entries_->setModel(sorted_entries_);
 		}
 
 		sorted_entries_->setSourceModel(model);
+		sorted_entries_->sort(2, Qt::DescendingOrder);
 		connect(model, SIGNAL(destroyed(QObject*)), SLOT(entryModelDeleted(QObject*)));
 	}
 }
