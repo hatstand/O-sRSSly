@@ -83,6 +83,19 @@ EntryView::EntryView(QWidget* parent)
 void EntryView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	if (selected.indexes().count() > 0)
 		emit activated(selected.indexes()[0]);
+	
+	emitUpDown();
+}
+
+void EntryView::rowsInserted(const QModelIndex& parent, int start, int end) {
+	QListView::rowsInserted(parent, start, end);
+	
+	emitUpDown();
+}
+
+void EntryView::emitUpDown() {
+	emit canGoUpChanged(canGoUp());
+	emit canGoDownChanged(canGoDown());
 }
 
 void EntryView::next() {
@@ -94,19 +107,16 @@ void EntryView::previous() {
 }
 
 void EntryView::moveSelection(int delta) {
+	if (delta < 0 && !canGoUp() ||
+	    delta > 0 && !canGoDown())
+		return;
+	
 	QModelIndexList selection(selectionModel()->selectedIndexes());
 	QModelIndex newSelection;
-	
-	if (model()->rowCount() == 0)
-		return;
 	
 	// Figure out which item we've got to select
 	if (selection.count() == 0)
 		newSelection = model()->index(0, 0);
-	else if (selection[0].row() + delta < 0 && delta < 0) // Are we already at the start?
-		return;
-	else if (selection[0].row() == model()->rowCount(selection[0].parent())-1 && delta > 0) // Or already at the end?
-		return;
 	else
 		newSelection = selection[0].sibling(selection[0].row() + delta, 0);
 	
@@ -120,5 +130,33 @@ void EntryView::moveSelection(int delta) {
 	
 	// Scroll to the new one
 	scrollTo(newSelection);
+}
+
+bool EntryView::canGoUp() const {
+	if (!selectionModel())
+		return false;
+	if (model()->rowCount() == 0)
+		return false;
+	
+	QModelIndexList selection(selectionModel()->selectedIndexes());
+	if (selection.count() == 0)
+		return true;
+	if (selection[0].row() <= 0) // Are we already at the start?
+		return false;
+	return true;
+}
+
+bool EntryView::canGoDown() const {
+	if (!selectionModel())
+		return false;
+	if (model()->rowCount() == 0)
+		return false;
+	
+	QModelIndexList selection(selectionModel()->selectedIndexes());
+	if (selection.count() == 0)
+		return true;
+	if (selection[0].row() >= model()->rowCount(selection[0].parent()) - 1) // Are we already at the start?
+		return false;
+	return true;
 }
 

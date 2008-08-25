@@ -32,6 +32,13 @@ class EntryView : public QListView {
 public:
 	EntryView(QWidget* parent = 0);
 	virtual ~EntryView() {}
+	
+	bool canGoUp() const;
+	bool canGoDown() const;
+
+signals:
+	void canGoUpChanged(bool);
+	void canGoDownChanged(bool);
 
 public slots:
 	void next();
@@ -39,6 +46,10 @@ public slots:
 
 protected slots:
 	void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+	void rowsInserted(const QModelIndex& parent, int start, int end);
+
+private slots:
+	void emitUpDown();
 
 private:
 	void moveSelection(int delta);

@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(new QShortcut(Qt::Key_J, this), SIGNAL(activated()), ui_.actionNext_, SLOT(trigger()));
 	connect(new QShortcut(Qt::Key_K, this), SIGNAL(activated()), ui_.actionPrevious_, SLOT(trigger()));
 	
+	connect(ui_.entries_, SIGNAL(canGoUpChanged(bool)), ui_.actionPrevious_, SLOT(setEnabled(bool)));
+	connect(ui_.entries_, SIGNAL(canGoDownChanged(bool)), ui_.actionNext_, SLOT(setEnabled(bool)));
+	
 	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
