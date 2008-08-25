@@ -16,9 +16,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  configure_dialog_(new ConfigureDialog(this))
 {
 	ui_.setupUi(this);
+	
+	menuBar()->hide();
+	statusBar()->hide();
 
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
-	connect(ui_.actionSettings, SIGNAL(activated()), SLOT(showConfigure()));
+	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
+	ui_.configure_->setDefaultAction(ui_.actionConfigure_);
 	
 	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
 	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
