@@ -16,11 +16,16 @@ protected:
 private slots:
 	void updateClicked();
 	void renameFeedClicked();
+	void behaviourChanged(int);
 
 private:
 	QMenu* feed_menu_;
+	QMenu* behaviour_menu_;
+	
+	QAction* behaviour_actions_[3];
 
 	QModelIndex clicked_index_;
+	QString clicked_id_;
 };
 
 #endif

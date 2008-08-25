@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 		SLOT(externalLinkClicked(const QUrl&)));
 
 	ui_.feeds_->setModel(feeds_model_);
+	ui_.feeds_->hideColumn(1);
 
 	connect(ui_.feeds_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(subscriptionSelected(const QModelIndex&)));
@@ -86,21 +87,37 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
 	QModelIndex real_index = sorted_entries_->mapToSource(index);
-	QModelIndex link = real_index.sibling(real_index.row(), 5);
+	QUrl link(real_index.sibling(real_index.row(), 5).data().toUrl());
 	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
 	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
 	
-	if (item->summary(real_index).length() == 0) {
-		ui_.contents_->setUrl(link.data().toUrl());
-		ui_.subtitleStack_->setCurrentIndex(1);
-	} else {
-		ui_.contents_->setContent(item->summary(real_index).toUtf8());
-		ui_.subtitleStack_->setCurrentIndex(0);
-		ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.data().toUrl().toString()) + "\">See original</a>");
+	switch (Settings::instance()->behaviour(item->id())) {
+		case Settings::Auto:
+			if (item->summary(real_index).length() == 0) {
+				ui_.contents_->setUrl(link);
+				ui_.subtitleStack_->setCurrentIndex(1);
+			} else {
+				ui_.contents_->setContent(item->summary(real_index).toUtf8());
+				ui_.subtitleStack_->setCurrentIndex(0);
+				ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
+			}
+			ui_.subtitleStack_->show();
+			break;
+			
+		case Settings::ShowInline:
+			ui_.contents_->setContent(item->summary(real_index).toUtf8());
+			ui_.subtitleStack_->setCurrentIndex(0);
+			ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
+			ui_.subtitleStack_->show();
+			break;
+		
+		case Settings::OpenInBrowser:
+			ui_.contents_->setUrl(link);
+			ui_.subtitleStack_->hide();
+			break;
 	}
 	
-	ui_.subtitleStack_->show();
 	ui_.tabs_->setCurrentIndex(0);
 
 	// Set read locally.
