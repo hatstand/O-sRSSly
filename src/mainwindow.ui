@@ -174,26 +174,10 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item>
-              <widget class="QToolButton" name="up_" >
-               <property name="toolTip" >
-                <string>Previous story</string>
-               </property>
-               <property name="icon" >
-                <iconset resource="../data/data.qrc" >
-                 <normaloff>:/up.png</normaloff>:/up.png</iconset>
-               </property>
-              </widget>
+              <widget class="QToolButton" name="up_" />
              </item>
              <item>
-              <widget class="QToolButton" name="down_" >
-               <property name="toolTip" >
-                <string>Next story</string>
-               </property>
-               <property name="icon" >
-                <iconset resource="../data/data.qrc" >
-                 <normaloff>:/down.png</normaloff>:/down.png</iconset>
-               </property>
-              </widget>
+              <widget class="QToolButton" name="down_" />
              </item>
             </layout>
            </widget>
@@ -257,6 +241,36 @@ p, li { white-space: pre-wrap; }
   <action name="actionQuit" >
    <property name="text" >
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionNext_" >
+   <property name="icon" >
+    <iconset resource="../data/data.qrc" >
+     <normaloff>:/down.png</normaloff>:/down.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Next</string>
+   </property>
+   <property name="toolTip" >
+    <string>Next story</string>
+   </property>
+   <property name="shortcut" >
+    <string>N</string>
+   </property>
+  </action>
+  <action name="actionPrevious_" >
+   <property name="icon" >
+    <iconset resource="../data/data.qrc" >
+     <normaloff>:/up.png</normaloff>:/up.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Previous</string>
+   </property>
+   <property name="toolTip" >
+    <string>Previous story</string>
+   </property>
+   <property name="shortcut" >
+    <string>P</string>
    </property>
   </action>
  </widget>

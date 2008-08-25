@@ -6,6 +6,7 @@
 
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
@@ -32,9 +33,17 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.entries_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(entrySelected(const QModelIndex&)));
 	
-	connect(ui_.up_, SIGNAL(clicked()), ui_.entries_, SLOT(previous()));
-	connect(ui_.down_, SIGNAL(clicked()), ui_.entries_, SLOT(next()));
+	// Connect the up and down actions
+	connect(ui_.actionPrevious_, SIGNAL(triggered(bool)), ui_.entries_, SLOT(previous()));
+	connect(ui_.actionNext_, SIGNAL(triggered(bool)), ui_.entries_, SLOT(next()));
+	ui_.up_->setDefaultAction(ui_.actionPrevious_);
+	ui_.down_->setDefaultAction(ui_.actionNext_);
 	
+	// Extra shortcuts for up and down
+	connect(new QShortcut(Qt::Key_J, this), SIGNAL(activated()), ui_.actionNext_, SLOT(trigger()));
+	connect(new QShortcut(Qt::Key_K, this), SIGNAL(activated()), ui_.actionPrevious_, SLOT(trigger()));
+	
+	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
 			exit(0);
@@ -117,20 +126,3 @@ void MainWindow::iconChanged() {
 	ui_.tabs_->setTabIcon(index, browser->icon());
 }
 
-void MainWindow::keyPressEvent(QKeyEvent* event) {
-	switch (event->key()) {
-	case Qt::Key_N:
-	case Qt::Key_J:
-	case Qt::Key_Space:
-	case Qt::Key_Down:
-		ui_.entries_->next();
-		break;
-	case Qt::Key_P:
-	case Qt::Key_K:
-	case Qt::Key_Up:
-		ui_.entries_->previous();
-		break;
-	default:
-		break;
-	}
-}
