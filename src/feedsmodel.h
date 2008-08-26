@@ -2,7 +2,7 @@
 #define FEEDS_MODEL_H
 
 #include "feeditem.h"
-#include "folderitem.h"
+#include "rootitem.h"
 #include "subscriptionlist.h"
 
 #include <boost/shared_ptr.hpp>
@@ -17,6 +17,8 @@ class AtomFeed;
 class ReaderApi;
 class TreeItem;
 class Database;
+class AllItems;
+class FolderItem;
 
 using boost::shared_ptr;
 using boost::scoped_ptr;
@@ -61,7 +63,8 @@ private slots:
 private:
 	void addFeed(FeedItemData* data, bool update = true);
 	
-	FolderItem root_;
+	RootItem root_;
+	AllItems* all_items_;
 	ReaderApi* api_;
 	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;

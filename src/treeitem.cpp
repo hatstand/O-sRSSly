@@ -1,14 +1,18 @@
 #include "treeitem.h"
 
+#include <QDebug>
+
 TreeItem::TreeItem(TreeItem* parent, const QString& title)
 	: parent_(parent),
+	  changed_proxy_(NULL),
+	  fail_prevention_(false),
 	  title_(title),
 	  rowid_(-1)
 {
 	if (parent) {
 		connect(this, SIGNAL(modelReset()), parent, SLOT(childReset()));
-		connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-			parent, SLOT(childChanged(const QModelIndex&, const QModelIndex&)));
+		connect(this, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+			parent, SLOT(childRowsInserted(const QModelIndex&, int, int)));
 	}
 }
 
@@ -58,7 +62,7 @@ QVariant TreeItem::data(int column) const {
 
 
 int TreeItem::columnCount(const QModelIndex& parent) const {
-	return 1;
+	return 6;
 }
 
 QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -80,14 +84,37 @@ QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role
 	return QVariant();
 }
 
+void TreeItem::childRowsInserted(const QModelIndex& parent, int start, int end) {
+	childRowsInserted(static_cast<TreeItem*>(sender()), parent, start, end);
+}
+
 void TreeItem::childReset() {
 	reset();
 }
 
-void TreeItem::childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right) {
-	emit reset();
-}
-
 void TreeItem::childDestroyed(QObject* object) {
 	children_.removeAll(static_cast<TreeItem*>(object));
+}
+
+void TreeItem::childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end) {
+	if (fail_prevention_)
+		return;
+	
+	fail_prevention_ = true;
+	if (changed_proxy_)
+		changed_proxy_->childRowsInserted(sender, parent, start, end);
+	else if (parent_)
+		parent_->childRowsInserted(sender, parent, start, end);
+	fail_prevention_ = false;
+}
+
+QList<TreeItem*> TreeItem::allChildren() const {
+	QList<TreeItem*> ret;
+	
+	foreach (TreeItem* child, children_) {
+		ret << child;
+		ret << child->allChildren();
+	}
+	
+	return ret;
 }

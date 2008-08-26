@@ -6,8 +6,10 @@
 #include "treeitem.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 using boost::shared_ptr;
+using boost::weak_ptr;
 
 class ReaderApi;
 
@@ -68,12 +70,13 @@ public:
 	void addCategory(const QPair<QString,QString>& category);
 
 	// QAbstractTableModel
-	virtual int columnCount(const QModelIndex& parent) const;
 	virtual QVariant data(const QModelIndex& index, int role) const;
 	virtual int rowCount(const QModelIndex& parent) const;
 
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
+	
+	const weak_ptr<FeedItemData> feedItemData() const { return data_; }
 
 private slots:
 	void feedRowsInserted(int from, int to);

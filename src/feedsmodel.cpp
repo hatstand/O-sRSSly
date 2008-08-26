@@ -2,6 +2,8 @@
 #include "readerapi.h"
 #include "settings.h"
 #include "database.h"
+#include "allitems.h"
+#include "folderitem.h"
 
 #include <QMimeData>
 #include <QRegExp>
@@ -9,7 +11,8 @@
 
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent),
-	  root_(0, "Root-Id", "/"),
+	  root_(NULL),
+	  all_items_(NULL),
 	  api_(NULL),
 	  database_(new Database),
 	  deleting_(false)
@@ -28,6 +31,12 @@ void FeedsModel::googleAccountChanged() {
 	root_.clear();
 	folder_mappings_.clear();
 	id_mappings_.clear();
+	
+	// Add an "all items" node.
+	// This gets deleted by root_.clear()
+	all_items_ = new AllItems(&root_);
+	root_.appendChild(all_items_);
+	root_.installChangedProxy(all_items_);
 	
 	// Make a new API instance
 	delete api_;
@@ -79,7 +88,7 @@ QModelIndex FeedsModel::index(int row, int column, const QModelIndex& parent) co
 
 	TreeItem* parent_item;
 	if (!parent.isValid())
-		parent_item = const_cast<FolderItem*>(&root_);
+		parent_item = const_cast<RootItem*>(&root_);
 	else
 		parent_item = static_cast<TreeItem*>(parent.internalPointer());
 
@@ -112,7 +121,7 @@ int FeedsModel::rowCount(const QModelIndex& parent) const {
 		return 0;
 
 	if (!parent.isValid())
-		parent_item = const_cast<FolderItem*>(&root_);
+		parent_item = const_cast<RootItem*>(&root_);
 	else
 		parent_item = static_cast<TreeItem*>(parent.internalPointer());
 

@@ -21,6 +21,8 @@ public:
 	// TreeModel stuff.
 	void appendChild(TreeItem* child);
 	TreeItem* child(int row);
+	const QList<TreeItem*>& children() const { return children_; }
+	QList<TreeItem*> allChildren() const;
 	int childCount() const;
 	virtual int columnCount() const = 0;
 	// Which child this item is.
@@ -49,18 +51,25 @@ public:
 	virtual int rowCount(const QModelIndex& parent) const = 0;
 	
 	virtual void save() {}
+	
+	void installChangedProxy(TreeItem* other) { changed_proxy_ = other; }
 
 public slots:
-	// Called when a child item is reset.
-	virtual void childReset();
-	// Called when a child's data changes. Indices are from the child.
-	virtual void childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right);
-	// Called when a child is destroyed.
-	virtual void childDestroyed(QObject* object);
+	// Called when rows are inserted into a child
+	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);
 
+private slots:
+	// Called when a child item is reset.
+	void childReset();
+	// Called when rows are inserted into a child
+	void childRowsInserted(const QModelIndex& parent, int start, int end);
+	// Called when a child is destroyed.
+	void childDestroyed(QObject* object);
 
 protected:
 	TreeItem* parent_;
+	TreeItem* changed_proxy_;
+	bool fail_prevention_;
 	QList<TreeItem*> children_;
 	QString title_;
 	QString id_;

@@ -123,7 +123,10 @@ void FolderItem::setRead(const QModelIndex& index) {
 	item->setRead(i);
 }
 
-void FolderItem::childChanged(const QModelIndex& top_left, const QModelIndex& bottom_right) {
+// TODO: Fix this shit
+/*void FolderItem::childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right) {
+	TreeItem::childChanged(top_left, bottom_right);
+	
 	TreeItem* item = static_cast<TreeItem*>(sender());
 
 	int rows = 0;
@@ -138,4 +141,4 @@ void FolderItem::childChanged(const QModelIndex& top_left, const QModelIndex& bo
 	QModelIndex bottom_right_new = createIndex(rows + bottom_right.row(), bottom_right.column());
 
 	emit dataChanged(top_left_new, bottom_right_new);
-}
+}*/

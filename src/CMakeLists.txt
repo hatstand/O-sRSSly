@@ -18,6 +18,8 @@ SET(FEEDER-SOURCES
 	entryview.cpp
 	browser.cpp
 	webclipview.cpp
+	allitems.cpp
+	rootitem.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -36,6 +38,8 @@ SET(FEEDER-MOC-HEADERS
 	entryview.h
 	browser.h
 	webclipview.h
+	allitems.h
+	rootitem.h
 )
 
 # UI files

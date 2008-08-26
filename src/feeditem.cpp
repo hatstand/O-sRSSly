@@ -120,10 +120,6 @@ void FeedItemData::save() {
 	feed_.saveEntries(rowid_);
 }
 
-int FeedItem::columnCount(const QModelIndex& parent) const {
-	return 6;
-}
-
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
@@ -177,6 +173,7 @@ void FeedItem::setRead(const QModelIndex& index) {
 }
 
 void FeedItem::feedRowsInserted(int from, int to) {
+	qDebug() << __PRETTY_FUNCTION__;
 	beginInsertRows(QModelIndex(), from, to);
 	endInsertRows();
 }

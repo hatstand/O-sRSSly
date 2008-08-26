@@ -1,16 +1,15 @@
-#ifndef FOLDERITEM_H
-#define FOLDERITEM_H
+#ifndef ALLITEMS_H
+#define ALLITEMS_H
 
 #include "treeitem.h"
 
 /*
- * Represents a single folder/tag containing other feeds/folders.
+ * Folder that contains all other feeds
  */
-class FolderItem : public TreeItem {
+class AllItems : public TreeItem {
 	Q_OBJECT
 public:
-	FolderItem(TreeItem* parent, const QString& id, const QString& name);
-	FolderItem(TreeItem* parent, const QSqlQuery& query);
+	AllItems(TreeItem* parent);
 	
 	int columnCount() const;
 
@@ -29,15 +28,15 @@ public:
 
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);
-	
-	void save();
 
 public slots:
-	//virtual void childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right);
+	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);
 
 private:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
+	
+	int row_count_;
 };
 
 #endif

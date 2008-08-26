@@ -19,6 +19,7 @@ class QSqlQuery;
 class AtomEntry
 {
 public:
+	AtomEntry() {}
 	AtomEntry(QXmlStreamReader& s);
 	AtomEntry(const QSqlQuery& query);
 	
