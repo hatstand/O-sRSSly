@@ -14,5 +14,6 @@
 		<file>icon.png</file>
 		<file>welcome.html</file>
 		<file>helpers.js</file>
+		<file>edit-cut.png</file>
 	</qresource>
 </RCC>
