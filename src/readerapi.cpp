@@ -27,6 +27,7 @@ const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
 // Edit Urls
 const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/edit-tag");
 const char* ReaderApi::kReadTag("user/-/state/com.google/read");
+const char* ReaderApi::kStarredTag("user/-/state/com.google/starred");
 const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/subscription/edit");
 
 // Atom feed url base
@@ -178,10 +179,18 @@ void ReaderApi::getTokenComplete() {
 }
 
 void ReaderApi::setRead(const AtomEntry& e) {
-	qDebug() << __PRETTY_FUNCTION__;
+	setState(e, kReadTag);
+}
+
+void ReaderApi::setStarred(const AtomEntry& e) {
+	setState(e, kStarredTag);
+}
+
+void ReaderApi::setState(const AtomEntry& e, const char* state) {
+	qDebug() << __PRETTY_FUNCTION__ << state;
 
 	QString content;
-	content.sprintf("i=%s&a=%s&ac=edit", e.id.toStdString().c_str(), kReadTag);
+	content.sprintf("i=%s&a=%s&ac=edit", e.id.toStdString().c_str(), state);
 
 	QUrl url(kEditTagUrl);
 	url.addQueryItem("client", kApplicationSource);

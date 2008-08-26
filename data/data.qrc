@@ -13,5 +13,6 @@
 		<file>logo.png</file>
 		<file>icon.png</file>
 		<file>welcome.html</file>
+		<file>helpers.js</file>
 	</qresource>
 </RCC>

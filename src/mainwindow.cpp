@@ -14,7 +14,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  feeds_model_(new FeedsModel(this)),
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
-	  configure_dialog_(new ConfigureDialog(this))
+	  configure_dialog_(new ConfigureDialog(this)),
+	  webclipping_(false)
 {
 	ui_.setupUi(this);
 	
@@ -61,6 +62,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
 			exit(0);
+	
+	connect(ui_.actionWebclip_, SIGNAL(triggered(bool)), SLOT(webclipClicked()));
+	ui_.webclip_->setDefaultAction(ui_.actionWebclip_);
 }
 
 MainWindow::~MainWindow() {
@@ -176,3 +180,9 @@ void MainWindow::seeOriginal(const QString& url) {
 	externalLinkClicked(QUrl(url));
 }
 
+void MainWindow::webclipClicked() {
+	qDebug() << __PRETTY_FUNCTION__;
+	webclipping_ = !webclipping_;
+
+	ui_.contents_->setWebclipping(webclipping_);
+}

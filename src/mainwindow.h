@@ -27,6 +27,7 @@ private slots:
 	void titleChanged(const QString& title);
 	void statusBarMessage(const QString& message);
 	void iconChanged();
+	void webclipClicked();
 	//void loadProgress(int loadProgress);
 	
 private:
@@ -37,4 +38,6 @@ private:
 	QMenu* feed_menu_;
 
 	ConfigureDialog* configure_dialog_;
+
+	bool webclipping_;
 };

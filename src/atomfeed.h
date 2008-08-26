@@ -31,6 +31,7 @@ public:
 	QDateTime date;
 	QUrl link;
 	bool read;
+	bool starred;
 	
 	qint64 rowid;
 

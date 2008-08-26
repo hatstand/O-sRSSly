@@ -22,12 +22,14 @@ public:
 	void getSubscription(const Subscription& s, const QString& continuation = "");
 	void getUnread();
 	void setRead(const AtomEntry& e);
+	void setStarred(const AtomEntry& e);
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
 
 private:
 	void getToken();
 	void editCategory(const Subscription& s, const QString& category, bool add);
+	void setState(const AtomEntry& e, const char* state);
 
 private slots:
 	void loginComplete();
@@ -78,6 +80,7 @@ private:
 	
 	static const QUrl kEditTagUrl;
 	static const char* kReadTag;
+	static const char* kStarredTag;
 	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;

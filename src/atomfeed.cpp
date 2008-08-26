@@ -39,7 +39,7 @@ AtomFeed::AtomFeed(const QSqlQuery& query)
 	  m_id(query.value(1).toString())
 {
 	QSqlQuery entryQuery;
-	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read FROM Entry WHERE feedId=:feedId");
+	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read, starred FROM Entry WHERE feedId=:feedId");
 	entryQuery.bindValue(":feedId", query.value(0).toLongLong());
 	entryQuery.exec();
 	
@@ -138,7 +138,7 @@ void AtomFeed::setRead(const AtomEntry& e) {
 
 void AtomFeed::saveEntries(qint64 feedId) {
 	QSqlQuery query;
-	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read)");
+	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred)");
 	query.bindValue(":feedId", feedId);
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
@@ -154,12 +154,14 @@ void AtomFeed::saveEntries(qint64 feedId) {
 		query.bindValue(":date", entry.date.toString());
 		query.bindValue(":link", entry.link.toString());
 		query.bindValue(":read", QVariant(entry.read).toString());
+		query.bindValue(":starred", QVariant(entry.starred).toString());
 		query.exec();
 	}
 }
 
 AtomEntry::AtomEntry(QXmlStreamReader& s)
 	: read(false),
+	  starred(false),
 	  rowid(-1)
 {
 	while (!s.atEnd())
@@ -178,6 +180,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				summary = s.readElementText();
 			else if (s.name() == "category" && s.attributes().value("label") == "read")
 				read = true;
+			else if (s.name() == "category" && s.attributes().value("label") == "starred")
+				starred = true;
 			else if (s.name() == "updated")
 				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
 			else if (s.name() == "link")
@@ -207,6 +211,7 @@ AtomEntry::AtomEntry(const QSqlQuery& query) {
 	date = QDateTime::fromString(query.value(5).toString());
 	link = query.value(6).toString();
 	read = query.value(7).toBool();
+	starred = query.value(8).toBool();
 }
 
 const QString& AtomEntry::previewText() const {

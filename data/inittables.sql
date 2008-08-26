@@ -26,5 +26,6 @@ CREATE TABLE IF NOT EXISTS Entry
 	content TEXT,
 	date TEXT,
 	link TEXT,
-	read INTEGER
+	read INTEGER,
+	starred INTEGER
 )

@@ -17,6 +17,7 @@ SET(FEEDER-SOURCES
 	settings.cpp
 	entryview.cpp
 	browser.cpp
+	webclipview.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -34,6 +35,7 @@ SET(FEEDER-MOC-HEADERS
 	settings.h
 	entryview.h
 	browser.h
+	webclipview.h
 )
 
 # UI files

@@ -107,8 +107,8 @@ void EntryView::previous() {
 }
 
 void EntryView::moveSelection(int delta) {
-	if (delta < 0 && !canGoUp() ||
-	    delta > 0 && !canGoDown())
+	if ((delta < 0 && !canGoUp()) ||
+	    (delta > 0 && !canGoDown()))
 		return;
 	
 	QModelIndexList selection(selectionModel()->selectedIndexes());
