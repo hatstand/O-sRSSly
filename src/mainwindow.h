@@ -28,6 +28,8 @@ private slots:
 	void statusBarMessage(const QString& message);
 	void iconChanged();
 	void webclipClicked();
+	void closeTab();
+	void tabChanged(int tab);
 	//void loadProgress(int loadProgress);
 	
 private:

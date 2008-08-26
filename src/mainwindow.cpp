@@ -58,6 +58,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	// Other things on the title bar
 	connect(ui_.seeOriginal_, SIGNAL(linkActivated(const QString&)), SLOT(seeOriginal(const QString&)));
 	
+	// Close button for tabs
+	QToolButton* closeTabButton = new QToolButton(this);
+	closeTabButton->setDefaultAction(ui_.actionCloseTab_);
+	ui_.tabs_->setCornerWidget(closeTabButton, Qt::BottomLeftCorner);
+	connect(ui_.actionCloseTab_, SIGNAL(triggered(bool)), SLOT(closeTab()));
+	connect(ui_.tabs_, SIGNAL(currentChanged(int)), SLOT(tabChanged(int)));
+	
 	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
@@ -185,4 +192,18 @@ void MainWindow::webclipClicked() {
 	webclipping_ = !webclipping_;
 
 	ui_.contents_->setWebclipping(webclipping_);
+}
+
+void MainWindow::closeTab() {
+	int index = ui_.tabs_->currentIndex();
+	if (index == 0)
+		return;
+	
+	QWidget* widget = ui_.tabs_->widget(index);
+	ui_.tabs_->removeTab(index);
+	delete widget;
+}
+
+void MainWindow::tabChanged(int tab) {
+	ui_.actionCloseTab_->setEnabled(tab != 0);
 }

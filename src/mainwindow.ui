@@ -20,9 +20,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>28</y>
+     <y>27</y>
      <width>1010</width>
-     <height>745</height>
+     <height>747</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -184,8 +184,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>688</width>
-           <height>220</height>
+           <width>681</width>
+           <height>231</height>
           </rect>
          </property>
          <attribute name="title" >
@@ -321,7 +321,7 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>586</width>
+                    <width>548</width>
                     <height>20</height>
                    </rect>
                   </property>
@@ -416,7 +416,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1010</width>
-     <height>28</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -432,9 +432,9 @@ p, li { white-space: pre-wrap; }
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>773</y>
+     <y>774</y>
      <width>1010</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
@@ -495,6 +495,21 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text" >
     <string>Webclip</string>
+   </property>
+  </action>
+  <action name="actionCloseTab_" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="../data/data.qrc" >
+     <normaloff>:/close_tab.png</normaloff>:/close_tab.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Close Tab</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>
