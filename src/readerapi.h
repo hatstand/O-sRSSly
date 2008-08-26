@@ -40,6 +40,7 @@ private slots:
 	void networkError(QNetworkReply::NetworkError code);
 	void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
 	void processActionQueue();
+	void actionFailed();
 
 signals:
 	void loggedIn();

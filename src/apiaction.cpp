@@ -1,6 +1,7 @@
 #include "apiaction.h"
 
 #include <QDebug>
+#include <QRegExp>
 
 ApiAction::ApiAction(const QNetworkRequest& req,
 	QNetworkAccessManager::Operation op,
@@ -34,17 +35,31 @@ void ApiAction::start(QNetworkAccessManager* manager) {
 
 	Q_ASSERT(reply_);
 
+	// Make sure we don't connect more than once.
+	reply_->disconnect();
 	connect(reply_, SIGNAL(finished()), SLOT(requestFinished()));
 	emit started();
 }
 
 void ApiAction::requestFinished() {
-	emit completed();
-	deleteLater();
+	if (reply_->error() == QNetworkReply::NoError) {
+		emit completed();
+		deleteLater();
+	} else {
+		emit failed();
+	}
 }
 
 void ApiAction::addToken(const QByteArray& t) {
 	if (op_ == QNetworkAccessManager::PostOperation) {
+		QString temp(content_);
+
+		// Strip old token if present.
+		if (temp.contains(QRegExp("&T=.{57}$"))) {
+			temp.chop(60);
+			content_ = temp.toUtf8();
+		}
+
 		content_ += "&T=";
 		content_ += t;
 	}

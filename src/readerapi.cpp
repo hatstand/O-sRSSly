@@ -159,6 +159,8 @@ void ReaderApi::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors) 
 void ReaderApi::getToken() {
 	qDebug() << __PRETTY_FUNCTION__;
 
+	getting_token_ = true;
+
 	QNetworkRequest req(kTokenUrl);
 	QNetworkReply* reply = network_->get(req);
 	connect(reply, SIGNAL(finished()), SLOT(getTokenComplete()));
@@ -171,6 +173,8 @@ void ReaderApi::getTokenComplete() {
 
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 	token_ = reply->readAll();
+
+	getting_token_ = false;
 
 	processActionQueue();
 	emit tokenReady();
@@ -238,6 +242,7 @@ void ReaderApi::processActionQueue() {
 		while (!queued_actions_.isEmpty()) {
 			ApiAction* a = queued_actions_.dequeue();
 			a->addToken(token_.toUtf8());
+			connect(a, SIGNAL(failed()), SLOT(actionFailed()));
 			a->start(network_);
 		}
 	} else if (token_.isEmpty() && !getting_token_) {
@@ -268,4 +273,14 @@ void ReaderApi::getSubscriptionComplete() {
 	}
 
 	reply->deleteLater();
+}
+
+void ReaderApi::actionFailed() {
+	// Token probably expired.
+	if (!getting_token_) {
+		token_.clear();
+		getToken();
+	}
+
+	queued_actions_.enqueue(static_cast<ApiAction*>(sender()));
 }

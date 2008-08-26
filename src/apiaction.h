@@ -36,6 +36,7 @@ private slots:
 signals:
 	void started();
 	void completed();
+	void failed();
 };
 
 
