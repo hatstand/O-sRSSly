@@ -120,3 +120,13 @@ void AllItems::childRowsInserted(TreeItem* sender, const QModelIndex& parent, in
 	beginInsertRows(QModelIndex(), rows + start, rows + end);
 	endInsertRows();
 }
+
+QString AllItems::real_id(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid()) {
+		return static_cast<const TreeItem*>(item.model())->real_id(item);
+	} else {
+		return id_;
+	}
+}

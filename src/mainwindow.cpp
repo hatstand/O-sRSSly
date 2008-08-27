@@ -109,7 +109,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
 	
-	switch (Settings::instance()->behaviour(item->id())) {
+	switch (Settings::instance()->behaviour(item->real_id(real_index))) {
 		case Settings::Auto:
 			if (item->summary(real_index).length() == 0) {
 				ui_.contents_->setUrl(link);

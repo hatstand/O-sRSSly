@@ -123,6 +123,16 @@ void FolderItem::setRead(const QModelIndex& index) {
 	item->setRead(i);
 }
 
+QString FolderItem::real_id(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid()) {
+		return static_cast<const TreeItem*>(item.model())->real_id(item);
+	} else {
+		return id_;
+	}
+}
+
 // TODO: Fix this shit
 /*void FolderItem::childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right) {
 	TreeItem::childChanged(top_left, bottom_right);

@@ -185,3 +185,7 @@ void FeedItem::fetchMore(const QModelIndex&) {
 void FeedItem::addCategory(const QPair<QString,QString>& category) {
 	data_->addCategory(category);
 }
+
+QString FeedItem::real_id(const QModelIndex& index) const {
+	return id_;
+}

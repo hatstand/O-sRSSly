@@ -11,6 +11,7 @@ public:
 	int columnCount() const { return 1; }
 	
 	virtual QString summary(const QModelIndex& index) const { return QString::null; }
+	QString real_id(const QModelIndex& index) const { return QString::null; }
 
 	const AtomEntry& entry(const QModelIndex& index) const { return sDummy; }
 	void setRead(const QModelIndex& index) {}

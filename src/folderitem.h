@@ -14,6 +14,8 @@ public:
 	
 	int columnCount() const;
 
+	QString real_id(const QModelIndex& index) const;
+
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
 	// ie. a row index of 0 will return the first row from the first child.
