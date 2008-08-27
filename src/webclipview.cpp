@@ -20,6 +20,21 @@ const QString WebclipView::kGetRectJs =
 	"rect += element.offsetHeight;"
 	"rect;";
 
+const QString WebclipView::kGetXpathJs =
+	"var element = document.elementFromPoint(%1, %2);"
+	"var temp = element;"
+	"var xpath = \"\";"
+	"do {"
+		"var sibling = temp;"
+		"var child_number = 0;"
+		"while (sibling = sibling.previousSibling) {"
+			"++child_number;"
+		"}"
+		"xpath = \"/*[\" + child_number + \"]\" + xpath;"
+	"} while (temp = temp.parentNode);"
+	"xpath;";
+
+
 WebclipView::WebclipView(QWidget* parent)
 	: QWebView(parent),
 	  webclipping_(false) {
@@ -53,6 +68,13 @@ void WebclipView::mouseMoveEvent(QMouseEvent* event) {
 		current_rect_ = QRect(left, top - height, width, height);
 
 		update();
+	}
+}
+
+void WebclipView::mousePressEvent(QMouseEvent* event) {
+	if (webclipping_) {
+		QString js = kGetXpathJs.arg(event->x()).arg(event->y());
+		QVariant ret = page()->currentFrame()->evaluateJavaScript(js);
 	}
 }
 

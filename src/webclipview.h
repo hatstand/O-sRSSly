@@ -10,6 +10,7 @@ public:
 	void setWebclipping(bool enable = true) { webclipping_ = enable; }
 private:
 	virtual void mouseMoveEvent(QMouseEvent* event);
+	virtual void mousePressEvent(QMouseEvent* event);
 	virtual void paintEvent(QPaintEvent* event);
 
 private slots:
@@ -20,6 +21,7 @@ private:
 	QRect current_rect_;
 
 	static const QString kGetRectJs;
+	static const QString kGetXpathJs;
 	static QString kHelperJs;
 };
 
