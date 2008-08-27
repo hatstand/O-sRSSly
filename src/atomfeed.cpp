@@ -125,6 +125,16 @@ void AtomFeed::merge(const AtomFeed& other) {
 	m_continuation = other.m_continuation;
 }
 
+void AtomFeed::add(const AtomEntry& e) {
+	if (!m_id.isEmpty() && m_id != e.id) {
+		qWarning() << "Attempting to add non-matching entry";
+		qDebug() << m_id << e.id;
+		return;
+	}
+
+	m_entries.insert(e);
+}
+
 void AtomFeed::setRead(const AtomEntry& e) {
 	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
 
@@ -186,6 +196,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
 			else if (s.name() == "link")
 				link = QUrl(s.attributes().value("href").toString());
+			else if (s.name() == "source")
+				parseSource(s);
 			else
 				ignoreElement(s);
 			
@@ -225,6 +237,29 @@ const QString& AtomEntry::previewText() const {
 		unescape(stripTags(previewTextRef));
 	}
 	return previewText_;
+}
+
+void AtomEntry::parseSource(QXmlStreamReader& s) {
+	while (!s.atEnd()) {
+		QXmlStreamReader::TokenType type = s.readNext();
+		switch (type) {
+			case QXmlStreamReader::StartElement:
+				if (s.name() == "id")
+					source = s.readElementText();
+				else
+					ignoreElement(s);
+
+				break;
+			
+			case QXmlStreamReader::EndElement:
+				if (s.name() == "source")
+					return;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)

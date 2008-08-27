@@ -3,14 +3,16 @@
 
 #include "treeitem.h"
 
+class ReaderApi;
+
 /*
  * Represents a single folder/tag containing other feeds/folders.
  */
 class FolderItem : public TreeItem {
 	Q_OBJECT
 public:
-	FolderItem(TreeItem* parent, const QString& id, const QString& name);
-	FolderItem(TreeItem* parent, const QSqlQuery& query);
+	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api);
+	FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api);
 	
 	int columnCount() const;
 
@@ -34,12 +36,17 @@ public:
 	
 	void save();
 
+	void setContinuation(const QString& continuation) { continuation_ = continuation; }
+
 public slots:
 	//virtual void childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right);
 
 private:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
+
+	ReaderApi* api_;
+	QString continuation_;
 };
 
 #endif

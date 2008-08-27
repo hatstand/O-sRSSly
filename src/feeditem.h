@@ -25,6 +25,7 @@ public:
 	const Subscription& subscription() { return subscription_; }
 
 	void update();
+	void update(const AtomEntry& e);
 
 	void addCategory(const QPair<QString,QString>& category);
 	void removeCategory(const QString& category);

@@ -2,6 +2,7 @@
 #include "subscriptionlist.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkRequest>
@@ -28,6 +29,7 @@ const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
 const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/edit-tag");
 const char* ReaderApi::kReadTag("user/-/state/com.google/read");
 const char* ReaderApi::kStarredTag("user/-/state/com.google/starred");
+const char* ReaderApi::kFreshTag("user/-/state/com.google/fresh");
 const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/subscription/edit");
 
 // Atom feed url base
@@ -283,4 +285,44 @@ void ReaderApi::actionFailed() {
 	}
 
 	queued_actions_.enqueue(static_cast<ApiAction*>(sender()));
+}
+
+void ReaderApi::getFresh() {
+	QUrl url(kAtomUrl.toString() + kFreshTag);
+
+	QNetworkRequest req(url);
+	QNetworkReply* reply = network_->get(req);
+	connect(reply, SIGNAL(finished()), SLOT(getFreshComplete()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::getFreshComplete() {
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+
+	qDebug() << reply->readAll();
+
+	reply->deleteLater();
+}
+
+void ReaderApi::getCategory(const QString& category, const QString& continuation) {
+	QUrl url(kAtomUrl.toString() + category);
+	if (!continuation.isEmpty())
+		url.addQueryItem("c", continuation);
+
+	QNetworkRequest req(url);
+	QNetworkReply* reply = network_->get(req);
+	connect(reply, SIGNAL(finished()), SLOT(getCategoryComplete()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),	
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::getCategoryComplete() {
+	qDebug() << __PRETTY_FUNCTION__;
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+
+	AtomFeed feed(reply->url(), reply);
+	emit categoryArrived(feed);
+
+	reply->deleteLater();
 }

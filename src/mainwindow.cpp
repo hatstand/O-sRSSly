@@ -15,11 +15,12 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
 	  configure_dialog_(new ConfigureDialog(this)),
-	  webclipping_(false)
+	  webclipping_(false),
+	  unread_only_(false)
 {
 	ui_.setupUi(this);
 	
-	menuBar()->hide();
+	//menuBar()->hide();
 	statusBar()->hide();
 	ui_.subtitleStack_->hide();
 	ui_.date_->hide();
@@ -64,6 +65,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.tabs_->setCornerWidget(closeTabButton, Qt::BottomLeftCorner);
 	connect(ui_.actionCloseTab_, SIGNAL(triggered(bool)), SLOT(closeTab()));
 	connect(ui_.tabs_, SIGNAL(currentChanged(int)), SLOT(tabChanged(int)));
+
+	connect(ui_.actionUnreadOnly_, SIGNAL(triggered(bool)), SLOT(showUnreadOnly(bool)));
 	
 	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull())
@@ -89,6 +92,11 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 			sorted_entries_ = new QSortFilterProxyModel(this);
 			sorted_entries_->setDynamicSortFilter(true);
 			ui_.entries_->setModel(sorted_entries_);
+			sorted_entries_->setFilterKeyColumn(1);
+			// Filter on read/unread.
+			if (unread_only_) {
+				sorted_entries_->setFilterFixedString("false");
+			}
 		}
 
 		sorted_entries_->setSourceModel(model);
@@ -206,4 +214,16 @@ void MainWindow::closeTab() {
 
 void MainWindow::tabChanged(int tab) {
 	ui_.actionCloseTab_->setEnabled(tab != 0);
+}
+
+void MainWindow::showUnreadOnly(bool enable) {
+	unread_only_ = enable;
+
+	if (sorted_entries_) {
+		if (unread_only_) {
+			sorted_entries_->setFilterFixedString("false");
+		} else {
+			sorted_entries_->setFilterFixedString(QString::null);
+		}
+	}
 }

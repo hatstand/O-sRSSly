@@ -31,6 +31,7 @@ private slots:
 	void closeTab();
 	void tabChanged(int tab);
 	//void loadProgress(int loadProgress);
+	void showUnreadOnly(bool enable);
 	
 private:
 	Ui_MainWindow ui_;
@@ -42,4 +43,5 @@ private:
 	ConfigureDialog* configure_dialog_;
 
 	bool webclipping_;
+	bool unread_only_;
 };

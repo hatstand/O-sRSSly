@@ -32,19 +32,21 @@ void FeedsModel::googleAccountChanged() {
 	folder_mappings_.clear();
 	id_mappings_.clear();
 	
-	// Add an "all items" node.
-	// This gets deleted by root_.clear()
-	all_items_ = new AllItems(&root_);
-	root_.appendChild(all_items_);
-	root_.installChangedProxy(all_items_);
-	
 	// Make a new API instance
 	delete api_;
 	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), this);
+
+	// Add an "all items" node.
+	// This gets deleted by root_.clear()
+	all_items_ = new AllItems(&root_, api_);
+	root_.appendChild(all_items_);
+	root_.installChangedProxy(all_items_);
 	
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
+	connect(api_, SIGNAL(categoryArrived(const AtomFeed&)),
+		SLOT(categoryFeedArrived(const AtomFeed&)));
 	
 	api_->login();
 	
@@ -181,7 +183,7 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 		if (folder_mappings_.contains(c.first)) {
 			parent = folder_mappings_[c.first];
 		} else {
-			FolderItem* f = new FolderItem(&root_, c.first, c.second);
+			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_);
 			f->save();
 			root_.appendChild(f);
 			folder_mappings_.insert(c.first, f);
@@ -360,7 +362,7 @@ void FeedsModel::load() {
 	QSqlQuery query("SELECT ROWID, id, title FROM Tag");
 	while (query.next())
 	{
-		FolderItem* f = new FolderItem(&root_, query);
+		FolderItem* f = new FolderItem(&root_, query, api_);
 		root_.appendChild(f);
 		folder_mappings_.insert(f->id(), f);
 	}
@@ -373,4 +375,23 @@ void FeedsModel::load() {
 
 void FeedsModel::save() {
 	
+}
+
+void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
+	qDebug() << __PRETTY_FUNCTION__;
+	QMap<QString, FolderItem*>::const_iterator it = folder_mappings_.find(feed.id());
+	if (it == folder_mappings_.end())
+		return;
+
+	it.value()->setContinuation(feed.continuation());
+
+	for (AtomFeed::AtomList::const_iterator kt = feed.entries().begin(); kt != feed.entries().end(); ++kt) {
+		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(kt->id);
+		if (jt == id_mappings_.end())
+			continue;
+
+		// Grab reference.
+		shared_ptr<FeedItemData> data(jt.value());
+		data->update(*kt);
+	}
 }

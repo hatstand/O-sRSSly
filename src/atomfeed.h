@@ -33,10 +33,12 @@ public:
 	QUrl link;
 	bool read;
 	bool starred;
+	QString source;
 	
 	qint64 rowid;
 
 private:
+	void parseSource(QXmlStreamReader& s);
 	QString previewText_;
 };
 
@@ -103,6 +105,9 @@ public:
 	// Copy all the entries from the other AtomFeed into this one.
 	// New entries with duplicate ids are ignored.
 	void merge(const AtomFeed& other);
+
+	// Add a single entry
+	void add(const AtomEntry& e);
 
 	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);

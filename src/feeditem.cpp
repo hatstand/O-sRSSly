@@ -67,6 +67,13 @@ void FeedItemData::update(const AtomFeed& feed) {
 	}
 }
 
+void FeedItemData::update(const AtomEntry& e) {
+	if (e.id == subscription_.id()) {
+		qDebug() << "Single update arrived for..." << subscription_.id();
+		feed_.add(e);
+	}
+}
+
 void FeedItemData::setRead(const AtomEntry& e) {
 	feed_.setRead(e);
 	api_->setRead(e);

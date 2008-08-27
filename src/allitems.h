@@ -3,13 +3,15 @@
 
 #include "treeitem.h"
 
+class ReaderApi;
+
 /*
  * Folder that contains all other feeds
  */
 class AllItems : public TreeItem {
 	Q_OBJECT
 public:
-	AllItems(TreeItem* parent);
+	AllItems(TreeItem* parent, ReaderApi* api);
 	
 	int columnCount() const;
 
@@ -39,6 +41,7 @@ private:
 	QModelIndex getItem(const QModelIndex& index) const;
 	
 	int row_count_;
+	ReaderApi* api_;
 };
 
 #endif

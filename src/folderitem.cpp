@@ -1,16 +1,19 @@
 #include "folderitem.h"
+#include "readerapi.h"
 
 #include <QDebug>
 #include <QSqlQuery>
 
-FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name)
-	: TreeItem(parent, name)
+FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api)
+	: TreeItem(parent, name),
+	  api_(api)
 {
 	id_ = id;
 }
 
-FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query)
-	: TreeItem(parent)
+FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
+	: TreeItem(parent),
+	  api_(api)
 {
 	rowid_ = query.value(0).toLongLong();
 	id_ = query.value(1).toString();
@@ -67,9 +70,7 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 }
 
 void FolderItem::fetchMore(const QModelIndex& parent) {
-	foreach (TreeItem* item, children_) {
-		item->fetchMore(parent);
-	}
+	api_->getCategory(id_, continuation_);
 }
 
 QString FolderItem::summary(const QModelIndex& index) const {

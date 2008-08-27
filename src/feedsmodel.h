@@ -50,6 +50,8 @@ public:
 
 	TreeItem* root();
 	QAbstractItemModel* getEntries(const QModelIndex& index) const;
+
+	void getCategory(const QString& category, const QString& continuation = "");
 	
 	void load();
 	void save();
@@ -59,6 +61,7 @@ private slots:
 	void subscriptionListArrived(SubscriptionList list);
 	void dataDestroyed(QObject*);
 	void googleAccountChanged();
+	void categoryFeedArrived(const AtomFeed&);
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);

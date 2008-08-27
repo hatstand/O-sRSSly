@@ -20,7 +20,9 @@ public:
 	void login();
 	void getSubscriptionList();
 	void getSubscription(const Subscription& s, const QString& continuation = "");
+	void getFresh();
 	void getUnread();
+	void getCategory(const QString& category, const QString& continuation = "");
 	void setRead(const AtomEntry& e);
 	void setStarred(const AtomEntry& e);
 	void addCategory(const Subscription& s, const QString& category);
@@ -35,7 +37,9 @@ private slots:
 	void loginComplete();
 	void getSubscriptionListComplete();
 	void getSubscriptionComplete();
+	void getFreshComplete();
 	void getUnreadComplete();
+	void getCategoryComplete();
 	void getTokenComplete();
 	void networkError(QNetworkReply::NetworkError code);
 	void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
@@ -46,6 +50,7 @@ signals:
 	void loggedIn();
 	void subscriptionListArrived(const SubscriptionList&);
 	void subscriptionArrived(const AtomFeed&);
+	void categoryArrived(const AtomFeed&);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 
@@ -82,6 +87,7 @@ private:
 	static const QUrl kEditTagUrl;
 	static const char* kReadTag;
 	static const char* kStarredTag;
+	static const char* kFreshTag;
 	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;

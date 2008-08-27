@@ -1,5 +1,6 @@
 #include "allitems.h"
 #include "feeditem.h"
+#include "readerapi.h"
 
 #include <QDebug>
 
@@ -13,9 +14,10 @@
 			continue; \
 		dups << feed->subscription().id();
 
-AllItems::AllItems(TreeItem* parent)
+AllItems::AllItems(TreeItem* parent, ReaderApi* api)
 	: TreeItem(parent, "All Items"),
-	  row_count_(-1)
+	  row_count_(-1),
+	  api_(api)
 {
 }
 
@@ -49,9 +51,7 @@ int AllItems::rowCount(const QModelIndex& parent) const {
 }
 
 void AllItems::fetchMore(const QModelIndex& parent) {
-	FOREACH_CHILD
-		item->fetchMore(parent);
-	}
+	api_->getFresh();
 }
 
 QString AllItems::summary(const QModelIndex& index) const {
