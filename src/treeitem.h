@@ -35,6 +35,7 @@ public:
 
 	virtual QString id() const { return id_; }
 	virtual QString real_id(const QModelIndex&) const = 0;
+	virtual QString content(const QModelIndex&) const = 0;
 
 	// Get the atom summary for the given index.
 	virtual QString summary(const QModelIndex& index) const = 0;

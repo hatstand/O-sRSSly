@@ -130,3 +130,9 @@ QString AllItems::real_id(const QModelIndex& index) const {
 		return id_;
 	}
 }
+
+QString AllItems::content(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	return static_cast<const TreeItem*>(item.model())->content(item);
+}

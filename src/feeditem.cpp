@@ -196,3 +196,8 @@ void FeedItem::addCategory(const QPair<QString,QString>& category) {
 QString FeedItem::real_id(const QModelIndex& index) const {
 	return id_;
 }
+
+QString FeedItem::content(const QModelIndex& index) const {
+	const AtomEntry& e = data_->entries().at(index.row());
+	return e.content;
+}

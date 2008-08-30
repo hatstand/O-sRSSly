@@ -3,4 +3,3 @@ Remove old articles from the database
 Sort articles by date
 Don't delete and re-add everything all the time
 Add webclippy stuff instead of displaying whole webpage?
-Parse content element from Atom entries as well as summary.

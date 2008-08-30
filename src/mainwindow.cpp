@@ -116,14 +116,21 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
-	
+
+	QString summary = item->summary(real_index);
+	QString content = item->content(real_index);
+
 	switch (Settings::instance()->behaviour(item->real_id(real_index))) {
 		case Settings::Auto:
-			if (item->summary(real_index).length() == 0) {
+			if (summary.isEmpty() && content.isEmpty()) {
 				ui_.contents_->setUrl(link);
 				ui_.subtitleStack_->setCurrentIndex(1);
 			} else {
-				ui_.contents_->setContent(item->summary(real_index).toUtf8());
+				if (content.isEmpty())
+					ui_.contents_->setContent(summary.toUtf8());
+				else
+					ui_.contents_->setContent(content.toUtf8());
+
 				ui_.subtitleStack_->setCurrentIndex(0);
 				ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
 			}
@@ -131,7 +138,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			break;
 			
 		case Settings::ShowInline:
-			ui_.contents_->setContent(item->summary(real_index).toUtf8());
+			ui_.contents_->setContent((content.isEmpty() ? summary : content).toUtf8());
 			ui_.subtitleStack_->setCurrentIndex(0);
 			ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
 			ui_.subtitleStack_->show();

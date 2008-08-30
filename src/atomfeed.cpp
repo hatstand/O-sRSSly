@@ -198,6 +198,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				link = QUrl(s.attributes().value("href").toString());
 			else if (s.name() == "source")
 				parseSource(s);
+			else if (s.name() == "content")
+				content = s.readElementText();
 			else
 				ignoreElement(s);
 			

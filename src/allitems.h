@@ -29,6 +29,7 @@ public:
 	virtual QString summary(const QModelIndex& index) const;
 
 	QString real_id(const QModelIndex& index) const;
+	QString content(const QModelIndex& index) const;
 
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);

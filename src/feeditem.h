@@ -68,6 +68,7 @@ public:
 	QString real_id(const QModelIndex& index) const;
 
 	virtual QString summary(const QModelIndex& index) const;
+	QString content(const QModelIndex& index) const;
 	// Sets an atom entry to read status (local only).
 	void setRead(const QModelIndex& index);
 	void addCategory(const QPair<QString,QString>& category);

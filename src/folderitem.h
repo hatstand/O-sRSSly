@@ -30,6 +30,7 @@ public:
 	virtual void fetchMore(const QModelIndex& parent);
 
 	virtual QString summary(const QModelIndex& index) const;
+	QString content(const QModelIndex& index) const;
 
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);

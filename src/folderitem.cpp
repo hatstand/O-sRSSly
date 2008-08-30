@@ -134,6 +134,12 @@ QString FolderItem::real_id(const QModelIndex& index) const {
 	}
 }
 
+QString FolderItem::content(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	return static_cast<const TreeItem*>(item.model())->content(item);
+}
+
 // TODO: Fix this shit
 /*void FolderItem::childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right) {
 	TreeItem::childChanged(top_left, bottom_right);
