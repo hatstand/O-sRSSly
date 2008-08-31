@@ -140,6 +140,13 @@ QString FolderItem::content(const QModelIndex& index) const {
 	return static_cast<const TreeItem*>(item.model())->content(item);
 }
 
+void FolderItem::setStarred(const QModelIndex& index, bool starred) {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setStarred(item, starred);
+}
+
 // TODO: Fix this shit
 /*void FolderItem::childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right) {
 	TreeItem::childChanged(top_left, bottom_right);

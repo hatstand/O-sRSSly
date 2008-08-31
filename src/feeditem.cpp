@@ -79,6 +79,11 @@ void FeedItemData::setRead(const AtomEntry& e) {
 	api_->setRead(e);
 }
 
+void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
+	feed_.setStarred(e, starred);
+	api_->setStarred(e, starred);
+}
+
 void FeedItemData::addCategory(const QPair<QString,QString>& category) {
 	subscription_.addCategory(category);
 	api_->addCategory(subscription_, category.first);
@@ -143,7 +148,7 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 		case 3:
 			return e.previewText();
 		case 4:
-			return false; // TODO: Starred
+			return e.starred;
 		case 5:
 			return e.link;
 		default:
@@ -200,4 +205,12 @@ QString FeedItem::real_id(const QModelIndex& index) const {
 QString FeedItem::content(const QModelIndex& index) const {
 	const AtomEntry& e = data_->entries().at(index.row());
 	return e.content;
+}
+
+void FeedItem::setStarred(const QModelIndex& index, bool starred) {
+	const AtomEntry& e = data_->entries().at(index.row());
+	data_->setStarred(e, starred);
+
+	QModelIndex top_left = createIndex(index.row(), 4);
+	emit dataChanged(top_left, top_left);
 }

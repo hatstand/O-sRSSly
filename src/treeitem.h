@@ -44,6 +44,8 @@ public:
 	// Sets the AtomEntry to read.
 	virtual void setRead(const QModelIndex& index) = 0;
 
+	virtual void setStarred(const QModelIndex& index, bool starred = true) = 0;
+
 	// QAbstractTableModel
 	virtual int columnCount(const QModelIndex& parent) const;
 	// Returns Atom data, such as title, date and read status.

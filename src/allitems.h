@@ -33,6 +33,7 @@ public:
 
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);
+	void setStarred(const QModelIndex& index, bool starred);
 
 public slots:
 	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);

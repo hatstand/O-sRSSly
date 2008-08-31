@@ -29,7 +29,9 @@ public:
 
 	void addCategory(const QPair<QString,QString>& category);
 	void removeCategory(const QString& category);
-	
+
+	void setStarred(const AtomEntry& e, bool starred = true);
+
 	void save();
 
 private slots:
@@ -72,6 +74,8 @@ public:
 	// Sets an atom entry to read status (local only).
 	void setRead(const QModelIndex& index);
 	void addCategory(const QPair<QString,QString>& category);
+	void setStarred(const QModelIndex& index, bool starred = true);
+	
 
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;

@@ -12,6 +12,7 @@ public:
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
+
 private:
 	int itemHeight_;
 	QFont headingFont_;
@@ -35,6 +36,9 @@ public:
 	
 	bool canGoUp() const;
 	bool canGoDown() const;
+
+protected:
+	virtual void mouseDoubleClickEvent(QMouseEvent* event);
 
 signals:
 	void canGoUpChanged(bool);

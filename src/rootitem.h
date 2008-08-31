@@ -16,6 +16,7 @@ public:
 
 	const AtomEntry& entry(const QModelIndex& index) const { return sDummy; }
 	void setRead(const QModelIndex& index) {}
+	void setStarred(const QModelIndex& index, bool) {}
 
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const { return QVariant(); }

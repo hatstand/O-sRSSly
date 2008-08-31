@@ -1,8 +1,10 @@
 #include "entryview.h"
 #include "treeitem.h"
 
-#include <QPainter>
+#include <QAbstractProxyModel>
 #include <QApplication>
+#include <QMouseEvent>
+#include <QPainter>
 
 const int EntryDelegate::kMargin = 5;
 const int EntryDelegate::kPreviewSpacing = 12;
@@ -160,3 +162,23 @@ bool EntryView::canGoDown() const {
 	return true;
 }
 
+void EntryView::mouseDoubleClickEvent(QMouseEvent* ev) {
+	QModelIndex index = indexAt(ev->pos());
+	bool starred(index.sibling(index.row(), 4).data().toBool());
+	QRect paint_rect = visualRect(index);
+
+	const QAbstractItemModel* model = index.model();
+	TreeItem* real_model = 0;
+	if (const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>(model)) {
+		real_model = static_cast<TreeItem*>(proxy->sourceModel());
+		index = proxy->mapToSource(index);
+	}
+	else if (qobject_cast<const TreeItem*>(model))
+		real_model = const_cast<TreeItem*>(static_cast<const TreeItem*>(model));
+	else
+		Q_ASSERT(0);
+	
+	real_model->setStarred(index, !starred);
+
+	update(paint_rect);
+}

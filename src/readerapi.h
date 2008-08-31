@@ -24,14 +24,14 @@ public:
 	void getUnread();
 	void getCategory(const QString& category, const QString& continuation = "");
 	void setRead(const AtomEntry& e);
-	void setStarred(const AtomEntry& e);
+	void setStarred(const AtomEntry& e, bool starred);
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
 
 private:
 	void getToken();
 	void editCategory(const Subscription& s, const QString& category, bool add);
-	void setState(const AtomEntry& e, const char* state);
+	void setState(const AtomEntry& e, const char* state, bool set);
 
 private slots:
 	void loginComplete();

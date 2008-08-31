@@ -111,6 +111,8 @@ public:
 
 	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);
+
+	void setStarred(const AtomEntry& e, bool starred);
 	
 	void saveEntries(qint64 feedId);
 

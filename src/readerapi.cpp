@@ -185,18 +185,18 @@ void ReaderApi::getTokenComplete() {
 }
 
 void ReaderApi::setRead(const AtomEntry& e) {
-	setState(e, kReadTag);
+	setState(e, kReadTag, true);
 }
 
-void ReaderApi::setStarred(const AtomEntry& e) {
-	setState(e, kStarredTag);
+void ReaderApi::setStarred(const AtomEntry& e, bool starred) {
+	setState(e, kStarredTag, starred);
 }
 
-void ReaderApi::setState(const AtomEntry& e, const char* state) {
+void ReaderApi::setState(const AtomEntry& e, const char* state, bool set) {
 	qDebug() << __PRETTY_FUNCTION__ << state;
 
 	QString content;
-	content.sprintf("i=%s&a=%s&ac=edit", e.id.toStdString().c_str(), state);
+	content.sprintf("i=%s&%s=%s&ac=edit", e.id.toStdString().c_str(), (set ? "a" : "r"), state);
 
 	QUrl url(kEditTagUrl);
 	url.addQueryItem("client", kApplicationSource);

@@ -35,6 +35,8 @@ public:
 	const AtomEntry& entry(const QModelIndex& index) const;
 	void setRead(const QModelIndex& index);
 	
+	void setStarred(const QModelIndex& index, bool starred);
+
 	void save();
 
 	void setContinuation(const QString& continuation) { continuation_ = continuation; }

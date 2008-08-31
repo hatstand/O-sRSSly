@@ -136,3 +136,10 @@ QString AllItems::content(const QModelIndex& index) const {
 
 	return static_cast<const TreeItem*>(item.model())->content(item);
 }
+
+void AllItems::setStarred(const QModelIndex& index, bool starred) {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setStarred(item, starred);
+}

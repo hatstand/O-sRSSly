@@ -146,6 +146,17 @@ void AtomFeed::setRead(const AtomEntry& e) {
 	}
 }
 
+void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
+	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
+
+	if (it != m_entries.get<hash>().end()) {
+		AtomEntry f(*it);
+		f.starred = starred;
+
+		m_entries.get<hash>().replace(it, f);
+	}
+}
+
 void AtomFeed::saveEntries(qint64 feedId) {
 	QSqlQuery query;
 	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred)");
