@@ -25,16 +25,6 @@ QString& XmlUtils::unescape(QString& s) {
 	return s;
 }
 
-QString& XmlUtils::escape(QString& s) {
-	s.replace("\"", "&quot;");
-	s.replace("&", "&amp;");
-	s.replace("<", "&lt;");
-	s.replace(">", "&gt;");
-	s.replace("'", "&#39;");
-	
-	return s;
-}
-
 QString& XmlUtils::stripTags(QString& s) {
 	s.replace(QRegExp("<[^>]+>"), "");
 	
@@ -47,8 +37,3 @@ QString XmlUtils::unescaped(const QString& s) {
 	return copy;
 }
 
-QString XmlUtils::escaped(const QString& s) {
-	QString copy(s);
-	escape(copy);
-	return copy;
-}

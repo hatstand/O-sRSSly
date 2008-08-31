@@ -8,6 +8,7 @@
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
 #include <QShortcut>
+#include <QTextDocument>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
@@ -78,6 +79,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	connect(ui_.actionWebclip_, SIGNAL(triggered(bool)), SLOT(webclipClicked()));
 	ui_.webclip_->setDefaultAction(ui_.actionWebclip_);
+
+	ui_.actionWebclip_->setEnabled(false);
+	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
 }
 
 MainWindow::~MainWindow() {
@@ -135,7 +139,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 					ui_.contents_->setContent(content.toUtf8());
 
 				ui_.subtitleStack_->setCurrentIndex(0);
-				ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
+				ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
 			}
 			ui_.subtitleStack_->show();
 			break;
@@ -143,12 +147,13 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 		case Settings::ShowInline:
 			ui_.contents_->setContent((content.isEmpty() ? summary : content).toUtf8());
 			ui_.subtitleStack_->setCurrentIndex(0);
-			ui_.seeOriginal_->setText("<a href=\"" + XmlUtils::escaped(link.toString()) + "\">See original</a>");
+			ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
 			ui_.subtitleStack_->show();
 			break;
 		
 		case Settings::OpenInBrowser:
 			ui_.contents_->setUrl(link);
+			ui_.actionWebclip_->setEnabled(false);
 			ui_.subtitleStack_->hide();
 			break;
 	}
