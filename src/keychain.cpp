@@ -24,8 +24,11 @@ QString Keychain::getPassword(QString account) {
 	
 	if (ret != 0)
 		return QString::null;
-	else
-		return QString::fromAscii(password, password_length);
+	else {
+		QString pass = QString::fromAscii(password, password_length);
+		SecKeychainItemFreeContent(NULL, password);
+		return pass;
+	}
 #else
 	return QString::null;
 #endif
