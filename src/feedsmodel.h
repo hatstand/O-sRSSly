@@ -5,12 +5,13 @@
 #include "rootitem.h"
 #include "subscriptionlist.h"
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <QAbstractItemModel>
 #include <QMap>
+#include <QTimer>
 #include <QUrl>
 
 class AtomFeed;
@@ -62,6 +63,10 @@ private slots:
 	void dataDestroyed(QObject*);
 	void googleAccountChanged();
 	void categoryFeedArrived(const AtomFeed&);
+	void freshFeedArrived(const AtomFeed&);
+
+public slots:
+	void fetchMore();
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);
@@ -74,6 +79,8 @@ private:
 	scoped_ptr<Database> database_;
 
 	bool deleting_;
+
+	QTimer refresh_timer_;
 };
 
 

@@ -15,9 +15,11 @@ FeedsModel::FeedsModel(QObject* parent)
 	  all_items_(NULL),
 	  api_(NULL),
 	  database_(new Database),
-	  deleting_(false)
+	  deleting_(false),
+	  refresh_timer_(this)
 {
 	connect(Settings::instance(), SIGNAL(googleAccountChanged()), SLOT(googleAccountChanged()));
+	connect(&refresh_timer_, SIGNAL(timeout()), SLOT(fetchMore()));
 	googleAccountChanged();
 	load();
 }
@@ -47,6 +49,8 @@ void FeedsModel::googleAccountChanged() {
 		SLOT(subscriptionListArrived(SubscriptionList)));
 	connect(api_, SIGNAL(categoryArrived(const AtomFeed&)),
 		SLOT(categoryFeedArrived(const AtomFeed&)));
+	connect(api_, SIGNAL(freshArrived(const AtomFeed&)),
+		SLOT(freshFeedArrived(const AtomFeed&)));
 	
 	api_->login();
 	
@@ -136,6 +140,9 @@ TreeItem* FeedsModel::root() {
 
 void FeedsModel::loggedIn() {
 	api_->getSubscriptionList();
+
+	// Refresh feeds every 5 minutes.
+	refresh_timer_.start(5*60*1000);
 }
 
 void FeedsModel::subscriptionListArrived(SubscriptionList list) {
@@ -394,4 +401,22 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		data->update(*kt);
 	}
+}
+
+void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
+		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->id);
+		if (jt == id_mappings_.end())
+			continue;
+
+		// Grab reference.
+		shared_ptr<FeedItemData> data(jt.value());
+		data->update(*it);
+	}
+}
+
+void FeedsModel::fetchMore() {
+	api_->getFresh();
 }

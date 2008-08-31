@@ -299,8 +299,9 @@ void ReaderApi::getFresh() {
 
 void ReaderApi::getFreshComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
-
-	qDebug() << reply->readAll();
+	AtomFeed feed(reply->url(), reply);
+	
+	emit freshArrived(feed);
 
 	reply->deleteLater();
 }
@@ -326,3 +327,4 @@ void ReaderApi::getCategoryComplete() {
 
 	reply->deleteLater();
 }
+

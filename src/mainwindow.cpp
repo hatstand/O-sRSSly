@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
 	ui_.configure_->setDefaultAction(ui_.actionConfigure_);
+
+	connect(ui_.action_refresh_, SIGNAL(activated()), feeds_model_, SLOT(fetchMore()));
+	ui_.refresh_->setDefaultAction(ui_.action_refresh_);
 	
 	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
 	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
@@ -216,7 +219,7 @@ void MainWindow::closeTab() {
 	
 	QWidget* widget = ui_.tabs_->widget(index);
 	ui_.tabs_->removeTab(index);
-	delete widget;
+	widget->deleteLater();
 }
 
 void MainWindow::tabChanged(int tab) {

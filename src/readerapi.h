@@ -51,6 +51,7 @@ signals:
 	void subscriptionListArrived(const SubscriptionList&);
 	void subscriptionArrived(const AtomFeed&);
 	void categoryArrived(const AtomFeed&);
+	void freshArrived(const AtomFeed&);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 

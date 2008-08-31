@@ -17,14 +17,6 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>28</y>
-     <width>1010</width>
-     <height>745</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout_3" >
     <property name="spacing" >
      <number>0</number>
@@ -63,6 +55,10 @@
            </property>
            <item>
             <widget class="QToolButton" name="configure_" />
+           </item>
+           <item>
+            <widget class="QToolButton" name="refresh_" >
+            </widget>
            </item>
            <item>
             <spacer name="horizontalSpacer" >
@@ -180,14 +176,6 @@
          <number>0</number>
         </property>
         <widget class="QWidget" name="tab" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>687</width>
-           <height>220</height>
-          </rect>
-         </property>
          <attribute name="title" >
           <string>Summary</string>
          </attribute>
@@ -317,14 +305,6 @@ p, li { white-space: pre-wrap; }
                   <number>0</number>
                  </property>
                  <widget class="QWidget" name="page" >
-                  <property name="geometry" >
-                   <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>585</width>
-                    <height>20</height>
-                   </rect>
-                  </property>
                   <widget class="QLabel" name="seeOriginal_" >
                    <property name="geometry" >
                     <rect>
@@ -343,14 +323,6 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </widget>
                  <widget class="QWidget" name="page_2" >
-                  <property name="geometry" >
-                   <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>661</width>
-                    <height>41</height>
-                   </rect>
-                  </property>
                   <layout class="QVBoxLayout" name="verticalLayout" >
                    <property name="spacing" >
                     <number>0</number>
@@ -416,7 +388,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1010</width>
-     <height>28</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -435,16 +407,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="menuFile" />
    <addaction name="menuView" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>773</y>
-     <width>1010</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QStatusBar" name="statusbar" />
   <action name="actionConfigure_" >
    <property name="icon" >
     <iconset resource="../data/data.qrc" >
@@ -528,6 +491,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="menuRole" >
     <enum>QAction::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="action_refresh_" >
+   <property name="icon" >
+    <iconset resource="../data/data.qrc" >
+     <normaloff>:/refresh.png</normaloff>:/refresh.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Refresh Feeds</string>
    </property>
   </action>
  </widget>
