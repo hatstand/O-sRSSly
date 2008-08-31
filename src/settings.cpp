@@ -1,3 +1,4 @@
+#include "keychain.h"
 #include "settings.h"
 
 Settings* Settings::s_instance = NULL;
@@ -19,7 +20,10 @@ QString Settings::googleUsername() const {
 }
 
 QString Settings::googlePassword() const {
-	return m_settings.value("google/password").toString();
+	QString user = m_settings.value("google/username").toString();
+	QString password = Keychain::getPassword(user);
+	
+	return password;
 }
 
 void Settings::setGoogleAccount(const QString& username, const QString& password) {
@@ -27,7 +31,8 @@ void Settings::setGoogleAccount(const QString& username, const QString& password
 	QString oldPassword(googlePassword());
 	
 	m_settings.setValue("google/username", username);
-	m_settings.setValue("google/password", password);
+
+	Keychain::setPassword(username, password);
 	
 	if (username != oldUsername || password != oldPassword)
 		emit googleAccountChanged();

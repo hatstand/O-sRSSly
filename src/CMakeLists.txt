@@ -20,6 +20,7 @@ SET(FEEDER-SOURCES
 	webclipview.cpp
 	allitems.cpp
 	rootitem.cpp
+	keychain.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -71,6 +72,7 @@ ADD_EXECUTABLE(feeder ${FEEDER-SOURCES} ${FEEDER-SOURCES-MOC} ${FEEDER-SOURCES-U
 TARGET_LINK_LIBRARIES(feeder
 	${QT_LIBRARIES}
 	${QT_QTWEBKIT_LIBRARY}
+	${SECURITY}
 )
 
 INSTALL(TARGETS feeder
