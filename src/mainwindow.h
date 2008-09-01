@@ -33,8 +33,6 @@ private slots:
 	//void loadProgress(int loadProgress);
 	void showUnreadOnly(bool enable);
 	
-	void longCatGrows();
-	
 private:
 	Ui_MainWindow ui_;
 
