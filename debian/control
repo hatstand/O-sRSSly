@@ -1,0 +1,12 @@
+Source: feeder
+Section: web
+Priority: optional
+Build-Depends: debhelper, libqt4-dev ( >= 4.4), gcc, cmake (>= 2.4), libboost-dev, libgnome-keyring-dev, cdbs
+Maintainer: Chris Jones <chris.e.jones@gmail.com>
+Standards-Version: 3.7.2
+
+Package: feeder
+Architecture: any
+Depends: ${shlibs:Depends}, libqt4-sql-sqlite
+Description: Feeder is a Google Reader reader
+
