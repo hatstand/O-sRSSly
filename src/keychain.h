@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 extern "C" {
 #include <gnome-keyring.h>
 }
@@ -17,7 +17,7 @@ public:
 private:
 	static const QString kServiceName;
 	
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	static const GnomeKeyringPasswordSchema sOurSchema;
 #endif
 };
