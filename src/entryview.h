@@ -12,6 +12,9 @@ public:
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
+	virtual bool editorEvent(QEvent* event, QAbstractItemModel* model,
+		const QStyleOptionViewItem& option, const QModelIndex&);
+
 
 private:
 	int itemHeight_;
@@ -36,9 +39,6 @@ public:
 	
 	bool canGoUp() const;
 	bool canGoDown() const;
-
-protected:
-	virtual void mouseDoubleClickEvent(QMouseEvent* event);
 
 signals:
 	void canGoUpChanged(bool);
