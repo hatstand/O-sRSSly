@@ -17,6 +17,14 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>27</y>
+     <width>1010</width>
+     <height>747</height>
+    </rect>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_3" >
     <property name="spacing" >
      <number>0</number>
@@ -57,21 +65,14 @@
             <widget class="QToolButton" name="configure_" />
            </item>
            <item>
-            <widget class="QToolButton" name="refresh_" >
-            </widget>
+            <widget class="QToolButton" name="refresh_" />
            </item>
            <item>
-            <spacer name="horizontalSpacer" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
+            <widget class="LongCatBar" name="progressBar" >
+             <property name="value" >
+              <number>0</number>
              </property>
-             <property name="sizeHint" stdset="0" >
-              <size>
-               <width>206</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -176,6 +177,14 @@
          <number>0</number>
         </property>
         <widget class="QWidget" name="tab" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>670</width>
+           <height>231</height>
+          </rect>
+         </property>
          <attribute name="title" >
           <string>Summary</string>
          </attribute>
@@ -305,6 +314,14 @@ p, li { white-space: pre-wrap; }
                   <number>0</number>
                  </property>
                  <widget class="QWidget" name="page" >
+                  <property name="geometry" >
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>537</width>
+                    <height>20</height>
+                   </rect>
+                  </property>
                   <widget class="QLabel" name="seeOriginal_" >
                    <property name="geometry" >
                     <rect>
@@ -323,6 +340,14 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </widget>
                  <widget class="QWidget" name="page_2" >
+                  <property name="geometry" >
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>100</width>
+                    <height>30</height>
+                   </rect>
+                  </property>
                   <layout class="QVBoxLayout" name="verticalLayout" >
                    <property name="spacing" >
                     <number>0</number>
@@ -388,7 +413,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1010</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -407,7 +432,16 @@ p, li { white-space: pre-wrap; }
    <addaction name="menuFile" />
    <addaction name="menuView" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QStatusBar" name="statusbar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>774</y>
+     <width>1010</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
   <action name="actionConfigure_" >
    <property name="icon" >
     <iconset resource="../data/data.qrc" >
@@ -518,6 +552,11 @@ p, li { white-space: pre-wrap; }
    <class>WebclipView</class>
    <extends>QWidget</extends>
    <header>webclipview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LongCatBar</class>
+   <extends>QProgressBar</extends>
+   <header>longcatbar.h</header>
   </customwidget>
  </customwidgets>
  <resources>

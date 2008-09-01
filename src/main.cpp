@@ -2,9 +2,7 @@
 
 #include "mainwindow.h"
 
-#include "database.h"
-#include "atomfeed.h"
-#include <QFile>
+#include "longcatbar.h"
 
 int main (int argc, char** argv) {
 	QApplication app(argc, argv);
@@ -12,7 +10,7 @@ int main (int argc, char** argv) {
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");
 	app.setApplicationName("Feeder");
-
+	
 	MainWindow win;
 	win.showMaximized();
 	

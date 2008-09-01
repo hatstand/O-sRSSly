@@ -16,5 +16,8 @@
 		<file>helpers.js</file>
 		<file>edit-cut.png</file>
 		<file>close_tab.png</file>
+		<file>longcat-head.png</file>
+		<file>longcat-tail.png</file>
+		<file>longcat-middle.png</file>
 	</qresource>
 </RCC>

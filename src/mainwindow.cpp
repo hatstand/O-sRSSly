@@ -82,6 +82,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	ui_.actionWebclip_->setEnabled(false);
 	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
+	
+	QTimer* longCatTimer = new QTimer(this);
+	connect(longCatTimer, SIGNAL(timeout()), SLOT(longCatGrows()));
+	longCatTimer->start(50);
 }
 
 MainWindow::~MainWindow() {
@@ -241,4 +245,12 @@ void MainWindow::showUnreadOnly(bool enable) {
 			sorted_entries_->setFilterFixedString(QString::null);
 		}
 	}
+}
+
+void MainWindow::longCatGrows() {
+	int v = ui_.progressBar->value() + 1;
+	if (v > ui_.progressBar->maximum())
+		v = ui_.progressBar->minimum();
+	
+	ui_.progressBar->setValue(v);
 }

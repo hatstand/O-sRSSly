@@ -21,6 +21,7 @@ SET(FEEDER-SOURCES
 	allitems.cpp
 	rootitem.cpp
 	keychain.cpp
+	longcatbar.cpp
 )
 
 # Header files that have Q_OBJECT in
