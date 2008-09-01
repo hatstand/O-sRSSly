@@ -3,6 +3,12 @@
 
 #include <QString>
 
+#ifdef Q_OS_UNIX
+extern "C" {
+#include <gnome-keyring.h>
+}
+#endif
+
 class Keychain {
 public:
 	static QString getPassword(QString account);
@@ -10,6 +16,10 @@ public:
 
 private:
 	static const QString kServiceName;
+	
+#ifdef Q_OS_UNIX
+	static const GnomeKeyringPasswordSchema sOurSchema;
+#endif
 };
 
 #endif

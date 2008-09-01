@@ -1,8 +1,10 @@
 #include <QApplication>
 
-#include "mainwindow.h"
+#ifdef Q_OS_UNIX
+#include <glib.h>
+#endif
 
-#include "longcatbar.h"
+#include "mainwindow.h"
 
 int main (int argc, char** argv) {
 	QApplication app(argc, argv);
@@ -10,6 +12,11 @@ int main (int argc, char** argv) {
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");
 	app.setApplicationName("Feeder");
+	
+#ifdef Q_OS_UNIX
+	// For gnome keyring
+	g_set_application_name("Feeder");
+#endif
 	
 	MainWindow win;
 	win.showMaximized();
