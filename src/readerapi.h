@@ -5,10 +5,12 @@
 #include "atomfeed.h"
 #include "subscriptionlist.h"
 
+#include <QMap>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QQueue>
+#include <QXmlStreamReader>
 
 class ReaderApi : public QObject {
 Q_OBJECT
@@ -32,6 +34,10 @@ private:
 	void getToken();
 	void editCategory(const Subscription& s, const QString& category, bool add);
 	void setState(const AtomEntry& e, const char* state, bool set);
+	void getSubscription(const QString& id, const QString& continuation = "");
+
+	QMap<QString, int> parseUnreadCounts(QIODevice* device);
+	void parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, int>* unread_counts);
 
 private slots:
 	void loginComplete();

@@ -32,6 +32,7 @@ FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
 	  rowid_(-1)
 {
 	save();
+	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
 FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
@@ -40,6 +41,7 @@ FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
 	  api_(api),
 	  rowid_(query.value(0).toLongLong())
 {
+	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
 FeedItemData::~FeedItemData() {
@@ -48,17 +50,17 @@ FeedItemData::~FeedItemData() {
 
 void FeedItemData::update() {
 	api_->getSubscription(subscription_, feed_.continuation());
-	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
 void FeedItemData::update(const AtomFeed& feed) {
 	if (feed.id() == subscription_.id()) {
 		qDebug() << "Update arrived for..." << subscription_.id();
-		disconnect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), this, 0);
 		
 		int beforeCount = feed_.entries().size();
 		feed_.merge(feed);
 		int afterCount = feed_.entries().size();
+
+		qDebug() << afterCount - beforeCount << "entries added";
 		
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
@@ -70,7 +72,14 @@ void FeedItemData::update(const AtomFeed& feed) {
 void FeedItemData::update(const AtomEntry& e) {
 	if (e.id == subscription_.id()) {
 		qDebug() << "Single update arrived for..." << subscription_.id();
+		int beforeCount = feed_.entries().size();
 		feed_.add(e);
+		int afterCount = feed_.entries().size();
+
+		if (beforeCount != afterCount) {
+			emit rowsInserted(beforeCount, beforeCount);
+			save();
+		}
 	}
 }
 
