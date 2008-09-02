@@ -407,8 +407,8 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__ << "Size:" << feed.entries().size();
 
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
-		qDebug() << it->id;
-		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->id);
+		qDebug() << it->source;
+		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
 		if (jt == id_mappings_.end())
 			continue;
 

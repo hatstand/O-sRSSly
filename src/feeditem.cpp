@@ -45,7 +45,6 @@ FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
 }
 
 FeedItemData::~FeedItemData() {
-	qDebug() << __PRETTY_FUNCTION__;
 }
 
 void FeedItemData::update() {
@@ -60,8 +59,6 @@ void FeedItemData::update(const AtomFeed& feed) {
 		feed_.merge(feed);
 		int afterCount = feed_.entries().size();
 
-		qDebug() << afterCount - beforeCount << "entries added";
-		
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
 			save();
@@ -70,7 +67,7 @@ void FeedItemData::update(const AtomFeed& feed) {
 }
 
 void FeedItemData::update(const AtomEntry& e) {
-	if (e.id == subscription_.id()) {
+	if (e.source == subscription_.id()) {
 		qDebug() << "Single update arrived for..." << subscription_.id();
 		int beforeCount = feed_.entries().size();
 		feed_.add(e);
@@ -194,7 +191,6 @@ void FeedItem::setRead(const QModelIndex& index) {
 }
 
 void FeedItem::feedRowsInserted(int from, int to) {
-	qDebug() << __PRETTY_FUNCTION__;
 	beginInsertRows(QModelIndex(), from, to);
 	endInsertRows();
 }

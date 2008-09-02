@@ -126,9 +126,9 @@ void AtomFeed::merge(const AtomFeed& other) {
 }
 
 void AtomFeed::add(const AtomEntry& e) {
-	if (!m_id.isEmpty() && m_id != e.id) {
+	if (!m_id.isEmpty() && m_id != e.source) {
 		qWarning() << "Attempting to add non-matching entry";
-		qDebug() << m_id << e.id;
+		qDebug() << m_id << e.source;
 		return;
 	}
 
@@ -257,8 +257,10 @@ void AtomEntry::parseSource(QXmlStreamReader& s) {
 		QXmlStreamReader::TokenType type = s.readNext();
 		switch (type) {
 			case QXmlStreamReader::StartElement:
-				if (s.name() == "id")
+				if (s.name() == "id") {
 					source = s.readElementText();
+					source.remove(QRegExp("^tag:google.com,2005:reader/"));
+				}
 				else
 					ignoreElement(s);
 

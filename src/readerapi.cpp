@@ -2,6 +2,7 @@
 #include "subscriptionlist.h"
 #include "xmlutils.h"
 
+#include <QBuffer>
 #include <QDebug>
 #include <QFile>
 #include <QNetworkAccessManager>
@@ -22,6 +23,8 @@ const QUrl ReaderApi::kSubscriptionUrl("http://www.google.com/reader/api/0/subsc
 const QUrl ReaderApi::kTagsUrl("http://www.google.com/reader/api/0/tag/list");
 const QUrl ReaderApi::kUnreadUrl("http://www.google.com/reader/api/0/unread-count");
 const QUrl ReaderApi::kPrefsUrl("http://www.google.com/reader/api/0/preference/list");
+
+const char* ReaderApi::kReadingList("user/-/state/com.google/reading-list");
 
 // Url to get temporary authentication token.
 const QUrl ReaderApi::kTokenUrl("http://www.google.com/reader/api/0/token");
@@ -254,15 +257,26 @@ void ReaderApi::processActionQueue() {
 }
 
 void ReaderApi::getSubscription(const Subscription& s, const QString& continuation) {
-	getSubscription(s.id(), continuation);
+	QUrl url(encodeFeedId(s.id()));
+	if (!continuation.isEmpty())
+		url.addQueryItem("continuation", continuation);
+
+	getSubscription(url);
 }
 
 void ReaderApi::getSubscription(const QString& id, const QString& continuation) {
-	qDebug() << __PRETTY_FUNCTION__;
+	QUrl url(encodeFeedId(id));
 
+	if (!continuation.isEmpty())
+		url.addQueryItem("c", continuation);
+
+	getSubscription(url);
+}
+
+QUrl ReaderApi::encodeFeedId(const QString& id) {
 	// Hackery to percent encode the id.
 	if (!id.startsWith("feed/"))
-		return;
+		return QUrl();
 	
 	QString real_id = id;
 	real_id.remove(0, 5);
@@ -272,9 +286,21 @@ void ReaderApi::getSubscription(const QString& id, const QString& continuation) 
 	QUrl url;
 	url.setEncodedUrl(encoded_url.toAscii(), QUrl::StrictMode);
 
-	if (!continuation.isEmpty())
-		url.addQueryItem("c", continuation);
+	return url;
+}
 
+void ReaderApi::getSubscription(const QString& id, int count, const QString& timestamp) {
+	QUrl url(encodeFeedId(id));
+	// Fetch `count' items from timestamp forwards.
+	url.addQueryItem("n", QString::number(count));
+	url.addQueryItem("r", "o");
+	url.addQueryItem("ot", timestamp);
+
+	getSubscription(url);
+}
+
+void ReaderApi::getSubscription(const QUrl& url) {
+	qDebug() << __PRETTY_FUNCTION__ << url;
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
 	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionComplete()));
@@ -306,9 +332,10 @@ void ReaderApi::actionFailed() {
 }
 
 void ReaderApi::getFresh() {
-	QUrl url(kUnreadUrl);
-	url.addQueryItem("all", "true");
+	QUrl url(kAtomUrl.toString() + kReadingList);
 	url.addQueryItem("client", kApplicationSource);
+	url.addQueryItem("n", "100");
+	url.addQueryItem("xt", kReadTag);
 
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
@@ -320,14 +347,9 @@ void ReaderApi::getFresh() {
 void ReaderApi::getFreshComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 
-	const QMap<QString, int> unread_count = parseUnreadCounts(reply);
-	qDebug() << unread_count;
-
-	for (QMap<QString, int>::const_iterator it = unread_count.begin(); it != unread_count.end(); ++it) {
-		if (it.key().startsWith("feed") && it.value() > 0) {
-			getSubscription(it.key());
-		}
-	}
+	AtomFeed feed(reply->url(), reply);
+	continuation_ = feed.continuation();
+	emit freshArrived(feed);
 
 	reply->deleteLater();
 }
@@ -356,12 +378,12 @@ void ReaderApi::getCategoryComplete() {
 	reply->deleteLater();
 }
 
-QMap<QString, int> ReaderApi::parseUnreadCounts(QIODevice* device) {
+QMap<QString, QPair<int, QString> > ReaderApi::parseUnreadCounts(QIODevice* device) {
 	qDebug() << __PRETTY_FUNCTION__;
 
 	QXmlStreamReader s(device);
 
-	QMap<QString, int> unread_counts;
+	QMap<QString, QPair<int, QString> > unread_counts;
 
 	bool inside_list = false;
 	while (!s.atEnd()) {
@@ -391,9 +413,11 @@ QMap<QString, int> ReaderApi::parseUnreadCounts(QIODevice* device) {
 	return unread_counts;
 }
 
-void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, int>* unread_counts) {
+void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, QPair<int, QString> >* unread_counts) {
 	QString id;
 	int count;
+	QString newest_timestamp;
+
 	while (!s.atEnd()) {
 		QXmlStreamReader::TokenType type = s.readNext();
 		switch (type) {
@@ -402,6 +426,11 @@ void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, int>* un
 					id = s.readElementText();
 				else if (s.name() == "number" && s.attributes().value("name") == "count")
 					count = s.readElementText().toInt();
+				else if (s.name() == "number" && s.attributes().value("name") == "newestItemTimestampUsec") {
+					newest_timestamp = s.readElementText();
+					if (newest_timestamp.size() > 6)
+						newest_timestamp.chop(6); // Chop off usec & msec
+				}
 				else
 					XmlUtils::ignoreElement(s);
 
@@ -409,7 +438,7 @@ void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, int>* un
 
 			case QXmlStreamReader::EndElement:
 				if (s.name() == "object") {
-					unread_counts->insert(id, count);
+					unread_counts->insert(id, qMakePair(count, newest_timestamp));
 					return;
 				}
 

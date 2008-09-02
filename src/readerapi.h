@@ -35,9 +35,12 @@ private:
 	void editCategory(const Subscription& s, const QString& category, bool add);
 	void setState(const AtomEntry& e, const char* state, bool set);
 	void getSubscription(const QString& id, const QString& continuation = "");
+	void getSubscription(const QString& id, int count, const QString& timestamp);
+	void getSubscription(const QUrl& url);
+	QUrl encodeFeedId(const QString& id);
 
-	QMap<QString, int> parseUnreadCounts(QIODevice* device);
-	void parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, int>* unread_counts);
+	QMap<QString, QPair<int, QString> > parseUnreadCounts(QIODevice* device);
+	void parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, QPair<int, QString> >* unread_counts);
 
 private slots:
 	void loginComplete();
@@ -77,6 +80,9 @@ private:
 	bool getting_token_;
 	QQueue<ApiAction*> queued_actions_;
 
+	// Reading list continuation.
+	QString continuation_;
+
 
 	static const char* kApplicationSource;
 	static const char* kServiceName;
@@ -98,6 +104,8 @@ private:
 	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;
+
+	static const char* kReadingList;
 };
 
 #endif
