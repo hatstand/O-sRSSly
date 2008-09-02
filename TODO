@@ -1,4 +1,3 @@
-Don't store the password in plain text
 Remove old articles from the database
 Don't delete and re-add everything all the time
 Add webclippy stuff instead of displaying whole webpage?

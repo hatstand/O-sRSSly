@@ -324,7 +324,7 @@ void ReaderApi::getFreshComplete() {
 	qDebug() << unread_count;
 
 	for (QMap<QString, int>::const_iterator it = unread_count.begin(); it != unread_count.end(); ++it) {
-		if (it.key().startsWith("feed")) {
+		if (it.key().startsWith("feed") && it.value() > 0) {
 			getSubscription(it.key());
 		}
 	}
