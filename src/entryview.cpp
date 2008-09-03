@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QTextDocument>
 
 const int EntryDelegate::kMargin = 5;
 const int EntryDelegate::kPreviewSpacing = 12;
@@ -55,10 +56,21 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	
 	// Draw heading
 	rect.setLeft(starRect.right() + kPreviewSpacing);
-	
+
+	QTextDocument doc;
+	doc.setHtml(title);
+	doc.setTextWidth(rect.width());
+	int width = doc.idealWidth();
+	int height = doc.size().height();
+
 	painter->setPen(headingColor);
-	painter->setFont(read ? headingFont_ : unreadFont_);
-	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
+	//painter->setFont(read ? headingFont_ : unreadFont_);
+	doc.setDefaultFont(read ? headingFont_ : unreadFont_);
+	
+	painter->translate(rect.x(), rect.y());
+	doc.drawContents(painter);
+	painter->translate(-rect.x(), -rect.y());
+	//painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
 	
 	// Draw preview
 	rect.setLeft(rect.left() + (read ? headingMetrics_ : unreadMetrics_).width(title) + kPreviewSpacing);
