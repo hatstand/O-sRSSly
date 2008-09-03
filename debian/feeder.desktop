@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=0.2
+Encoding=UTF-8
+Name=Feeder
+GenericName=Feeder
+Comment=Feeder is a Google Reader reader.
+Exec=feeder
+Terminal=false
+Type=Application
+Categories=Application;Internet;
+MimeType=application/x-feeder;
+Icon=/usr/share/feeder/logo.png

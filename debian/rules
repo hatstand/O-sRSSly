@@ -10,11 +10,8 @@ DEB_DH_INSTALL_ARGS = --sourcedir=debian/tmp
 
 
 binary-install/feeder::
-	echo "TODO icons"
-	
-	#mkdir debian/bequnge/usr/share/applications
-	#cp debian/bequnge.desktop debian/bequnge/usr/share/applications
-	#dh_desktop
-
-	#mkdir debian/bequnge/usr/share/bequnge
-	#cp src/icons/beq.png debian/bequnge/usr/share/bequnge
+	mkdir debian/feeder/usr/share/applications
+	cp debian/feeder.desktop debian/feeder/usr/share/applications
+	dh_desktop
+	mkdir debian/feeder/usr/share/feeder
+	cp data/logo.png debian/feeder/usr/share/feeder
