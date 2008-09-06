@@ -114,7 +114,6 @@ void MainWindow::showConfigure() {
 
 void MainWindow::subscriptionSelected(const QModelIndex& index) {
 	QAbstractItemModel* model = feeds_model_->getEntries(index);
-	qDebug() << model->rowCount(QModelIndex()) << model->columnCount(QModelIndex()) << model->index(0, 0);
 	if (model) {
 		if (!sorted_entries_) {
 			sorted_entries_ = new QSortFilterProxyModel(this);
