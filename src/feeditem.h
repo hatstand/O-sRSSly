@@ -32,6 +32,9 @@ public:
 
 	void setStarred(const AtomEntry& e, bool starred = true);
 
+	void setXpath(const QString& xpath);
+	const QString& xpath() const;
+
 	void save();
 
 private slots:
@@ -74,6 +77,9 @@ public:
 	void setRead(const QModelIndex& index);
 	void addCategory(const QPair<QString,QString>& category);
 	void setStarred(const QModelIndex& index, bool starred = true);
+
+	void setXpath(const QModelIndex& index, const QString& xpath);
+	virtual const QString& xpath(const QModelIndex& index) const;
 	
 
 	// QAbstractTableModel

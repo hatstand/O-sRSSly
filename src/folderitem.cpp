@@ -146,6 +146,22 @@ void FolderItem::setStarred(const QModelIndex& index, bool starred) {
 		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setStarred(item, starred);
 }
 
+void FolderItem::setXpath(const QModelIndex& index, const QString& xpath) {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setXpath(item, xpath);
+}
+
+const QString& FolderItem::xpath(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		return static_cast<const TreeItem*>(item.model())->xpath(item);
+
+	return QString::null;
+}
+
 // TODO: Fix this shit
 /*void FolderItem::childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right) {
 	TreeItem::childChanged(top_left, bottom_right);

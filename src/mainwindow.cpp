@@ -87,6 +87,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.actionWebclip_->setEnabled(false);
 	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
 
+	connect(ui_.contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
+
 	ui_.progressBar->setMinimum(0);
 	ui_.progressBar->setMaximum(100);
 	connect(ui_.contents_, SIGNAL(loadProgress(int)), ui_.progressBar, SLOT(setValue(int)));
@@ -128,6 +130,8 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	QDateTime date(real_index.sibling(real_index.row(), 2).data().toDateTime());
 	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
 
+	current_contents_ = real_index;
+
 	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
@@ -138,9 +142,11 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	switch (Settings::instance()->behaviour(item->real_id(real_index))) {
 		case Settings::Behaviour_Auto:
 			if (summary.isEmpty() && content.isEmpty()) {
+				ui_.actionWebclip_->setEnabled(true);
 				ui_.contents_->setUrl(link);
 				ui_.subtitleStack_->setCurrentIndex(1);
 			} else {
+				ui_.actionWebclip_->setEnabled(false);
 				if (content.isEmpty())
 					ui_.contents_->setContent(summary.toUtf8());
 				else
@@ -153,6 +159,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			break;
 			
 		case Settings::Behaviour_ShowInline:
+			ui_.actionWebclip_->setEnabled(false);
 			ui_.contents_->setContent((content.isEmpty() ? summary : content).toUtf8());
 			ui_.subtitleStack_->setCurrentIndex(0);
 			ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
@@ -161,9 +168,14 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 		
 		case Settings::Behaviour_OpenInBrowser:
 			ui_.contents_->setUrl(link);
-			ui_.actionWebclip_->setEnabled(false);
+			ui_.actionWebclip_->setEnabled(true);
 			ui_.subtitleStack_->hide();
 			break;
+
+		case Settings::Behaviour_Webclip:
+			ui_.contents_->setUrl(link);
+			ui_.contents_->getXpath(item->xpath(real_index));
+			ui_.actionWebclip_->setEnabled(false);
 	}
 	
 	ui_.tabs_->setCurrentIndex(0);
@@ -252,3 +264,11 @@ void MainWindow::showUnreadOnly(bool enable) {
 	}
 }
 
+void MainWindow::xpathSet(const QString& xpath) {
+	if (current_contents_.isValid()) {
+		qDebug() << __PRETTY_FUNCTION__;
+		const_cast<TreeItem*>(
+			static_cast<const TreeItem*>(
+				current_contents_.model()))->setXpath(current_contents_, xpath);
+	}
+}

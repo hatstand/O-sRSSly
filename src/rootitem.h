@@ -16,6 +16,8 @@ public:
 	void setRead(const QModelIndex& index) {}
 	void setStarred(const QModelIndex& index, bool) {}
 
+	void setXpath(const QModelIndex&, const QString&) {}
+
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const { return QVariant(); }
 	virtual int rowCount(const QModelIndex& parent) const { return 0; }

@@ -32,6 +32,8 @@ private slots:
 	void tabChanged(int tab);
 	//void loadProgress(int loadProgress);
 	void showUnreadOnly(bool enable);
+
+	void xpathSet(const QString& xpath);
 	
 private:
 	Ui_MainWindow ui_;
@@ -44,4 +46,6 @@ private:
 
 	bool webclipping_;
 	bool unread_only_;
+
+	QModelIndex current_contents_;
 };

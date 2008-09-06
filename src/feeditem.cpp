@@ -82,6 +82,14 @@ void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
 	api_->setStarred(e, starred);
 }
 
+void FeedItemData::setXpath(const QString& xpath) {
+	subscription_.setXpath(xpath);
+}
+
+const QString& FeedItemData::xpath() const {
+	return subscription_.xpath();
+}
+
 void FeedItemData::addCategory(const QPair<QString,QString>& category) {
 	subscription_.addCategory(category);
 	api_->addCategory(subscription_, category.first);
@@ -218,4 +226,16 @@ void FeedItem::setStarred(const QModelIndex& index, bool starred) {
 
 	QModelIndex top_left = createIndex(index.row(), 4);
 	emit dataChanged(top_left, top_left);
+}
+
+void FeedItem::setXpath(const QModelIndex& index, const QString& xpath) {
+	if (index.isValid())
+		data_->setXpath(xpath);
+}
+
+const QString& FeedItem::xpath(const QModelIndex& index) const {
+	if (index.isValid())
+		return data_->xpath();
+
+	return QString::null;
 }

@@ -12,7 +12,8 @@ public:
 	enum FeedBehaviour {
 		Behaviour_Auto = 0,
 		Behaviour_ShowInline = 1,
-		Behaviour_OpenInBrowser = 2
+		Behaviour_OpenInBrowser = 2,
+		Behaviour_Webclip = 3
 	};
 	
 	enum ProgressBarStyle {

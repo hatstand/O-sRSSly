@@ -8,10 +8,15 @@ class WebclipView : public QWebView {
 public:
 	WebclipView(QWidget* parent = 0);
 	void setWebclipping(bool enable = true) { webclipping_ = enable; }
+	virtual void setUrl(const QUrl& url);
+	void getXpath(const QString& xpath);
 private:
 	virtual void mouseMoveEvent(QMouseEvent* event);
 	virtual void mousePressEvent(QMouseEvent* event);
 	virtual void paintEvent(QPaintEvent* event);
+
+signals:
+	void xpathSet(const QString& xpath);
 
 private slots:
 	void loaded();
@@ -20,8 +25,8 @@ private:
 	bool webclipping_;
 	QRect current_rect_;
 
-	static const QString kGetRectJs;
-	static const QString kGetXpathJs;
+	QString xpath_;
+
 	static QString kHelperJs;
 };
 

@@ -139,3 +139,17 @@ void AllItems::setStarred(const QModelIndex& index, bool starred) {
 	if (item.isValid())
 		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setStarred(item, starred);
 }
+
+void AllItems::setXpath(const QModelIndex& index, const QString& xpath) {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setXpath(item, xpath);
+}
+
+const QString& AllItems::xpath(const QModelIndex& index) const {
+	QModelIndex item = getItem(index);
+
+	if (item.isValid())
+		static_cast<const TreeItem*>(item.model())->xpath(item);
+}

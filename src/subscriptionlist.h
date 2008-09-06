@@ -19,9 +19,11 @@ public:
 	Subscription(const QSqlQuery& query);
 	Subscription(const QString& id, const QString& title);
 	
-	QString id() const { return id_; }
-	QString title() const { return title_; }
-	QString sortid() const { return sortid_; }
+	const QString& id() const { return id_; }
+	const QString& title() const { return title_; }
+	const QString& sortid() const { return sortid_; }
+	const QString& xpath() const { return xpath_; }
+	void setXpath(const QString& xpath);
 	const QList<Category>& categories() const { return categories_; }
 	void addCategory(const Category& category);
 	void removeCategory(const QString& category);
@@ -33,6 +35,7 @@ private:
 	QString id_;
 	QString title_;
 	QString sortid_;
+	QString xpath_;
 	// Pair: id, name
 	QList<Category> categories_;
 };

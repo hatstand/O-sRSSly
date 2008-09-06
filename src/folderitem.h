@@ -35,6 +35,9 @@ public:
 	
 	void setStarred(const QModelIndex& index, bool starred);
 
+	void setXpath(const QModelIndex& index, const QString& xpath);
+	virtual const QString& xpath(const QModelIndex& index) const;
+
 	void save();
 
 	void setContinuation(const QString& continuation) { continuation_ = continuation; }

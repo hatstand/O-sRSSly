@@ -1,3 +1,4 @@
+#include "settings.h"
 #include "subscriptionlist.h"
 #include "xmlutils.h"
 #include "database.h"
@@ -129,6 +130,15 @@ void Subscription::removeCategory(const QString& category) {
 			break;
 		}
 	}
+}
+
+void Subscription::setXpath(const QString& xpath) {
+	qDebug() << __PRETTY_FUNCTION__ << xpath;
+	xpath_ = xpath;
+	if (!xpath_.isEmpty())
+		Settings::instance()->setBehaviour(id_, Settings::Behaviour_Webclip);
+	else
+		Settings::instance()->setBehaviour(id_, Settings::Behaviour_Auto);
 }
 
 SubscriptionList::SubscriptionList(const SubscriptionList& other) {

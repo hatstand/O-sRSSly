@@ -33,6 +33,9 @@ public:
 	void setRead(const QModelIndex& index);
 	void setStarred(const QModelIndex& index, bool starred);
 
+	void setXpath(const QModelIndex& index, const QString& xpath);
+	virtual const QString& xpath(const QModelIndex& index) const;
+
 public slots:
 	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);
 
