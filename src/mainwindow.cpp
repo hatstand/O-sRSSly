@@ -136,7 +136,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	QString content = item->content(real_index);
 
 	switch (Settings::instance()->behaviour(item->real_id(real_index))) {
-		case Settings::Auto:
+		case Settings::Behaviour_Auto:
 			if (summary.isEmpty() && content.isEmpty()) {
 				ui_.contents_->setUrl(link);
 				ui_.subtitleStack_->setCurrentIndex(1);
@@ -152,14 +152,14 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			ui_.subtitleStack_->show();
 			break;
 			
-		case Settings::ShowInline:
+		case Settings::Behaviour_ShowInline:
 			ui_.contents_->setContent((content.isEmpty() ? summary : content).toUtf8());
 			ui_.subtitleStack_->setCurrentIndex(0);
 			ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
 			ui_.subtitleStack_->show();
 			break;
 		
-		case Settings::OpenInBrowser:
+		case Settings::Behaviour_OpenInBrowser:
 			ui_.contents_->setUrl(link);
 			ui_.actionWebclip_->setEnabled(false);
 			ui_.subtitleStack_->hide();

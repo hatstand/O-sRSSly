@@ -44,6 +44,7 @@ SET(FEEDER-MOC-HEADERS
 	allitems.h
 	rootitem.h
 	ksqueezedtextlabel.h
+	longcatbar.h
 )
 
 # UI files

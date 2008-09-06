@@ -10,22 +10,31 @@ public:
 	static Settings* instance();
 	
 	enum FeedBehaviour {
-		Auto = 0,
-		ShowInline = 1,
-		OpenInBrowser = 2
+		Behaviour_Auto = 0,
+		Behaviour_ShowInline = 1,
+		Behaviour_OpenInBrowser = 2
+	};
+	
+	enum ProgressBarStyle {
+		ProgressBar_Normal = 0,
+		ProgressBar_Longcat = 1,
+		ProgressBar_Tacgnol = 2
 	};
 	
 	QString googleUsername() const;
 	QString googlePassword() const;
 	int behaviour(const QString& feedId) const;
+	int progressBarStyle() const;
+	bool unreadOnly() const;
 	
 	void setGoogleAccount(const QString& username, const QString& password);
 	void setBehaviour(const QString& feedId, int behaviour);
+	void setProgressBarStyle(int style);
 	void setUnreadOnly(bool unread_only);
-	bool unreadOnly();
 
 signals:
 	void googleAccountChanged();
+	void progressBarStyleChanged();
 
 private:
 	Settings();

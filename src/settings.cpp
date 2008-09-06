@@ -86,6 +86,15 @@ void Settings::setUnreadOnly(bool unread_only) {
 	m_settings.setValue("unread_only", unread_only);
 }
 
-bool Settings::unreadOnly() {
+bool Settings::unreadOnly() const {
 	return m_settings.value("unread_only", false).toBool();
+}
+
+int Settings::progressBarStyle() const {
+	return m_settings.value("progress_bar_style", ProgressBar_Normal).toInt();
+}
+
+void Settings::setProgressBarStyle(int style) {
+	m_settings.setValue("progress_bar_style", style);
+	emit progressBarStyleChanged();
 }

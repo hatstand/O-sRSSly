@@ -1,4 +1,5 @@
 #include "longcatbar.h"
+#include "settings.h"
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -21,6 +22,8 @@ LongCatBar::LongCatBar(QWidget* parent)
 		sTail = new QPixmap(":longcat-tail.png");
 		sMiddle = new QPixmap(":longcat-middle.png");
 	}
+	
+	connect(Settings::instance(), SIGNAL(progressBarStyleChanged()), SLOT(update()));
 }
 
 void LongCatBar::resizeEvent(QResizeEvent* event) {
@@ -35,6 +38,11 @@ void LongCatBar::resizeEvent(QResizeEvent* event) {
 }
 
 void LongCatBar::paintEvent(QPaintEvent* e) {
+	if (Settings::instance()->progressBarStyle() == Settings::ProgressBar_Normal) {
+		QProgressBar::paintEvent(e);
+		return;
+	}
+	
 	QPainter p(this);
 	
 	int barWidth = width() - head_scaled_length_ - tail_scaled_length_;

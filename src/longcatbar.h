@@ -7,6 +7,7 @@
 class QPaintEvent;
 
 class LongCatBar : public QProgressBar {
+	Q_OBJECT
 public:
 	LongCatBar(QWidget* parent = NULL);
 
