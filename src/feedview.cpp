@@ -130,3 +130,8 @@ void FeedView::behaviourChanged(int behaviour) {
 	Settings::instance()->setBehaviour(clicked_id_, behaviour);
 }
 
+void FeedView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
+	if (selected.indexes().count() > 0)
+		emit activated(selected.indexes()[0]);
+}
+

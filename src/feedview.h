@@ -30,6 +30,7 @@ public:
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* event);
+	void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private slots:
 	void updateClicked();
