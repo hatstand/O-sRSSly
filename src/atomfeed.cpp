@@ -205,14 +205,27 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				starred = true;
 			else if (s.name() == "updated")
 				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
-			else if (s.name() == "link")
+			else if (s.name() == "link" && s.attributes().value("rel") == "alternate")
 				link = QUrl(s.attributes().value("href").toString());
-			else if (s.name() == "source")
+			else if (s.name() == "link" && s.attributes().value("rel") == "via") {
+				QString shared_link = s.attributes().value("href").toString();
+				QRegExp exp("user/[0-9]+/state/com.google/broadcast");
+				if (exp.indexIn(shared_link) > -1) {
+					source = exp.cap();
+					shared_by = s.attributes().value("title").toString();
+				}
+			}
+			else if (s.name() == "source" && source.isEmpty())
 				parseSource(s);
 			else if (s.name() == "content")
 				content = s.readElementText();
-			else
+			else if (s.name() == "author" && s.attributes().value(
+				AtomFeed::kReaderXmlNamespace, "unknown-author") != "true") {
+				author = parseAuthor(s);
+			}
+			else {
 				ignoreElement(s);
+			}
 			
 			break;
 			
@@ -275,6 +288,32 @@ void AtomEntry::parseSource(QXmlStreamReader& s) {
 				break;
 		}
 	}
+}
+
+QString AtomEntry::parseAuthor(QXmlStreamReader& s) {
+	while (!s.atEnd()) {
+		QXmlStreamReader::TokenType type = s.readNext();
+		switch (type) {
+			case QXmlStreamReader::StartElement:
+				if (s.name() == "name") {
+					return s.readElementText();
+				}
+				else
+					ignoreElement(s);
+
+				break;
+			
+			case QXmlStreamReader::EndElement:
+				if (s.name() == "author")
+					return QString::null;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	return QString::null;
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)

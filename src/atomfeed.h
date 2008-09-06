@@ -34,11 +34,14 @@ public:
 	bool read;
 	bool starred;
 	QString source;
+	QString author;
+	QString shared_by;
 	
 	qint64 rowid;
 
 private:
 	void parseSource(QXmlStreamReader& s);
+	QString parseAuthor(QXmlStreamReader& s);
 	QString previewText_;
 };
 
@@ -116,6 +119,7 @@ public:
 	
 	void saveEntries(qint64 feedId);
 
+	static const char* kReaderXmlNamespace;
 private:
 	void parse(QIODevice* device);
 	void parseFeed(QXmlStreamReader& s);
@@ -128,8 +132,6 @@ private:
 	// Magic string which represents to Google where we got up to in downloading entries.
 	QString m_continuation;
 	AtomEntryList m_entries;
-
-	static const char* kReaderXmlNamespace;
 };
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f);

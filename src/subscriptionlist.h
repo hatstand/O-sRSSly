@@ -17,6 +17,7 @@ class Subscription {
 public:
 	Subscription(QXmlStreamReader& s);
 	Subscription(const QSqlQuery& query);
+	Subscription(const QString& id, const QString& title);
 	
 	QString id() const { return id_; }
 	QString title() const { return title_; }

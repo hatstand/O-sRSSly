@@ -275,13 +275,15 @@ void ReaderApi::getSubscription(const QString& id, const QString& continuation) 
 
 QUrl ReaderApi::encodeFeedId(const QString& id) {
 	// Hackery to percent encode the id.
-	if (!id.startsWith("feed/"))
+	if (!id.startsWith("feed/") && !id.startsWith("user/"))
 		return QUrl();
 	
 	QString real_id = id;
+	// Don't encode feed or user.
+	QString type = real_id.left(5);
 	real_id.remove(0, 5);
 
-	QString encoded_url = kAtomUrl.toString() + "feed/" + QUrl::toPercentEncoding(real_id);
+	QString encoded_url = kAtomUrl.toString() + type + QUrl::toPercentEncoding(real_id);
 
 	QUrl url;
 	url.setEncodedUrl(encoded_url.toAscii(), QUrl::StrictMode);

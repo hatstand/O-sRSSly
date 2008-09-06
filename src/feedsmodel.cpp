@@ -409,8 +409,18 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
 		qDebug() << it->source;
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
-		if (jt == id_mappings_.end())
+		if (jt == id_mappings_.end()) {
+			// Either a stray entry or a `Shared Item'
+			if (it->source.startsWith("user")) {
+				// Must be a shared item
+				qDebug() << "Adding shared items for:" << it->shared_by;
+				Subscription sub(it->source, it->shared_by);
+				FeedItemData* data = new FeedItemData(sub, api_);
+				data->update(*it);
+				addFeed(data, false);
+			}
 			continue;
+		}
 
 		// Grab reference.
 		shared_ptr<FeedItemData> data(jt.value());

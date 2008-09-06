@@ -57,6 +57,11 @@ Subscription::Subscription(const QSqlQuery& query) {
 		addCategory(Category(categoryQuery.value(0).toString(), categoryQuery.value(1).toString()));
 }
 
+Subscription::Subscription(const QString& id, const QString& title)
+	: id_(id),
+	  title_(title) {
+}
+
 void Subscription::parseCategories(QXmlStreamReader& s) {
 	while (!s.atEnd()) {
 		QXmlStreamReader::TokenType type = s.readNext();
