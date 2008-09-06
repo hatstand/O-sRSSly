@@ -59,7 +59,8 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	rect.setLeft(starRect.right() + kPreviewSpacing);
 
 	QTextDocument doc;
-	doc.setHtml(title);
+	doc.setDefaultStyleSheet("* { color: " + headingColor.name() + "; }");
+	doc.setHtml("<span>" + title + "</span>");
 	doc.setTextWidth(rect.width());
 	/*int width = doc.idealWidth();
 	int height = doc.size().height();*/
