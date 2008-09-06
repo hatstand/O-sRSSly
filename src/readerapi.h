@@ -83,7 +83,7 @@ private:
 	// Reading list continuation.
 	QString continuation_;
 
-
+public:
 	static const char* kApplicationSource;
 	static const char* kServiceName;
 	static const char* kAccountType;

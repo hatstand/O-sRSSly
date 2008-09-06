@@ -42,7 +42,7 @@ void FeedsModel::googleAccountChanged() {
 	// This gets deleted by root_.clear()
 	all_items_ = new AllItems(&root_, api_);
 	root_.installChangedProxy(all_items_);
-	
+
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
@@ -147,6 +147,8 @@ void FeedsModel::loggedIn() {
 void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	qDebug() << __PRETTY_FUNCTION__;
 
+	api_->getFresh();
+
 	foreach (const Subscription& s, list.subscriptions()) {
 		qDebug() << "Adding..." << s.title();
 		
@@ -176,7 +178,9 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 
 	// If it has no categories then insert at root level.
 	if (d.get()->subscription().categories().isEmpty()) {
+		beginInsertRows(QModelIndex(), root_.childCount(), root_.childCount());
 		new FeedItem(&root_, d);
+		endInsertRows();
 		return;
 	}
 

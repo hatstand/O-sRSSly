@@ -21,6 +21,8 @@ public:
 	
 	void setGoogleAccount(const QString& username, const QString& password);
 	void setBehaviour(const QString& feedId, int behaviour);
+	void setUnreadOnly(bool unread_only);
+	bool unreadOnly();
 
 signals:
 	void googleAccountChanged();

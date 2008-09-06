@@ -77,6 +77,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	if (Settings::instance()->googleUsername().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
 			exit(0);
+
+	unread_only_ = Settings::instance()->unreadOnly();
+	ui_.actionUnreadOnly_->setChecked(unread_only_);
 	
 	connect(ui_.actionWebclip_, SIGNAL(triggered(bool)), SLOT(webclipClicked()));
 	ui_.webclip_->setDefaultAction(ui_.actionWebclip_);
@@ -238,6 +241,7 @@ void MainWindow::tabChanged(int tab) {
 
 void MainWindow::showUnreadOnly(bool enable) {
 	unread_only_ = enable;
+	Settings::instance()->setUnreadOnly(unread_only_);
 
 	if (sorted_entries_) {
 		if (unread_only_) {

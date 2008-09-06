@@ -65,7 +65,7 @@ void FeedItemData::update(const AtomEntry& e) {
 		int afterCount = feed_.entries().size();
 
 		if (beforeCount != afterCount) {
-			emit rowsInserted(beforeCount, beforeCount);
+			emit rowsInserted(beforeCount, afterCount-1);
 			save();
 		}
 	}

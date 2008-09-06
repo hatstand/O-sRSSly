@@ -89,15 +89,18 @@ QSize EntryDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIn
 bool EntryDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 	const QStyleOptionViewItem& option, const QModelIndex& index) {
 
+	QModelIndex real_index = index;
+
 	if (event->type() == QEvent::MouseButtonDblClick) {
 		TreeItem* item = qobject_cast<TreeItem*>(model);
 		if (!item) {
 			QAbstractProxyModel* proxy = qobject_cast<QAbstractProxyModel*>(model);
 			item = qobject_cast<TreeItem*>(proxy->sourceModel());
+			real_index = proxy->mapToSource(index);
 		}
 		bool starred(index.sibling(index.row(), 4).data().toBool());
 
-		item->setStarred(index, !starred);
+		item->setStarred(real_index, !starred);
 
 		return true;
 	}

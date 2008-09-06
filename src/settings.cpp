@@ -81,3 +81,11 @@ void Settings::setBehaviour(const QString& feedId, int behaviour) {
 	behaviour_[feedId] = (FeedBehaviour) behaviour;
 	writeBehaviours();
 }
+
+void Settings::setUnreadOnly(bool unread_only) {
+	m_settings.setValue("unread_only", unread_only);
+}
+
+bool Settings::unreadOnly() {
+	return m_settings.value("unread_only", false).toBool();
+}
