@@ -27,10 +27,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	tray_menu_->addAction(ui_.actionQuit);
 	
-	tray_icon_->show();
 	tray_icon_->setIcon(windowIcon());
 	tray_icon_->setContextMenu(tray_menu_);
 	tray_icon_->setToolTip("Feeder");
+	tray_icon_->show();
 	connect(feeds_model_, SIGNAL(newUnreadItems(int)), SLOT(newUnreadItems(int)));
 	
 	//menuBar()->hide();
