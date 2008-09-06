@@ -83,11 +83,13 @@ void FeedItemData::update(const AtomEntry& e) {
 void FeedItemData::setRead(const AtomEntry& e) {
 	feed_.setRead(e);
 	api_->setRead(e);
+	e.update();
 }
 
 void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
 	feed_.setStarred(e, starred);
 	api_->setStarred(e, starred);
+	e.update();
 }
 
 void FeedItemData::setXpath(const QString& xpath) {
@@ -157,20 +159,64 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	const AtomEntry& e = data_->entries().at(index.row());
 
 	switch (index.column()) {
-		case 0:
+		case Column_Title:
 			return e.title;
-		case 1:
+		case Column_Read:
 			return e.read;
-		case 2:
+		case Column_Date:
 			return e.date;
-		case 3:
+		case Column_Preview:
 			return e.previewText();
-		case 4:
+		case Column_Starred:
 			return e.starred;
-		case 5:
+		case Column_Link:
 			return e.link;
+		case Column_Source:
+			return e.source;
+		case Column_Author:
+			return e.author;
+		case Column_SharedBy:
+			return e.shared_by;
+		case Column_Summary:
+			return e.summary;
+		case Column_Content:
+			return e.content;
+		case Column_Id:
+			return id_;
+		case Column_UnreadCount:
+			return unread_count_;
+		case Column_FeedName:
+			return data_->subscription().title();
+		case Column_Xpath:
+			return data_->subscription().xpath();
 		default:
 			return QVariant();
+	}
+}
+
+bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role) {
+	const AtomEntry& e = data_->entries().at(index.row());
+	switch (index.column()) {
+		case Column_Read: {
+			if (e.read)
+				return true;
+
+			data_->setRead(e);
+			QModelIndex top_left = createIndex(index.row(), 1);
+			emit dataChanged(top_left, top_left);
+			decrementUnreadCount();
+			return true;
+		}
+		case Column_Starred:
+			data_->setStarred(e, value.toBool());
+			return true;
+
+		case Column_Xpath:
+			data_->setXpath(value.toString());
+			return true;
+
+		default:
+			return false;
 	}
 }
 
@@ -185,23 +231,6 @@ QString FeedItem::summary(const QModelIndex& index) const {
 
 const AtomEntry& FeedItem::entry(const QModelIndex& index) const {
 	return data_->entries().at(index.row());
-}
-
-void FeedItem::setRead(const QModelIndex& index) {
-	qDebug() << __PRETTY_FUNCTION__;
-	if (!index.isValid())
-		return;
-
-	const AtomEntry& e = data_->entries().at(index.row());
-	if (e.read)
-		return;
-	
-	data_->setRead(e);
-	decrementUnreadCount();
-	e.update();
-
-	QModelIndex top_left = createIndex(index.row(), 1);
-	emit dataChanged(top_left, top_left);
 }
 
 void FeedItem::feedRowsInserted(int from, int to) {
@@ -236,14 +265,3 @@ void FeedItem::setStarred(const QModelIndex& index, bool starred) {
 	emit dataChanged(top_left, top_left);
 }
 
-void FeedItem::setXpath(const QModelIndex& index, const QString& xpath) {
-	if (index.isValid())
-		data_->setXpath(xpath);
-}
-
-const QString& FeedItem::xpath(const QModelIndex& index) const {
-	if (index.isValid())
-		return data_->xpath();
-
-	return QString::null;
-}

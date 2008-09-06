@@ -13,7 +13,6 @@ public:
 	QString content(const QModelIndex& index) const { return QString::null; }
 
 	const AtomEntry& entry(const QModelIndex& index) const { return sDummy; }
-	void setRead(const QModelIndex& index) {}
 	void setStarred(const QModelIndex& index, bool) {}
 
 	void setXpath(const QModelIndex&, const QString&) {}
@@ -21,6 +20,7 @@ public:
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const { return QVariant(); }
 	virtual int rowCount(const QModelIndex& parent) const { return 0; }
+	virtual int columnCount(const QModelIndex&) const { return 0; }
 
 private:
 	static AtomEntry sDummy;

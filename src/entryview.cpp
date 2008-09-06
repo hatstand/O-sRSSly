@@ -1,4 +1,5 @@
 #include "entryview.h"
+#include "feeditem.h"
 #include "treeitem.h"
 
 #include <QAbstractProxyModel>
@@ -25,10 +26,10 @@ EntryDelegate::EntryDelegate(QObject* parent)
 }
 
 void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	QString title(index.sibling(index.row(), 0).data().toString());
-	bool read(index.sibling(index.row(), 1).data().toBool());
-	QString preview(index.sibling(index.row(), 3).data().toString());
-	bool starred(index.sibling(index.row(), 4).data().toBool());
+	QString title(index.sibling(index.row(), TreeItem::Column_Title).data().toString());
+	bool read(index.sibling(index.row(), TreeItem::Column_Read).data().toBool());
+	QString preview(index.sibling(index.row(), TreeItem::Column_Preview).data().toString());
+	bool starred(index.sibling(index.row(), TreeItem::Column_Starred).data().toBool());
 	
 	QRect rect(option.rect);
 	QColor headingColor(Qt::black);
@@ -89,18 +90,11 @@ QSize EntryDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIn
 bool EntryDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 	const QStyleOptionViewItem& option, const QModelIndex& index) {
 
-	QModelIndex real_index = index;
+	QModelIndex real_index = index.sibling(index.row(), TreeItem::Column_Starred); 
+	bool starred = real_index.data().toBool();
 
 	if (event->type() == QEvent::MouseButtonDblClick) {
-		TreeItem* item = qobject_cast<TreeItem*>(model);
-		if (!item) {
-			QAbstractProxyModel* proxy = qobject_cast<QAbstractProxyModel*>(model);
-			item = qobject_cast<TreeItem*>(proxy->sourceModel());
-			real_index = proxy->mapToSource(index);
-		}
-		bool starred(index.sibling(index.row(), 4).data().toBool());
-
-		item->setStarred(real_index, !starred);
+		model->setData(real_index, !starred);
 
 		return true;
 	}

@@ -1,4 +1,5 @@
 #include "treeitem.h"
+#include "feeditem.h"
 #include "feedsmodel.h"
 
 #include <QDebug>
@@ -55,10 +56,6 @@ TreeItem* TreeItem::parent() {
 	return parent_;
 }
 
-QString TreeItem::title() const {
-	return title_;
-}
-
 int TreeItem::row() const {
 	if (parent_)
 		return parent_->children_.indexOf(const_cast<TreeItem*>(this));
@@ -69,21 +66,16 @@ int TreeItem::row() const {
 QVariant TreeItem::data(int column, int role) const {
 	switch (column)
 	{
-	case 0:
+	case FeedItem::Column_Title:
 		if (role == Qt::DecorationRole)
 			return icon();
 		else
 			return title_;
-	case 2:
+	case FeedItem::Column_UnreadCount:
 		return unreadCount();
 	default:
 		return QVariant();
 	}
-}
-
-
-int TreeItem::columnCount(const QModelIndex& parent) const {
-	return 6;
 }
 
 QVariant TreeItem::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -151,7 +143,7 @@ int TreeItem::unreadCount() const {
 		
 		const int total = rowCount(QModelIndex());
 		for (int i=0 ; i<total; ++i) {
-			if (!data(index(i, 1)).toBool())
+			if (!data(index(i, FeedItem::Column_Read)).toBool())
 				unreadRef++;
 		}
 	}

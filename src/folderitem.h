@@ -14,31 +14,22 @@ public:
 	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api);
 	FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api);
 
-	QString real_id(const QModelIndex& index) const;
-
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
 	// ie. a row index of 0 will return the first row from the first child.
 	// A higher row index will return data from the appropriate row in the first child
 	// or continue down through the children until enough rows have been counted.
 	virtual QVariant data(const QModelIndex& index, int role) const;
+	virtual bool setData(const QModelIndex& index, const QVariant& value, int role);
 	virtual QIcon icon() const { return sIcon; }
 	// The total number of rows from all the children.
 	virtual int rowCount(const QModelIndex& parent) const;
+	virtual int columnCount(const QModelIndex& parent) const;
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
 
-	virtual QString summary(const QModelIndex& index) const;
-	QString content(const QModelIndex& index) const;
-
 	const AtomEntry& entry(const QModelIndex& index) const;
-	void setRead(const QModelIndex& index);
 	
-	void setStarred(const QModelIndex& index, bool starred);
-
-	void setXpath(const QModelIndex& index, const QString& xpath);
-	virtual const QString& xpath(const QModelIndex& index) const;
-
 	void save();
 
 	void setContinuation(const QString& continuation) { continuation_ = continuation; }

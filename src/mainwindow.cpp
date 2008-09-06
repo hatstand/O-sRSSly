@@ -98,6 +98,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.actionWebclip_->setEnabled(false);
 	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
 	connect(ui_.contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
+
+	ui_.title_->setTextElideMode(Qt::ElideRight);
 }
 
 MainWindow::~MainWindow() {
@@ -108,14 +110,14 @@ void MainWindow::showConfigure() {
 }
 
 void MainWindow::subscriptionSelected(const QModelIndex& index) {
-	qDebug() << __PRETTY_FUNCTION__;
 	QAbstractItemModel* model = feeds_model_->getEntries(index);
+	qDebug() << model->rowCount(QModelIndex()) << model->columnCount(QModelIndex()) << model->index(0, 0);
 	if (model) {
 		if (!sorted_entries_) {
 			sorted_entries_ = new QSortFilterProxyModel(this);
 			sorted_entries_->setDynamicSortFilter(true);
 			ui_.entries_->setModel(sorted_entries_);
-			sorted_entries_->setFilterKeyColumn(1);
+			sorted_entries_->setFilterKeyColumn(TreeItem::Column_Read);
 			// Filter on read/unread.
 			if (unread_only_) {
 				sorted_entries_->setFilterFixedString("false");
@@ -131,21 +133,20 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
-	QModelIndex real_index = sorted_entries_->mapToSource(index);
-	QUrl link(real_index.sibling(real_index.row(), 5).data().toUrl());
-	QDateTime date(real_index.sibling(real_index.row(), 2).data().toDateTime());
-	const TreeItem* item = static_cast<const TreeItem*>(real_index.model());
+	QUrl link(index.sibling(index.row(), TreeItem::Column_Link).data().toUrl());
+	QDateTime date(index.sibling(index.row(), TreeItem::Column_Date).data().toDateTime());
 
-	current_contents_ = real_index;
+	current_contents_ = index;
 
-	ui_.title_->setText("<b>" + item->data(real_index, Qt::DisplayRole).toString() + "</b>");
+	ui_.title_->setText("<b>" + index.sibling(index.row(), TreeItem::Column_Title).data(Qt::DisplayRole).toString() + "</b>");
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
 
-	QString summary = item->summary(real_index);
-	QString content = item->content(real_index);
+	QString summary = index.sibling(index.row(), TreeItem::Column_Summary).data().toString();
+	QString content = index.sibling(index.row(), TreeItem::Column_Content).data().toString();
+	QString real_id = index.sibling(index.row(), TreeItem::Column_Id).data().toString();
 
-	switch (Settings::instance()->behaviour(item->real_id(real_index))) {
+	switch (Settings::instance()->behaviour(real_id)) {
 		case Settings::Behaviour_Auto:
 			if (summary.isEmpty() && content.isEmpty()) {
 				ui_.actionWebclip_->setEnabled(true);
@@ -180,7 +181,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 		case Settings::Behaviour_Webclip:
 			ui_.contents_->setUrl(link);
-			ui_.contents_->getXpath(item->xpath(real_index));
+			ui_.contents_->getXpath(index.sibling(index.row(), TreeItem::Column_Xpath).data().toString());
 			ui_.actionWebclip_->setEnabled(false);
 			break;
 	}
@@ -188,7 +189,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	ui_.tabs_->setCurrentIndex(0);
 
 	// Set read locally.
-	const_cast<TreeItem*>(item)->setRead(real_index);
+	const_cast<QAbstractItemModel*>(index.model())->setData(index.sibling(index.row(), TreeItem::Column_Read), true);
 }
 
 void MainWindow::externalLinkClicked(const QUrl& url) {
@@ -302,9 +303,8 @@ void MainWindow::updateProgressBar() {
 void MainWindow::xpathSet(const QString& xpath) {
 	if (current_contents_.isValid()) {
 		qDebug() << __PRETTY_FUNCTION__;
-		const_cast<TreeItem*>(
-			static_cast<const TreeItem*>(
-				current_contents_.model()))->setXpath(current_contents_, xpath);
+		const_cast<QAbstractItemModel*>(current_contents_.model())->setData(
+			current_contents_.sibling(current_contents_.row(), TreeItem::Column_Xpath), xpath);
 	}
 }
 

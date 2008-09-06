@@ -59,10 +59,21 @@ QVariant FolderItem::data(const QModelIndex& index, int role) const {
 		return QVariant();
 
 	// Return the feed name
-	if (index.column() == 3 && role == Qt::DisplayRole)
-		return static_cast<const TreeItem*>(item.model())->title();
+	if (index.column() == TreeItem::Column_Preview && role == Qt::DisplayRole) {
+		QModelIndex get_title = item.model()->index(item.row(), TreeItem::Column_FeedName, item.parent());
+		return item.model()->data(get_title, role);
+	}
 	
 	return item.model()->data(item, role);
+}
+
+bool FolderItem::setData(const QModelIndex& index, const QVariant& value, int role) {
+	QModelIndex item = getItem(index);
+
+	if (!item.isValid())
+		return false;
+	
+	return const_cast<QAbstractItemModel*>(item.model())->setData(item, value, role);
 }
 
 int FolderItem::rowCount(const QModelIndex& parent) const {
@@ -74,17 +85,12 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 	return rows;
 }
 
-void FolderItem::fetchMore(const QModelIndex& parent) {
-	api_->getCategory(id_, continuation_);
+int FolderItem::columnCount(const QModelIndex& parent) const {
+	return 14;
 }
 
-QString FolderItem::summary(const QModelIndex& index) const {
-	QModelIndex item = getItem(index);
-
-	if (!item.isValid())
-		return QString();
-
-	return static_cast<const TreeItem*>(item.model())->summary(item);
+void FolderItem::fetchMore(const QModelIndex& parent) {
+	api_->getCategory(id_, continuation_);
 }
 
 QModelIndex FolderItem::getItem(const QModelIndex& index) const {
@@ -114,58 +120,6 @@ const AtomEntry& FolderItem::entry(const QModelIndex& index) const {
 	QModelIndex item = getItem(index);
 
 	return static_cast<const TreeItem*>(item.model())->entry(item);
-}
-
-void FolderItem::setRead(const QModelIndex& index) {
-	if (!index.isValid())
-		return;
-	
-	QModelIndex i = getItem(index);
-
-	if (!i.isValid())
-		return;
-
-	TreeItem* item = const_cast<TreeItem*>(static_cast<const TreeItem*>(i.model()));
-	item->setRead(i);
-}
-
-QString FolderItem::real_id(const QModelIndex& index) const {
-	QModelIndex item = getItem(index);
-
-	if (item.isValid()) {
-		return static_cast<const TreeItem*>(item.model())->real_id(item);
-	} else {
-		return id_;
-	}
-}
-
-QString FolderItem::content(const QModelIndex& index) const {
-	QModelIndex item = getItem(index);
-
-	return static_cast<const TreeItem*>(item.model())->content(item);
-}
-
-void FolderItem::setStarred(const QModelIndex& index, bool starred) {
-	QModelIndex item = getItem(index);
-
-	if (item.isValid())
-		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setStarred(item, starred);
-}
-
-void FolderItem::setXpath(const QModelIndex& index, const QString& xpath) {
-	QModelIndex item = getItem(index);
-
-	if (item.isValid())
-		const_cast<TreeItem*>(static_cast<const TreeItem*>(item.model()))->setXpath(item, xpath);
-}
-
-const QString& FolderItem::xpath(const QModelIndex& index) const {
-	QModelIndex item = getItem(index);
-
-	if (item.isValid())
-		return static_cast<const TreeItem*>(item.model())->xpath(item);
-
-	return QString::null;
 }
 
 // TODO: Fix this shit

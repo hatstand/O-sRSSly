@@ -75,16 +75,12 @@ public:
 	virtual QString summary(const QModelIndex& index) const;
 	QString content(const QModelIndex& index) const;
 	// Sets an atom entry to read status (local only).
-	void setRead(const QModelIndex& index);
 	void addCategory(const QPair<QString,QString>& category);
 	void setStarred(const QModelIndex& index, bool starred = true);
 
-	void setXpath(const QModelIndex& index, const QString& xpath);
-	virtual const QString& xpath(const QModelIndex& index) const;
-	
-
 	// QAbstractTableModel
 	virtual QVariant data(const QModelIndex& index, int role) const;
+	virtual bool setData(const QModelIndex& index, const QVariant& value, int role);
 	virtual int rowCount(const QModelIndex& parent) const;
 
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }

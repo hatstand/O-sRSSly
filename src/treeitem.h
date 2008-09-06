@@ -16,6 +16,25 @@ class FeedsModel;
 class TreeItem : public QAbstractTableModel {
 	Q_OBJECT
 public:
+	// If you add a new column, don't forget to change the columnCount
+	enum ColumnName {
+		Column_Title = 0,
+		Column_Read = 1,
+		Column_Date = 2,
+		Column_Preview = 3,
+		Column_Starred = 4,
+		Column_Link = 5,
+		Column_Source = 6,
+		Column_Author = 7,
+		Column_SharedBy = 8,
+		Column_Summary = 9,
+		Column_Content = 10,
+		Column_Id = 11,
+		Column_UnreadCount = 12,
+		Column_FeedName = 13,
+		Column_Xpath = 14
+	};
+
 	TreeItem(TreeItem* parent, const QString& title = QString());
 	TreeItem(FeedsModel* model, const QString& title = QString());
 	virtual ~TreeItem();
@@ -37,34 +56,23 @@ public:
 	QModelIndex indexInFeedsModel() const;
 	virtual QIcon icon() const { return QIcon(); }
 
-	QString title() const;
-
 	virtual QString id() const { return id_; }
-	virtual QString real_id(const QModelIndex&) const = 0;
-	virtual QString content(const QModelIndex&) const = 0;
+	virtual QString title() const { return title_; }
 
-	// Get the atom summary for the given index.
-	virtual QString summary(const QModelIndex& index) const = 0;
 	// Gets the appropriate AtomEntry.
 	virtual const AtomEntry& entry(const QModelIndex& index) const = 0;
 	// Sets the AtomEntry to read.
-	virtual void setRead(const QModelIndex& index) = 0;
 	int unreadCount() const;
 	void invalidateUnreadCount();
 	void decrementUnreadCount();
 
-	virtual void setStarred(const QModelIndex& index, bool starred = true) = 0;
-
-	virtual void setXpath(const QModelIndex& index, const QString& xpath) = 0;
-	virtual const QString& xpath(const QModelIndex& index) const { return QString::null; }
-
 	// QAbstractTableModel
-	virtual int columnCount(const QModelIndex& parent) const;
 	// Returns Atom data, such as title, date and read status.
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const = 0;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	// Number of atom entries within/below this node.
 	virtual int rowCount(const QModelIndex& parent) const = 0;
+	virtual int columnCount(const QModelIndex&) const { return 15; }
 	
 	virtual void save() {}
 	
