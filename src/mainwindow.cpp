@@ -9,9 +9,12 @@
 #include <QKeyEvent>
 #include <QShortcut>
 #include <QTextDocument>
+#include <QSystemTrayIcon>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
+	  tray_icon_(new QSystemTrayIcon(this)),
+	  tray_menu_(new QMenu(this)),
 	  feeds_model_(new FeedsModel(this)),
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
@@ -21,6 +24,14 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  unread_only_(false)
 {
 	ui_.setupUi(this);
+	
+	tray_menu_->addAction(ui_.actionQuit);
+	
+	tray_icon_->show();
+	tray_icon_->setIcon(windowIcon());
+	tray_icon_->setContextMenu(tray_menu_);
+	tray_icon_->setToolTip("Feeder");
+	connect(feeds_model_, SIGNAL(newUnreadItems(int)), SLOT(newUnreadItems(int)));
 	
 	//menuBar()->hide();
 	statusBar()->hide();
@@ -314,4 +325,10 @@ void MainWindow::apiProgress(int value, int total) {
 	ui_.progress_stack_->setCurrentIndex(value == total ? 1 : 0);
 	ui_.progress_->setMaximum(total);
 	ui_.progress_->setValue(value);
+}
+
+void MainWindow::newUnreadItems(int count) {
+	bool p = count != 1;
+	if (count != 0)
+		tray_icon_->showMessage("Feeder", "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " unread item" + QString(p ? "s" : "") + ".");
 }

@@ -5,7 +5,9 @@
 
 class ConfigureDialog;
 class FeedsModel;
+
 class QSortFilterProxyModel;
+class QSystemTrayIcon;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -35,14 +37,16 @@ private slots:
 	void showUnreadOnly(bool enable);
 	
 	void apiProgress(int value, int total);
+	void newUnreadItems(int count);
 
 	void xpathSet(const QString& xpath);
 	
 private:
 	void updateProgressBar();
 	
-	
 	Ui_MainWindow ui_;
+	QSystemTrayIcon* tray_icon_;
+	QMenu* tray_menu_;
 
 	FeedsModel* feeds_model_;
 	QSortFilterProxyModel* sorted_entries_;

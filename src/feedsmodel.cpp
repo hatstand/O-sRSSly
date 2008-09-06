@@ -420,6 +420,8 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		data->update(*it);
 	}
+	
+	emit newUnreadItems(static_cast<TreeItem*>(all_items_)->data(TreeItem::Column_UnreadCount).toInt());
 }
 
 void FeedsModel::fetchMore() {

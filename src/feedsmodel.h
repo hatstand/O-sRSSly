@@ -59,6 +59,7 @@ public:
 
 signals:
 	void progressChanged(int, int);
+	void newUnreadItems(int);
 
 private slots:
 	void loggedIn();
