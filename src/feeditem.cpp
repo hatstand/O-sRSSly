@@ -44,7 +44,7 @@ void FeedItemData::update() {
 
 void FeedItemData::update(const AtomFeed& feed) {
 	if (feed.id() == subscription_.id()) {
-		qDebug() << "Update arrived for..." << subscription_.id();
+		qDebug() << "Update arrived for..." << subscription_.id() << feed.continuation();
 		
 		int beforeCount = feed_.entries().size();
 		feed_.merge(feed);

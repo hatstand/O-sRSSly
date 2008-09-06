@@ -259,7 +259,7 @@ void ReaderApi::processActionQueue() {
 void ReaderApi::getSubscription(const Subscription& s, const QString& continuation) {
 	QUrl url(encodeFeedId(s.id()));
 	if (!continuation.isEmpty())
-		url.addQueryItem("continuation", continuation);
+		url.addQueryItem("c", continuation);
 
 	getSubscription(url);
 }
