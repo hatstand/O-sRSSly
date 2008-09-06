@@ -67,6 +67,7 @@ private slots:
 
 public slots:
 	void fetchMore();
+	void unreadCountChanged(const QModelIndex& index);
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);

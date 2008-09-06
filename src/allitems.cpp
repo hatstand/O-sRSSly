@@ -21,10 +21,6 @@ AllItems::AllItems(TreeItem* parent, ReaderApi* api)
 {
 }
 
-int AllItems::columnCount() const {
-	return 1;
-}
-
 QVariant AllItems::data(const QModelIndex& index, int role) const {
 	QModelIndex item = getItem(index);
 	if (!item.isValid())

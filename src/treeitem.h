@@ -5,6 +5,8 @@
 
 #include <QAbstractTableModel>
 
+class FeedsModel;
+
 /*
  * Represents a single node in the tree model.
  *
@@ -13,7 +15,8 @@
 class TreeItem : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	TreeItem(TreeItem* parent = 0, const QString& title = QString());
+	TreeItem(TreeItem* parent, const QString& title = QString());
+	TreeItem(FeedsModel* model, const QString& title = QString());
 	virtual ~TreeItem();
 	
 	void clear();
@@ -24,12 +27,13 @@ public:
 	const QList<TreeItem*>& children() const { return children_; }
 	QList<TreeItem*> allChildren() const;
 	int childCount() const;
-	virtual int columnCount() const = 0;
 	// Which child this item is.
 	int row() const;
 	// Get some actual data. Default implementation returns just the title.
 	virtual QVariant data(int column) const;
 	TreeItem* parent();
+	FeedsModel* feedsModel() const { return feeds_model_; }
+	QModelIndex indexInFeedsModel() const;
 
 	QString title() const;
 
@@ -43,13 +47,16 @@ public:
 	virtual const AtomEntry& entry(const QModelIndex& index) const = 0;
 	// Sets the AtomEntry to read.
 	virtual void setRead(const QModelIndex& index) = 0;
+	int unreadCount() const;
+	void invalidateUnreadCount();
+	void decrementUnreadCount();
 
 	virtual void setStarred(const QModelIndex& index, bool starred = true) = 0;
 
 	// QAbstractTableModel
 	virtual int columnCount(const QModelIndex& parent) const;
 	// Returns Atom data, such as title, date and read status.
-	virtual QVariant data(const QModelIndex& index, int role) const = 0;
+	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const = 0;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	// Number of atom entries within/below this node.
 	virtual int rowCount(const QModelIndex& parent) const = 0;
@@ -57,6 +64,9 @@ public:
 	virtual void save() {}
 	
 	void installChangedProxy(TreeItem* other) { changed_proxy_ = other; }
+
+signals:
+	void unreadCountChanged(const QModelIndex& index);
 
 public slots:
 	// Called when rows are inserted into a child
@@ -70,6 +80,9 @@ private slots:
 	// Called when a child is destroyed.
 	void childDestroyed(QObject* object);
 
+private:
+	void init(TreeItem* parent, const QString& title, FeedsModel* model);
+
 protected:
 	TreeItem* parent_;
 	TreeItem* changed_proxy_;
@@ -78,6 +91,9 @@ protected:
 	QString title_;
 	QString id_;
 	qint64 rowid_;
+	int unread_count_;
+	
+	FeedsModel* feeds_model_;
 };
 
 #endif

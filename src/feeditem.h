@@ -62,7 +62,6 @@ public:
 	 */
 
 	FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data);
-	int columnCount() const;
 	QVariant data(int column) const;
 	const Subscription& subscription() const { return data_->subscription(); }
 	const AtomEntry& entry(const QModelIndex& index) const;

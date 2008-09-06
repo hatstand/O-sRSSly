@@ -1,23 +1,36 @@
 #include "treeitem.h"
+#include "feedsmodel.h"
 
 #include <QDebug>
 
-TreeItem::TreeItem(TreeItem* parent, const QString& title)
-	: parent_(parent),
-	  changed_proxy_(NULL),
-	  fail_prevention_(false),
-	  title_(title),
-	  rowid_(-1)
-{
-	if (parent) {
-		connect(this, SIGNAL(modelReset()), parent, SLOT(childReset()));
-		connect(this, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-			parent, SLOT(childRowsInserted(const QModelIndex&, int, int)));
-	}
+TreeItem::TreeItem(TreeItem* parent, const QString& title) {
+	init(parent, title, parent->feedsModel());
+	
+	parent->appendChild(this);
+	connect(this, SIGNAL(modelReset()), parent, SLOT(childReset()));
+	connect(this, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+		parent, SLOT(childRowsInserted(const QModelIndex&, int, int)));
+	
+	connect(this, SIGNAL(unreadCountChanged(const QModelIndex&)), feeds_model_, SLOT(unreadCountChanged(const QModelIndex&)));
+}
+
+TreeItem::TreeItem(FeedsModel* model, const QString& title) {
+	init(NULL, title, model);
 }
 
 TreeItem::~TreeItem() {
 	clear();
+}
+
+void TreeItem::init(TreeItem* parent, const QString& title, FeedsModel* model) {
+	parent_ = parent;
+	title_ = title;
+	feeds_model_ = model;
+	changed_proxy_ = NULL;
+	fail_prevention_ = false;
+	rowid_ = -1;
+	unread_count_= -1;
+	
 }
 
 void TreeItem::clear() {
@@ -54,10 +67,15 @@ int TreeItem::row() const {
 }
 
 QVariant TreeItem::data(int column) const {
-	if (column == 0)
+	switch (column)
+	{
+	case 0:
 		return title_;
-	
-	return QVariant();
+	case 2:
+		return unreadCount();
+	default:
+		return QVariant();
+	}
 }
 
 
@@ -90,15 +108,19 @@ void TreeItem::childRowsInserted(const QModelIndex& parent, int start, int end) 
 
 void TreeItem::childReset() {
 	reset();
+	invalidateUnreadCount();
 }
 
 void TreeItem::childDestroyed(QObject* object) {
 	children_.removeAll(static_cast<TreeItem*>(object));
+	invalidateUnreadCount();
 }
 
 void TreeItem::childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end) {
 	if (fail_prevention_)
 		return;
+
+	invalidateUnreadCount();
 	
 	fail_prevention_ = true;
 	if (changed_proxy_)
@@ -117,4 +139,63 @@ QList<TreeItem*> TreeItem::allChildren() const {
 	}
 	
 	return ret;
+}
+
+int TreeItem::unreadCount() const {
+	if (unread_count_ == -1) {
+		int& unreadRef = const_cast<TreeItem*>(this)->unread_count_;
+		unreadRef = 0;
+		
+		const int total = rowCount(QModelIndex());
+		for (int i=0 ; i<total; ++i) {
+			if (!data(index(i, 1)).toBool())
+				unreadRef++;
+		}
+	}
+	
+	return unread_count_;
+}
+
+void TreeItem::invalidateUnreadCount() {
+	if (fail_prevention_)
+		return;
+	
+	fail_prevention_ = true;
+	if (parent_)
+		parent_->invalidateUnreadCount();
+	if (changed_proxy_)
+		changed_proxy_->invalidateUnreadCount();
+	fail_prevention_ = false;
+	
+	if (unread_count_ == -1)
+		return;
+	
+	unread_count_ = -1;
+	emit unreadCountChanged(indexInFeedsModel());
+}
+
+void TreeItem::decrementUnreadCount() {
+	if (fail_prevention_)
+		return;
+	
+	fail_prevention_ = true;
+	if (parent_)
+		parent_->decrementUnreadCount();
+	if (changed_proxy_)
+		changed_proxy_->decrementUnreadCount();
+	fail_prevention_ = false;
+	
+	if (unread_count_ == -1)
+		return;
+	
+	unread_count_--;
+	emit unreadCountChanged(indexInFeedsModel());
+}
+
+QModelIndex TreeItem::indexInFeedsModel() const {
+	QModelIndex parentIndex;
+	if (parent_)
+		parentIndex = parent_->indexInFeedsModel();
+	
+	return feeds_model_->index(row(), 0, parentIndex);
 }

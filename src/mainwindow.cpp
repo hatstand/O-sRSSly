@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	ui_.feeds_->setModel(feeds_model_);
 	ui_.feeds_->hideColumn(1);
+	ui_.feeds_->hideColumn(2);
 
 	connect(ui_.feeds_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(subscriptionSelected(const QModelIndex&)));

@@ -44,10 +44,6 @@ void FolderItem::save()
 	}
 }
 
-int FolderItem::columnCount() const {
-	return 1;
-}
-
 QVariant FolderItem::data(const QModelIndex& index, int role) const {
 	QModelIndex item = getItem(index);
 	if (!item.isValid())

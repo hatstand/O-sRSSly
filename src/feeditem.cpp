@@ -11,19 +11,10 @@ FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)
 	connect(data.get(), SIGNAL(rowsInserted(int, int)), SLOT(feedRowsInserted(int, int)));
 }
 
-int FeedItem::columnCount() const {
-	return 2;
-}
-
 QVariant FeedItem::data(int column) const {
-	switch (column) {
-		case 0:
-			return title_;
-		case 1:
-			return data_->subscription().id();
-		default:
-			return QVariant();
-	}
+	if (column == 1)
+		return data_->subscription().id();
+	return TreeItem::data(column);
 }
 
 FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
@@ -185,6 +176,7 @@ void FeedItem::setRead(const QModelIndex& index) {
 		return;
 	
 	data_->setRead(e);
+	decrementUnreadCount();
 
 	QModelIndex top_left = createIndex(index.row(), 1);
 	emit dataChanged(top_left, top_left);
@@ -193,6 +185,7 @@ void FeedItem::setRead(const QModelIndex& index) {
 void FeedItem::feedRowsInserted(int from, int to) {
 	beginInsertRows(QModelIndex(), from, to);
 	endInsertRows();
+	invalidateUnreadCount();
 }
 
 void FeedItem::fetchMore(const QModelIndex&) {

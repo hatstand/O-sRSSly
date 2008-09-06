@@ -13,8 +13,6 @@ class FolderItem : public TreeItem {
 public:
 	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api);
 	FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api);
-	
-	int columnCount() const;
 
 	QString real_id(const QModelIndex& index) const;
 

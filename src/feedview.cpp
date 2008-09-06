@@ -6,11 +6,53 @@
 #include <QDebug>
 #include <QMenu>
 #include <QSignalMapper>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QApplication>
+
+FeedDelegate::FeedDelegate(QObject* parent)
+	: QAbstractItemDelegate(parent)
+{
+	QFontMetrics metrics(normal_font_);
+	item_height_ = metrics.height();
+	
+	unread_font_.setBold(true);
+}
+
+void FeedDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+	QString title(index.sibling(index.row(), 0).data().toString());
+	int unreadCount = index.sibling(index.row(), 2).data().toInt();
+	bool hasUnread = unreadCount > 0;
+	
+	if (hasUnread)
+		title += " (" + QString::number(unreadCount) + ")";
+	
+	QColor titleColor(Qt::black);
+	QFont titleFont(hasUnread ? unread_font_ : normal_font_);
+	
+	// Draw selection background
+	if (option.state & QStyle::State_Selected)
+	{
+		painter->fillRect(option.rect, qApp->palette().color(QPalette::Highlight));
+		titleColor = qApp->palette().color(QPalette::HighlightedText);
+	}
+	
+	// Draw title
+	painter->setPen(titleColor);
+	painter->setFont(titleFont);
+	painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, title);
+}
+
+QSize FeedDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
+	return QSize(100, item_height_);
+}
+
 
 FeedView::FeedView(QWidget* parent)
 	: QTreeView(parent),
 	  feed_menu_(new QMenu(this)),
-	  behaviour_menu_(new QMenu(this))
+	  behaviour_menu_(new QMenu(this)),
+	  delegate_(new FeedDelegate(this))
 {
 	QAction* update = new QAction("Update", feed_menu_);
 	feed_menu_->addAction(update);
@@ -41,6 +83,7 @@ FeedView::FeedView(QWidget* parent)
 	setDragEnabled(true);
 	setDragDropMode(QAbstractItemView::InternalMove);
 	setDropIndicatorShown(true);
+	setItemDelegate(delegate_);
 }
 
 FeedView::~FeedView() {

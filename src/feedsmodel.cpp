@@ -11,7 +11,7 @@
 
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent),
-	  root_(NULL),
+	  root_(this),
 	  all_items_(NULL),
 	  api_(NULL),
 	  database_(new Database),
@@ -41,7 +41,6 @@ void FeedsModel::googleAccountChanged() {
 	// Add an "all items" node.
 	// This gets deleted by root_.clear()
 	all_items_ = new AllItems(&root_, api_);
-	root_.appendChild(all_items_);
 	root_.installChangedProxy(all_items_);
 	
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
@@ -71,7 +70,7 @@ QVariant FeedsModel::data(const QModelIndex& index, int role) const {
 }
 
 int FeedsModel::columnCount(const QModelIndex& parent) const {
-	return 2;
+	return 3;
 }
 
 Qt::ItemFlags FeedsModel::flags(const QModelIndex& index) const {
@@ -177,9 +176,7 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 
 	// If it has no categories then insert at root level.
 	if (d.get()->subscription().categories().isEmpty()) {
-		FeedItem* feed = new FeedItem(&root_, d);
-		root_.appendChild(feed);
-
+		new FeedItem(&root_, d);
 		return;
 	}
 
@@ -192,13 +189,11 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 		} else {
 			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_);
 			f->save();
-			root_.appendChild(f);
 			folder_mappings_.insert(c.first, f);
 			parent = f;
 		}
 
-		FeedItem* feed = new FeedItem(parent, d);
-		parent->appendChild(feed);
+		new FeedItem(parent, d);
 	}
 }
 
@@ -282,7 +277,6 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 					QModelIndex index = createIndex(item->row(), 0, item);
 					beginInsertRows(index, item->childCount(), item->childCount());
 					FeedItem* new_feed = new FeedItem(item, shared_ptr<FeedItemData>(*jt));
-					item->appendChild(new_feed);
 					new_feed->addCategory(qMakePair(item->id(), item->title()));
 					endInsertRows();	
 				}
@@ -340,8 +334,7 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 					qDebug() << "Adding feed to root as removed from all categories";
 					QModelIndex index = createIndex(root_.row(), 0, &root_);
 					beginInsertRows(index, root_.childCount(), root_.childCount());
-					FeedItem* feed = new FeedItem(&root_, data);
-					root_.appendChild(feed);
+					new FeedItem(&root_, data);
 					endInsertRows();
 				}
 			}
@@ -370,7 +363,6 @@ void FeedsModel::load() {
 	while (query.next())
 	{
 		FolderItem* f = new FolderItem(&root_, query, api_);
-		root_.appendChild(f);
 		folder_mappings_.insert(f->id(), f);
 	}
 	
@@ -430,4 +422,8 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 
 void FeedsModel::fetchMore() {
 	api_->getFresh();
+}
+
+void FeedsModel::unreadCountChanged(const QModelIndex& index) {
+	emit dataChanged(index, index.sibling(index.row(), 3));
 }

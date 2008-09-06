@@ -6,9 +6,7 @@
 class RootItem : public TreeItem {
 	Q_OBJECT
 public:
-	RootItem(TreeItem* parent) : TreeItem(parent, "/") {}
-	
-	int columnCount() const { return 1; }
+	RootItem(FeedsModel* model) : TreeItem(model, "/") {}
 	
 	virtual QString summary(const QModelIndex& index) const { return QString::null; }
 	QString real_id(const QModelIndex& index) const { return QString::null; }

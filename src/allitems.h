@@ -13,8 +13,6 @@ class AllItems : public TreeItem {
 public:
 	AllItems(TreeItem* parent, ReaderApi* api);
 	
-	int columnCount() const;
-
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
 	// ie. a row index of 0 will return the first row from the first child.
