@@ -1,5 +1,6 @@
 #include "folderitem.h"
 #include "readerapi.h"
+#include "database.h"
 
 #include <QDebug>
 #include <QSqlQuery>
@@ -30,7 +31,8 @@ void FolderItem::save()
 		query.prepare("INSERT INTO Tag (id, title) VALUES (:id, :title)");
 		query.bindValue(":id", id_);
 		query.bindValue(":title", title_);
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 		
 		rowid_ = query.lastInsertId().toLongLong();
 	}
@@ -40,7 +42,8 @@ void FolderItem::save()
 		query.bindValue(":id", id_);
 		query.bindValue(":title", title_);
 		query.bindValue(":rowid", rowid_);
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 	}
 }
 

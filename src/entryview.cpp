@@ -60,8 +60,8 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	QTextDocument doc;
 	doc.setHtml(title);
 	doc.setTextWidth(rect.width());
-	int width = doc.idealWidth();
-	int height = doc.size().height();
+	/*int width = doc.idealWidth();
+	int height = doc.size().height();*/
 
 	painter->setPen(headingColor);
 	//painter->setFont(read ? headingFont_ : unreadFont_);

@@ -19,7 +19,7 @@ class QSqlQuery;
 class AtomEntry
 {
 public:
-	AtomEntry() {}
+	AtomEntry() : rowid(-1) {}
 	AtomEntry(QXmlStreamReader& s);
 	AtomEntry(const QSqlQuery& query);
 	
@@ -38,6 +38,8 @@ public:
 	QString shared_by;
 	
 	qint64 rowid;
+	
+	void update() const;
 
 private:
 	void parseSource(QXmlStreamReader& s);
@@ -118,6 +120,7 @@ public:
 	void setStarred(const AtomEntry& e, bool starred);
 	
 	void saveEntries(qint64 feedId);
+	void updateEntry(const AtomEntry& entry);
 
 	static const char* kReaderXmlNamespace;
 private:

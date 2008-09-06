@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QSqlQuery>
+#include <QtDebug>
 
 Database::Database()
 {
@@ -34,5 +35,9 @@ void Database::initTables()
 		if (!q.exec())
 			qFatal("Error executing SQL query: %s", query.toAscii().data());
 	}
+}
+
+void Database::handleError(const QSqlError& error) {
+	qDebug() << "Database error:" << error;
 }
 

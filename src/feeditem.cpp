@@ -1,5 +1,6 @@
 #include "feeditem.h"
 #include "readerapi.h"
+#include "database.h"
 
 #include <QSqlQuery>
 
@@ -101,7 +102,8 @@ void FeedItemData::save() {
 		query.bindValue(":id", subscription_.id());
 		query.bindValue(":title", subscription_.title());
 		query.bindValue(":sortId", subscription_.sortid());
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 		
 		rowid_ = query.lastInsertId().toLongLong();
 	} else {
@@ -110,11 +112,13 @@ void FeedItemData::save() {
 		query.bindValue(":title", subscription_.title());
 		query.bindValue(":sortId", subscription_.sortid());
 		query.bindValue(":rowid", rowid_);
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 		
 		query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
 		query.bindValue(":id", rowid_);
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 	}
 	
 	// Save the list of tags it has
@@ -122,7 +126,8 @@ void FeedItemData::save() {
 	foreach (const Category& category, subscription_.categories()) {
 		query.bindValue(":feedId", rowid_);
 		query.bindValue(":tagId", category.first);
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 	}
 	
 	// Save its entries
@@ -177,6 +182,7 @@ void FeedItem::setRead(const QModelIndex& index) {
 	
 	data_->setRead(e);
 	decrementUnreadCount();
+	e.update();
 
 	QModelIndex top_left = createIndex(index.row(), 1);
 	emit dataChanged(top_left, top_left);
@@ -208,6 +214,7 @@ QString FeedItem::content(const QModelIndex& index) const {
 void FeedItem::setStarred(const QModelIndex& index, bool starred) {
 	const AtomEntry& e = data_->entries().at(index.row());
 	data_->setStarred(e, starred);
+	e.update();
 
 	QModelIndex top_left = createIndex(index.row(), 4);
 	emit dataChanged(top_left, top_left);

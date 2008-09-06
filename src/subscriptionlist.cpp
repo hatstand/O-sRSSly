@@ -1,5 +1,6 @@
 #include "subscriptionlist.h"
 #include "xmlutils.h"
+#include "database.h"
 
 #include <QSqlQuery>
 #include <QVariant>
@@ -51,7 +52,8 @@ Subscription::Subscription(const QSqlQuery& query) {
 	QSqlQuery categoryQuery;
 	categoryQuery.prepare("SELECT Tag.id, Tag.title FROM Tag INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId WHERE FeedTagMap.feedId=:feedId");
 	categoryQuery.bindValue(":feedId", query.value(0).toLongLong());
-	categoryQuery.exec();
+	if (!categoryQuery.exec())
+		Database::handleError(categoryQuery.lastError());
 	
 	while (categoryQuery.next())
 		addCategory(Category(categoryQuery.value(0).toString(), categoryQuery.value(1).toString()));

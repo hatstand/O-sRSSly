@@ -1,5 +1,6 @@
 #include "atomfeed.h"
 #include "xmlutils.h"
+#include "database.h"
 
 #include <QXmlStreamReader>
 #include <QFile>
@@ -41,7 +42,8 @@ AtomFeed::AtomFeed(const QSqlQuery& query)
 	QSqlQuery entryQuery;
 	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read, starred FROM Entry WHERE feedId=:feedId");
 	entryQuery.bindValue(":feedId", query.value(0).toLongLong());
-	entryQuery.exec();
+	if (!entryQuery.exec())
+		Database::handleError(entryQuery.lastError());
 	
 	while (entryQuery.next())
 		m_entries.insert(AtomEntry(entryQuery));
@@ -159,7 +161,7 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 
 void AtomFeed::saveEntries(qint64 feedId) {
 	QSqlQuery query;
-	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred)");
+	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read, starred) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred)");
 	query.bindValue(":feedId", feedId);
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
@@ -176,7 +178,8 @@ void AtomFeed::saveEntries(qint64 feedId) {
 		query.bindValue(":link", entry.link.toString());
 		query.bindValue(":read", QVariant(entry.read).toString());
 		query.bindValue(":starred", QVariant(entry.starred).toString());
-		query.exec();
+		if (!query.exec())
+			Database::handleError(query.lastError());
 	}
 }
 
@@ -314,6 +317,16 @@ QString AtomEntry::parseAuthor(QXmlStreamReader& s) {
 	}
 
 	return QString::null;
+}
+
+void AtomEntry::update() const {
+	QSqlQuery query;
+	query.prepare("UPDATE Entry SET read=:read, starred=:starred WHERE ROWID=:rowId");
+	query.bindValue(":rowId", rowid);
+	query.bindValue(":read", QVariant(read).toString());
+	query.bindValue(":starred", QVariant(starred).toString());
+	if (!query.exec())
+		Database::handleError(query.lastError());
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)

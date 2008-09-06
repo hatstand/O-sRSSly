@@ -3,16 +3,17 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlError>
 
 class Database
 {
 public:
 	Database();
 	
+	static void handleError(const QSqlError& error);
+	
 private:
 	void initTables();
-	
-	QSqlDatabase m_db;
 };
 
 
