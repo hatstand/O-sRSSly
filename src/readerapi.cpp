@@ -463,6 +463,7 @@ void ReaderApi::watchReply(QNetworkReply* reply) {
 	connect(reply, SIGNAL(finished()), SLOT(replyFinished()));
 	connect(reply, SIGNAL(downloadProgress(qint64, qint64)), SLOT(replyDownloadProgress(qint64, qint64)));
 	reply_progress_[reply] = 0;
+	updateProgress();
 }
 
 void ReaderApi::replyDownloadProgress(qint64 progress, qint64 total) {
