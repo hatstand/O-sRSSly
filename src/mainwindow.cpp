@@ -41,8 +41,11 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 		SLOT(externalLinkClicked(const QUrl&)));
 
 	ui_.feeds_->setModel(feeds_model_);
-	ui_.feeds_->hideColumn(1);
-	ui_.feeds_->hideColumn(2);
+	for (int i=1 ; i<feeds_model_->columnCount() ; ++i)
+		ui_.feeds_->hideColumn(i);
+	ui_.feeds_->expandAll();
+	connect(feeds_model_, SIGNAL(modelReset()), ui_.feeds_, SLOT(expandAll()));
+	connect(feeds_model_, SIGNAL(rowsInserted(const QModelIndex&, int, int)), ui_.feeds_, SLOT(expandAll()));
 
 	connect(ui_.feeds_, SIGNAL(activated(const QModelIndex&)),
 		SLOT(subscriptionSelected(const QModelIndex&)));

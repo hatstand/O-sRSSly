@@ -16,7 +16,7 @@ class FeedsModel;
 class TreeItem : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	// If you add a new column, don't forget to change the columnCount
+	// If you add a new column, don't forget to change the columnCount (both here and in FeedsModel)
 	enum ColumnName {
 		Column_Title = 0,
 		Column_Read = 1,

@@ -68,7 +68,7 @@ QVariant FeedsModel::data(const QModelIndex& index, int role) const {
 }
 
 int FeedsModel::columnCount(const QModelIndex& parent) const {
-	return 3;
+	return 15;
 }
 
 Qt::ItemFlags FeedsModel::flags(const QModelIndex& index) const {

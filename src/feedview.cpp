@@ -21,9 +21,9 @@ FeedDelegate::FeedDelegate(QObject* parent)
 }
 
 void FeedDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	QString title(index.sibling(index.row(), 0).data().toString());
-	QIcon icon(index.sibling(index.row(), 0).data(Qt::DecorationRole).value<QIcon>());
-	int unreadCount = index.sibling(index.row(), 2).data().toInt();
+	QString title(index.sibling(index.row(), TreeItem::Column_Title).data().toString());
+	QIcon icon(index.sibling(index.row(), TreeItem::Column_Title).data(Qt::DecorationRole).value<QIcon>());
+	int unreadCount = index.sibling(index.row(), TreeItem::Column_UnreadCount).data().toInt();
 	bool hasUnread = unreadCount > 0;
 	
 	if (hasUnread)
@@ -134,4 +134,3 @@ void FeedView::selectionChanged(const QItemSelection& selected, const QItemSelec
 	if (selected.indexes().count() > 0)
 		emit activated(selected.indexes()[0]);
 }
-
