@@ -47,6 +47,8 @@ void WebclipView::mouseMoveEvent(QMouseEvent* event) {
 
 		update();
 	}
+
+	QWebView::mouseMoveEvent(event);
 }
 
 void WebclipView::mousePressEvent(QMouseEvent* event) {
