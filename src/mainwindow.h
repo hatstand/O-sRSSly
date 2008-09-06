@@ -30,17 +30,25 @@ private slots:
 	void webclipClicked();
 	void closeTab();
 	void tabChanged(int tab);
+	void loadProgress(int progress);
 	//void loadProgress(int loadProgress);
 	void showUnreadOnly(bool enable);
+	
+	void apiProgress(int value, int total);
 
 	void xpathSet(const QString& xpath);
 	
 private:
+	void updateProgressBar();
+	
+	
 	Ui_MainWindow ui_;
 
 	FeedsModel* feeds_model_;
 	QSortFilterProxyModel* sorted_entries_;
 	QMenu* feed_menu_;
+	LongCatBar* web_progress_bar_;
+	QMap<QWidget*, int> web_progress_;
 
 	ConfigureDialog* configure_dialog_;
 

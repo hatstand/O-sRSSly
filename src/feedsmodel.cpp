@@ -37,6 +37,7 @@ void FeedsModel::googleAccountChanged() {
 	// Make a new API instance
 	delete api_;
 	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), this);
+	connect(api_, SIGNAL(progressChanged(int, int)), SIGNAL(progressChanged(int, int)));
 
 	// Add an "all items" node.
 	// This gets deleted by root_.clear()

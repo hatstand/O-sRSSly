@@ -66,6 +66,7 @@ void ReaderApi::login() {
 	QNetworkRequest login_request(kLoginUrl);
 	login_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply* login = network_->post(login_request, content.toUtf8());
+	watchReply(login);
 
 	connect(login, SIGNAL(finished()), SLOT(loginComplete()));
 	connect(login, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -112,6 +113,7 @@ void ReaderApi::getSubscriptionList() {
 	//req.setRawHeader(QByteArray("Authorization"), ("GoogleLogin " + auth_).toUtf8());
 
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 
 	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionListComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -140,6 +142,7 @@ void ReaderApi::getUnread() {
 	QNetworkRequest req(kUnreadUrl);
 
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 
 	connect(reply, SIGNAL(finished()), SLOT(getUnreadComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -169,6 +172,7 @@ void ReaderApi::getToken() {
 
 	QNetworkRequest req(kTokenUrl);
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 	connect(reply, SIGNAL(finished()), SLOT(getTokenComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
 		SLOT(networkError(QNetworkReply::NetworkError)));
@@ -305,6 +309,7 @@ void ReaderApi::getSubscription(const QUrl& url) {
 	qDebug() << __PRETTY_FUNCTION__ << url;
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
 		SLOT(networkError(QNetworkReply::NetworkError)));
@@ -341,6 +346,7 @@ void ReaderApi::getFresh() {
 
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 	connect(reply, SIGNAL(finished()), SLOT(getFreshComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
 		SLOT(networkError(QNetworkReply::NetworkError)));
@@ -363,6 +369,7 @@ void ReaderApi::getCategory(const QString& category, const QString& continuation
 
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
 	connect(reply, SIGNAL(finished()), SLOT(getCategoryComplete()));
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),	
 		SLOT(networkError(QNetworkReply::NetworkError)));
@@ -450,4 +457,46 @@ void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, QPair<in
 				break;
 		}
 	}
+}
+
+void ReaderApi::watchReply(QNetworkReply* reply) {
+	connect(reply, SIGNAL(finished()), SLOT(replyFinished()));
+	connect(reply, SIGNAL(downloadProgress(qint64, qint64)), SLOT(replyDownloadProgress(qint64, qint64)));
+	reply_progress_[reply] = 0;
+}
+
+void ReaderApi::replyDownloadProgress(qint64 progress, qint64 total) {
+	QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+	if (!reply)
+		return;
+	
+	int value = 0;
+	if (total != -1)
+		value = int(float(progress * 100) / total);
+	reply_progress_[reply] = value;
+	updateProgress();
+}
+
+void ReaderApi::replyFinished() {
+	QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+	if (!reply)
+		return;
+	
+	reply_progress_[reply] = 100;
+	updateProgress();
+}
+
+void ReaderApi::updateProgress() {
+	int total = 0;
+	int value = 0;
+	
+	foreach (int v, reply_progress_.values()) {
+		total += 100;
+		value += v;
+	}
+	
+	if (total == value)
+		reply_progress_.clear();
+	
+	emit progressChanged(value, total);
 }

@@ -17,6 +17,7 @@ Browser::Browser(QWidget* parent)
 	connect(ui_.webView_, SIGNAL(titleChanged(const QString&)), SIGNAL(titleChanged(const QString&)));
 	connect(ui_.webView_, SIGNAL(statusBarMessage(const QString&)), SIGNAL(statusBarMessage(const QString&)));
 	connect(ui_.webView_, SIGNAL(iconChanged()), SIGNAL(iconChanged()));
+	connect(ui_.webView_, SIGNAL(loadProgress(int)), SIGNAL(loadProgress(int)));
 }
 
 void Browser::loadStarted() {

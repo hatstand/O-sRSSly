@@ -15,6 +15,7 @@ signals:
 	void titleChanged(const QString& title);
 	void statusBarMessage(const QString& message);
 	void iconChanged();
+	void loadProgress(int progress);
 
 public slots:
 	void setUrl(const QUrl& url);

@@ -57,6 +57,9 @@ public:
 	void load();
 	void save();
 
+signals:
+	void progressChanged(int, int);
+
 private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);

@@ -41,6 +41,9 @@ private:
 
 	QMap<QString, QPair<int, QString> > parseUnreadCounts(QIODevice* device);
 	void parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, QPair<int, QString> >* unread_counts);
+	
+	void watchReply(QNetworkReply* reply);
+	void updateProgress();
 
 private slots:
 	void loginComplete();
@@ -54,6 +57,9 @@ private slots:
 	void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
 	void processActionQueue();
 	void actionFailed();
+	
+	void replyDownloadProgress(qint64, qint64);
+	void replyFinished();
 
 signals:
 	void loggedIn();
@@ -63,8 +69,12 @@ signals:
 	void freshArrived(const AtomFeed&);
 	// Emitted when an auth token has been received.
 	void tokenReady();
+	
+	void progressChanged(int progress, int total);
 
 private:
+	QMap<QNetworkReply*, int> reply_progress_;
+	
 	QNetworkAccessManager* network_;
 
 	QString username_;

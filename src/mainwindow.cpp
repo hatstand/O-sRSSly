@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  feeds_model_(new FeedsModel(this)),
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
+	  web_progress_bar_(new LongCatBar(this)),
 	  configure_dialog_(new ConfigureDialog(this)),
 	  webclipping_(false),
 	  unread_only_(false)
@@ -33,6 +34,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.action_refresh_, SIGNAL(activated()), feeds_model_, SLOT(fetchMore()));
 	ui_.refresh_->setDefaultAction(ui_.action_refresh_);
 	
+	ui_.title_->setText("<b>Welcome to Feeder</b>");
 	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
 	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 	connect(ui_.contents_, SIGNAL(linkClicked(const QUrl&)),
@@ -71,6 +73,15 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionCloseTab_, SIGNAL(triggered(bool)), SLOT(closeTab()));
 	connect(ui_.tabs_, SIGNAL(currentChanged(int)), SLOT(tabChanged(int)));
 
+	// Progress bar for tabs
+	web_progress_bar_->setMinimum(0);
+	web_progress_bar_->setMaximum(100);
+	ui_.tabs_->setCornerWidget(web_progress_bar_, Qt::BottomRightCorner);
+	connect(ui_.contents_, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
+	
+	// General progress bar
+	connect(feeds_model_, SIGNAL(progressChanged(int, int)), SLOT(apiProgress(int, int)));
+
 	connect(ui_.actionUnreadOnly_, SIGNAL(triggered(bool)), SLOT(showUnreadOnly(bool)));
 	
 	// Prompt the user for google account details
@@ -86,12 +97,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	ui_.actionWebclip_->setEnabled(false);
 	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
-
 	connect(ui_.contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
-
-	ui_.progressBar->setMinimum(0);
-	ui_.progressBar->setMaximum(100);
-	connect(ui_.contents_, SIGNAL(loadProgress(int)), ui_.progressBar, SLOT(setValue(int)));
 }
 
 MainWindow::~MainWindow() {
@@ -176,6 +182,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			ui_.contents_->setUrl(link);
 			ui_.contents_->getXpath(item->xpath(real_index));
 			ui_.actionWebclip_->setEnabled(false);
+			break;
 	}
 	
 	ui_.tabs_->setCurrentIndex(0);
@@ -191,6 +198,7 @@ void MainWindow::externalLinkClicked(const QUrl& url) {
 	connect(browser, SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(browser, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
 	connect(browser, SIGNAL(iconChanged()), SLOT(iconChanged()));
+	connect(browser, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
 	
 	int index = ui_.tabs_->addTab(browser, url.toString());
 	ui_.tabs_->setCurrentIndex(index);
@@ -245,10 +253,13 @@ void MainWindow::closeTab() {
 	QWidget* widget = ui_.tabs_->widget(index);
 	ui_.tabs_->removeTab(index);
 	widget->deleteLater();
+	web_progress_.remove(widget);
+	updateProgressBar();
 }
 
 void MainWindow::tabChanged(int tab) {
 	ui_.actionCloseTab_->setEnabled(tab != 0);
+	updateProgressBar();
 }
 
 void MainWindow::showUnreadOnly(bool enable) {
@@ -264,6 +275,30 @@ void MainWindow::showUnreadOnly(bool enable) {
 	}
 }
 
+void MainWindow::loadProgress(int progress) {
+	QWidget* web_view(qobject_cast<QWidget*>(sender()));
+	web_progress_[web_view] = progress;
+	
+	updateProgressBar();
+}
+
+void MainWindow::updateProgressBar() {
+	Browser* browser = qobject_cast<Browser*>(ui_.tabs_->currentWidget());
+	QWidget* web_view;
+	if (browser)
+		web_view = browser;
+	else
+		web_view = ui_.contents_;
+	
+	int value = 100;
+	if (web_progress_.contains(web_view)) {
+		value = web_progress_[web_view];
+	}
+	
+	web_progress_bar_->setValue(value);
+	web_progress_bar_->setHidden(value == 100);
+}
+
 void MainWindow::xpathSet(const QString& xpath) {
 	if (current_contents_.isValid()) {
 		qDebug() << __PRETTY_FUNCTION__;
@@ -271,4 +306,10 @@ void MainWindow::xpathSet(const QString& xpath) {
 			static_cast<const TreeItem*>(
 				current_contents_.model()))->setXpath(current_contents_, xpath);
 	}
+}
+
+void MainWindow::apiProgress(int value, int total) {
+	ui_.progress_stack_->setCurrentIndex(value == total ? 1 : 0);
+	ui_.progress_->setMaximum(total);
+	ui_.progress_->setValue(value);
 }
