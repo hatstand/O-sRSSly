@@ -66,11 +66,14 @@ int TreeItem::row() const {
 	return 0;
 }
 
-QVariant TreeItem::data(int column) const {
+QVariant TreeItem::data(int column, int role) const {
 	switch (column)
 	{
 	case 0:
-		return title_;
+		if (role == Qt::DecorationRole)
+			return icon();
+		else
+			return title_;
 	case 2:
 		return unreadCount();
 	default:

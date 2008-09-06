@@ -11,22 +11,25 @@
 #include <QApplication>
 
 FeedDelegate::FeedDelegate(QObject* parent)
-	: QAbstractItemDelegate(parent)
+	: QAbstractItemDelegate(parent),
+	  kIconSpacing(4)
 {
 	QFontMetrics metrics(normal_font_);
-	item_height_ = metrics.height();
+	item_height_ = qMax(18, metrics.height());
 	
 	unread_font_.setBold(true);
 }
 
 void FeedDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
 	QString title(index.sibling(index.row(), 0).data().toString());
+	QIcon icon(index.sibling(index.row(), 0).data(Qt::DecorationRole).value<QIcon>());
 	int unreadCount = index.sibling(index.row(), 2).data().toInt();
 	bool hasUnread = unreadCount > 0;
 	
 	if (hasUnread)
 		title += " (" + QString::number(unreadCount) + ")";
 	
+	QRect rect(option.rect);
 	QColor titleColor(Qt::black);
 	QFont titleFont(hasUnread ? unread_font_ : normal_font_);
 	
@@ -37,10 +40,18 @@ void FeedDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, 
 		titleColor = qApp->palette().color(QPalette::HighlightedText);
 	}
 	
+	// Draw icon
+	if (!icon.isNull()) {
+		QRect iconRect(rect.left(), rect.top() + (item_height_ - 16) / 2, 16, 16);
+		painter->drawPixmap(iconRect, icon.pixmap(iconRect.size()));
+		
+		rect.setLeft(iconRect.right() + kIconSpacing);
+	}
+	
 	// Draw title
 	painter->setPen(titleColor);
 	painter->setFont(titleFont);
-	painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, title);
+	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
 }
 
 QSize FeedDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {

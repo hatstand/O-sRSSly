@@ -14,11 +14,15 @@
 			continue; \
 		dups << feed->subscription().id();
 
+QIcon AllItems::sIcon;
+
 AllItems::AllItems(TreeItem* parent, ReaderApi* api)
 	: TreeItem(parent, "All Items"),
 	  row_count_(-1),
 	  api_(api)
 {
+	if (sIcon.isNull())
+		sIcon = QIcon(":allitems.png");
 }
 
 QVariant AllItems::data(const QModelIndex& index, int role) const {

@@ -19,6 +19,7 @@ public:
 	// A higher row index will return data from the appropriate row in the first child
 	// or continue down through the children until enough rows have been counted.
 	virtual QVariant data(const QModelIndex& index, int role) const;
+	virtual QIcon icon() const { return sIcon; }
 	// The total number of rows from all the children.
 	virtual int rowCount(const QModelIndex& parent) const;
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
@@ -45,6 +46,8 @@ private:
 	
 	int row_count_;
 	ReaderApi* api_;
+	
+	static QIcon sIcon;
 };
 
 #endif

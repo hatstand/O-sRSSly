@@ -65,7 +65,8 @@ public:
 	 */
 
 	FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data);
-	QVariant data(int column) const;
+	QVariant data(int column, int role = Qt::DisplayRole) const;
+	QIcon icon() const { return sIcon; }
 	const Subscription& subscription() const { return data_->subscription(); }
 	const AtomEntry& entry(const QModelIndex& index) const;
 
@@ -96,6 +97,8 @@ private slots:
 
 private:
 	shared_ptr<FeedItemData> data_;
+	
+	static QIcon sIcon;
 };
 
 #endif

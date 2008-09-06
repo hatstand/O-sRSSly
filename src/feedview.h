@@ -15,6 +15,7 @@ public:
 
 private:
 	int item_height_;
+	const int kIconSpacing;
 	
 	QFont unread_font_;
 	QFont normal_font_;

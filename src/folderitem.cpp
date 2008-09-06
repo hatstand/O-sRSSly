@@ -5,11 +5,16 @@
 #include <QDebug>
 #include <QSqlQuery>
 
+QIcon FolderItem::sIcon;
+
 FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api)
 	: TreeItem(parent, name),
 	  api_(api)
 {
 	id_ = id;
+	
+	if (sIcon.isNull())
+		sIcon = QIcon(":directory.png");
 }
 
 FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
@@ -20,7 +25,8 @@ FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
 	id_ = query.value(1).toString();
 	title_ = query.value(2).toString();
 	
-	qDebug() << "Loaded folder" << rowid_ << id_ << title_;
+	if (sIcon.isNull())
+		sIcon = QIcon(":directory.png");
 }
 
 void FolderItem::save()

@@ -4,18 +4,26 @@
 
 #include <QSqlQuery>
 
+QIcon FeedItem::sIcon;
+
 FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)
 	: TreeItem(parent, data->subscription().title()),
 	  data_(data)
 {
 	id_ = data->subscription().id();
 	connect(data.get(), SIGNAL(rowsInserted(int, int)), SLOT(feedRowsInserted(int, int)));
+	
+	if (sIcon.isNull())
+		sIcon = QIcon(":feed.png");
 }
 
-QVariant FeedItem::data(int column) const {
-	if (column == 1)
+QVariant FeedItem::data(int column, int role) const {
+	switch (column) {
+	case 1:
 		return data_->subscription().id();
-	return TreeItem::data(column);
+	default:
+		return TreeItem::data(column, role);
+	}
 }
 
 FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)

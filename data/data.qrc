@@ -21,5 +21,8 @@
 		<file>longcat-tail.png</file>
 		<file>longcat-middle.png</file>
 		<file>memes.png</file>
+		<file>feed.png</file>
+		<file>directory.png</file>
+		<file>allitems.png</file>
 	</qresource>
 </RCC>

@@ -62,12 +62,9 @@ QVariant FeedsModel::data(const QModelIndex& index, int role) const {
 	if (!index.isValid())
 		return QVariant();
 
-	if (role != Qt::DisplayRole)
-		return QVariant();
-
 	TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
 
-	return item->data(index.column());
+	return item->data(index.column(), role);
 }
 
 int FeedsModel::columnCount(const QModelIndex& parent) const {

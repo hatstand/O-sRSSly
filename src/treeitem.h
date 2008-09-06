@@ -4,6 +4,7 @@
 #include "atomfeed.h"
 
 #include <QAbstractTableModel>
+#include <QIcon>
 
 class FeedsModel;
 
@@ -30,10 +31,11 @@ public:
 	// Which child this item is.
 	int row() const;
 	// Get some actual data. Default implementation returns just the title.
-	virtual QVariant data(int column) const;
+	virtual QVariant data(int column, int role = Qt::DisplayRole) const;
 	TreeItem* parent();
 	FeedsModel* feedsModel() const { return feeds_model_; }
 	QModelIndex indexInFeedsModel() const;
+	virtual QIcon icon() const { return QIcon(); }
 
 	QString title() const;
 
