@@ -1,5 +1,4 @@
 Remove old articles from the database
 Don't delete and re-add everything all the time
 Add webclippy stuff instead of displaying whole webpage?
-Start using delegates properly
-Shared items - http://www.google.com/reader/atom/user/-/state/com.google/broadcast-friends?xt=user/-/state/com.google/read
+Only sync read articles to db? Avoids de-syncing when using another client.
