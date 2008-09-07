@@ -17,8 +17,7 @@ ConfigureDialog::~ConfigureDialog()
 
 void ConfigureDialog::accept()
 {
-	Settings::ProgressBarStyle progressBarStyle;
-	if (ui_.progressBarNormal->isChecked())   progressBarStyle = Settings::ProgressBar_Normal;
+	Settings::ProgressBarStyle progressBarStyle = Settings::ProgressBar_Normal;
 	if (ui_.progressBarLongcat->isChecked())  progressBarStyle = Settings::ProgressBar_Longcat;
 	if (ui_.progressBarTacgnol->isChecked())  progressBarStyle = Settings::ProgressBar_Tacgnol;
 	

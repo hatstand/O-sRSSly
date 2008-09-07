@@ -424,7 +424,7 @@ QMap<QString, QPair<int, QString> > ReaderApi::parseUnreadCounts(QIODevice* devi
 
 void ReaderApi::parseFeedUnreadCount(QXmlStreamReader& s, QMap<QString, QPair<int, QString> >* unread_counts) {
 	QString id;
-	int count;
+	int count = 0;
 	QString newest_timestamp;
 
 	while (!s.atEnd()) {
