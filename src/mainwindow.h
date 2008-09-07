@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QSystemTrayIcon>
 
 #include "ui_mainwindow.h"
 
@@ -7,7 +8,6 @@ class ConfigureDialog;
 class FeedsModel;
 
 class QSortFilterProxyModel;
-class QSystemTrayIcon;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -38,6 +38,9 @@ private slots:
 	
 	void apiProgress(int value, int total);
 	void newUnreadItems(int count);
+	
+	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+	void toggleWindowVisibility();
 
 	void xpathSet(const QString& xpath);
 	
@@ -47,6 +50,7 @@ private:
 	Ui_MainWindow ui_;
 	QSystemTrayIcon* tray_icon_;
 	QMenu* tray_menu_;
+	QAction* toggle_visiblity_action_;
 	int current_unread_;
 
 	FeedsModel* feeds_model_;

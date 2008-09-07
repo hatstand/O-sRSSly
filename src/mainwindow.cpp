@@ -26,11 +26,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 {
 	ui_.setupUi(this);
 	
+	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);
+	connect(tray_icon_, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
 	
 	tray_icon_->setIcon(windowIcon());
 	tray_icon_->setContextMenu(tray_menu_);
-	tray_icon_->setToolTip("Feeder");
+	tray_icon_->setToolTip("Feeder -- \"Imma in ur dock aggregating ur feedz\"");
 	tray_icon_->show();
 	connect(feeds_model_, SIGNAL(newUnreadItems(int)), SLOT(newUnreadItems(int)));
 	
@@ -336,4 +338,70 @@ void MainWindow::newUnreadItems(int count) {
 	bool p = count != 1;
 	if (count != 0)
 		tray_icon_->showMessage("Feeder", "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " unread item" + QString(p ? "s" : "") + ".");
+}
+
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+	// typical linux behavior is single clicking tray icon toggles the main window
+	
+#ifdef Q_WS_X11
+	if (reason == QSystemTrayIcon::Trigger)
+		toggleWindowVisibility();
+#else
+	if (reason == QSystemTrayIcon::DoubleClick)
+		toggleWindowVisibility();
+#endif
+}
+
+// Thanks last.fm
+// svn://svn.audioscrobbler.net/clientside/Last.fm/tags/1.4.1.57486/src/container.cpp
+#ifdef Q_WS_X11
+    // includes only relevent to this function - please leave here :)
+    #include <QX11Info>
+    #include <X11/Xlib.h>
+    #include <X11/Xatom.h>
+#endif
+
+void MainWindow::toggleWindowVisibility()
+{
+	//TODO really we should check to see if the window itself is obscured?
+	// hard to say as exact desire of user is a little hard to predict.
+	// certainly we should raise the window if it isn't active as chances are it
+	// is behind other windows
+	
+	if (isVisible()) {
+		toggle_visiblity_action_->setText("Show");
+		hide();
+	} else {
+		toggle_visiblity_action_->setText("Hide");
+		#ifndef Q_WS_X11
+		showNormal(), activateWindow(), raise();
+		#else
+		showNormal();
+	
+		//NOTE don't raise, as this won't work with focus stealing prevention
+		//raise();
+	
+		QX11Info const i;
+		Atom const _NET_ACTIVE_WINDOW = XInternAtom( i.display(), "_NET_ACTIVE_WINDOW", False);
+	
+		// this sends the correct demand for window activation to the Window
+		// manager. Thus forcing window activation.
+		///@see http://standards.freedesktop.org/wm-spec/wm-spec-1.3.html#id2506353
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.message_type = _NET_ACTIVE_WINDOW;
+		e.xclient.display = i.display();
+		e.xclient.window = winId();
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = 1; // we are a normal application
+		e.xclient.data.l[1] = i.appUserTime();
+		e.xclient.data.l[2] = qApp->activeWindow() ? qApp->activeWindow()->winId() : 0;
+		e.xclient.data.l[3] = 0l;
+		e.xclient.data.l[4] = 0l;
+	
+		// we send to the root window per fdo NET spec
+		XSendEvent( i.display(), i.appRootWindow(), false, SubstructureRedirectMask | SubstructureNotifyMask, &e );
+		#endif
+	}
 }
