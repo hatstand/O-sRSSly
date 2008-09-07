@@ -5,16 +5,16 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Bequnge</string>
+	<string>Feeder</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Bequnge 0.2</string>
+	<string>Feeder 0.1</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.purplehatstands.bequnge</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2</string>
+	<string>0.1</string>
 	<key>CFBundleIconFile</key>
-	<string>Bequnge</string>
+	<string>Feeder</string>
 </dict>
 </plist>
