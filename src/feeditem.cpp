@@ -51,7 +51,7 @@ void FeedItemData::update() {
 	api_->getSubscription(subscription_, feed_.continuation());
 }
 
-void FeedItemData::update(const AtomFeed& feed) {
+int FeedItemData::update(const AtomFeed& feed) {
 	if (feed.id() == subscription_.id()) {
 		qDebug() << "Update arrived for..." << subscription_.id() << feed.continuation();
 		
@@ -62,11 +62,14 @@ void FeedItemData::update(const AtomFeed& feed) {
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
 			save();
+			return afterCount - beforeCount;
 		}
 	}
+	
+	return 0;
 }
 
-void FeedItemData::update(const AtomEntry& e) {
+int FeedItemData::update(const AtomEntry& e) {
 	if (e.source == subscription_.id()) {
 		qDebug() << "Single update arrived for..." << subscription_.id();
 		int beforeCount = feed_.entries().size();
@@ -76,8 +79,10 @@ void FeedItemData::update(const AtomEntry& e) {
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
 			save();
+			return 1;
 		}
 	}
+	return 0;
 }
 
 void FeedItemData::setRead(const AtomEntry& e) {

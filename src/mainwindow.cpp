@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
 	  tray_icon_(new QSystemTrayIcon(this)),
 	  tray_menu_(new QMenu(this)),
+	  current_unread_(0),
 	  feeds_model_(new FeedsModel(this)),
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
@@ -168,9 +169,9 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			} else {
 				ui_.actionWebclip_->setEnabled(false);
 				if (content.isEmpty())
-					ui_.contents_->setContent(summary.toUtf8());
+					ui_.contents_->setHtml(summary);
 				else
-					ui_.contents_->setContent(content.toUtf8());
+					ui_.contents_->setHtml(content);
 
 				ui_.subtitleStack_->setCurrentIndex(0);
 				ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
@@ -180,7 +181,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			
 		case Settings::Behaviour_ShowInline:
 			ui_.actionWebclip_->setEnabled(false);
-			ui_.contents_->setContent((content.isEmpty() ? summary : content).toUtf8());
+			ui_.contents_->setHtml(content.isEmpty() ? summary : content);
 			ui_.subtitleStack_->setCurrentIndex(0);
 			ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
 			ui_.subtitleStack_->show();
@@ -328,6 +329,10 @@ void MainWindow::apiProgress(int value, int total) {
 }
 
 void MainWindow::newUnreadItems(int count) {
+	if (count == current_unread_)
+		return;
+	
+	current_unread_ = count;
 	bool p = count != 1;
 	if (count != 0)
 		tray_icon_->showMessage("Feeder", "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " unread item" + QString(p ? "s" : "") + ".");

@@ -47,6 +47,7 @@ private:
 	Ui_MainWindow ui_;
 	QSystemTrayIcon* tray_icon_;
 	QMenu* tray_menu_;
+	int current_unread_;
 
 	FeedsModel* feeds_model_;
 	QSortFilterProxyModel* sorted_entries_;

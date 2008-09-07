@@ -400,6 +400,7 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__ << "Size:" << feed.entries().size();
 
+	int new_unread = 0;
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
 		qDebug() << it->source;
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
@@ -410,7 +411,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 				qDebug() << "Adding shared items for:" << it->shared_by;
 				Subscription sub(it->source, it->shared_by);
 				FeedItemData* data = new FeedItemData(sub, api_);
-				data->update(*it);
+				new_unread += data->update(*it);
 				addFeed(data, false);
 			}
 			continue;
@@ -418,10 +419,10 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 
 		// Grab reference.
 		shared_ptr<FeedItemData> data(jt.value());
-		data->update(*it);
+		new_unread += data->update(*it);
 	}
 	
-	emit newUnreadItems(static_cast<TreeItem*>(all_items_)->data(TreeItem::Column_UnreadCount).toInt());
+	emit newUnreadItems(new_unread);
 }
 
 void FeedsModel::fetchMore() {

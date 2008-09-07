@@ -25,7 +25,7 @@ public:
 	const Subscription& subscription() { return subscription_; }
 
 	void update();
-	void update(const AtomEntry& e);
+	int update(const AtomEntry& e);
 
 	void addCategory(const QPair<QString,QString>& category);
 	void removeCategory(const QString& category);
@@ -38,7 +38,7 @@ public:
 	void save();
 
 private slots:
-	void update(const AtomFeed& feed);
+	int update(const AtomFeed& feed);
 
 signals:
 	void rowsInserted(int from, int to);
