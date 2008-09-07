@@ -20,6 +20,7 @@ TreeItem::TreeItem(FeedsModel* model, const QString& title) {
 }
 
 TreeItem::~TreeItem() {
+	deleting_ = true;
 	clear();
 }
 
@@ -31,7 +32,7 @@ void TreeItem::init(TreeItem* parent, const QString& title, FeedsModel* model) {
 	fail_prevention_ = false;
 	rowid_ = -1;
 	unread_count_= -1;
-	
+	deleting_ = false;
 }
 
 void TreeItem::clear() {
@@ -107,8 +108,10 @@ void TreeItem::childReset() {
 }
 
 void TreeItem::childDestroyed(QObject* object) {
-	children_.removeAll(static_cast<TreeItem*>(object));
-	invalidateUnreadCount();
+	if (!deleting_) {
+		children_.removeAll(static_cast<TreeItem*>(object));
+		invalidateUnreadCount();
+	}
 }
 
 void TreeItem::childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end) {

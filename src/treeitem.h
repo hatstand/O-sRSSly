@@ -107,6 +107,8 @@ protected:
 	int unread_count_;
 	
 	FeedsModel* feeds_model_;
+
+	bool deleting_;
 };
 
 #endif
