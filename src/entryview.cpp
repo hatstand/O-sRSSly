@@ -1,6 +1,7 @@
 #include "entryview.h"
 #include "feeditem.h"
 #include "treeitem.h"
+#include "xmlutils.h"
 
 #include <QAbstractProxyModel>
 #include <QApplication>
@@ -22,7 +23,7 @@ EntryDelegate::EntryDelegate(QObject* parent)
 	headingMetrics_ = QFontMetrics(headingFont_);
 	unreadMetrics_ = QFontMetrics(unreadFont_);
 	
-	itemHeight_ = qMax(32, QFontMetrics(headingFont_).height() + kMargin*2);
+	itemHeight_ = qMax(20, QFontMetrics(headingFont_).height());
 }
 
 void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
@@ -30,6 +31,8 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	bool read(index.sibling(index.row(), TreeItem::Column_Read).data().toBool());
 	QString preview(index.sibling(index.row(), TreeItem::Column_Preview).data().toString());
 	bool starred(index.sibling(index.row(), TreeItem::Column_Starred).data().toBool());
+	
+	XmlUtils::stripTags(title);
 	
 	QRect rect(option.rect);
 	QColor headingColor(Qt::black);
@@ -43,36 +46,16 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		//previewColor = Qt::
 	}
 	
-	// Draw line between items
-	painter->setPen(Qt::gray);
-	painter->drawLine(rect.bottomLeft(), rect.bottomRight());
-	
 	// Draw star
-	rect.setLeft(rect.left() + kMargin);
-	rect.setTop(rect.top() + kMargin);
-	rect.setBottom(rect.bottom() - kMargin);
-	
-	QRect starRect(rect.left(), rect.top(), 22, rect.height());
-	painter->drawPixmap(starRect, star_.pixmap(22, 22, starred ? QIcon::Normal : QIcon::Disabled));
+	rect.setLeft(kMargin);
+	QRect starRect(rect.left(), rect.top() + (itemHeight_ - 16) / 2, 16, 16);
+	painter->drawPixmap(starRect, star_.pixmap(starRect.size(), starred ? QIcon::Normal : QIcon::Disabled));
 	
 	// Draw heading
-	rect.setLeft(starRect.right() + kPreviewSpacing);
-
-	QTextDocument doc;
-	doc.setDefaultStyleSheet("* { color: " + headingColor.name() + "; }");
-	doc.setHtml("<span>" + title + "</span>");
-	doc.setTextWidth(rect.width());
-	/*int width = doc.idealWidth();
-	int height = doc.size().height();*/
-
+	rect.setLeft(starRect.right() + kMargin);
 	painter->setPen(headingColor);
-	//painter->setFont(read ? headingFont_ : unreadFont_);
-	doc.setDefaultFont(read ? headingFont_ : unreadFont_);
-	
-	painter->translate(rect.x(), rect.y());
-	doc.drawContents(painter);
-	painter->translate(-rect.x(), -rect.y());
-	//painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
+	painter->setFont(read ? headingFont_ : unreadFont_);
+	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
 	
 	// Draw preview
 	rect.setLeft(rect.left() + (read ? headingMetrics_ : unreadMetrics_).width(title) + kPreviewSpacing);
