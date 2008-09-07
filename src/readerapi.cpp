@@ -99,6 +99,9 @@ void ReaderApi::loginComplete() {
 
 	login->deleteLater();
 
+	connect(&throttle_clear_, SIGNAL(timeout()), SLOT(clearThrottle()));
+	throttle_clear_.start(5*60*1000);
+
 	emit loggedIn();
 }
 
@@ -208,6 +211,10 @@ void ReaderApi::setState(const AtomEntry& e, const char* state, bool set) {
 
 	QUrl url(kEditTagUrl);
 	url.addQueryItem("client", kApplicationSource);
+
+	if (!checkThrottle(url))
+		return;
+
 	QNetworkRequest req(url);
 	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
 
@@ -239,6 +246,10 @@ void ReaderApi::editCategory(const Subscription& s, const QString& category, boo
 	
 	QUrl url(kEditSubscriptionUrl);
 	url.addQueryItem("client", kApplicationSource);
+
+	if (!checkThrottle(url))
+		return;
+
 	QNetworkRequest req(url);
 	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
 
@@ -308,6 +319,10 @@ void ReaderApi::getSubscription(const QString& id, int count, const QString& tim
 void ReaderApi::getSubscription(const QUrl& url) {
 	qDebug() << __PRETTY_FUNCTION__ << url;
 	QNetworkRequest req(url);
+
+	if (!checkThrottle(url))
+		return;
+
 	QNetworkReply* reply = network_->get(req);
 	watchReply(reply);
 	connect(reply, SIGNAL(finished()), SLOT(getSubscriptionComplete()));
@@ -344,6 +359,9 @@ void ReaderApi::getFresh() {
 	url.addQueryItem("n", "100");
 	url.addQueryItem("xt", kReadTag);
 
+	if (!checkThrottle(url))
+		return;
+
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
 	watchReply(reply);
@@ -366,6 +384,9 @@ void ReaderApi::getCategory(const QString& category, const QString& continuation
 	QUrl url(kAtomUrl.toString() + category);
 	if (!continuation.isEmpty())
 		url.addQueryItem("c", continuation);
+
+	if (!checkThrottle(url))
+		return;
 
 	QNetworkRequest req(url);
 	QNetworkReply* reply = network_->get(req);
@@ -500,4 +521,29 @@ void ReaderApi::updateProgress() {
 		reply_progress_.clear();
 	
 	emit progressChanged(value, total);
+}
+
+bool ReaderApi::checkThrottle(const QUrl& url) {
+	QMap<QUrl, QTime>::const_iterator it = network_throttle_.find(url);
+
+	if (it == network_throttle_.end() || it.value().elapsed() > 5000) {
+		// Url either not visited or not recently.
+		QTime time;
+		time.start();
+		network_throttle_.insert(url, time);
+
+		return true;
+	}
+
+	qDebug() << url << "throttled...";
+	return false;
+}
+
+void ReaderApi::clearThrottle() {
+	for (QMap<QUrl, QTime>::iterator it = network_throttle_.begin();
+		it != network_throttle_.end(); ++it) {
+		if (it.value().elapsed() > 60000) {
+			network_throttle_.erase(it);
+		}
+	}
 }

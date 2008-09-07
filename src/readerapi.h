@@ -10,6 +10,8 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QQueue>
+#include <QTime>
+#include <QTimer>
 #include <QXmlStreamReader>
 
 class ReaderApi : public QObject {
@@ -45,6 +47,9 @@ private:
 	void watchReply(QNetworkReply* reply);
 	void updateProgress();
 
+	// Checks whether this request has been submitted recently.
+	bool checkThrottle(const QUrl& url);
+
 private slots:
 	void loginComplete();
 	void getSubscriptionListComplete();
@@ -60,6 +65,9 @@ private slots:
 	
 	void replyDownloadProgress(qint64, qint64);
 	void replyFinished();
+
+	// Call to clean out the network_throttle_ of old entries 
+	void clearThrottle();
 
 signals:
 	void loggedIn();
@@ -92,6 +100,9 @@ private:
 
 	// Reading list continuation.
 	QString continuation_;
+
+	QMap<QUrl, QTime> network_throttle_;
+	QTimer throttle_clear_;
 
 public:
 	static const char* kApplicationSource;
