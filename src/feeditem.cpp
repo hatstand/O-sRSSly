@@ -88,7 +88,6 @@ int FeedItemData::update(const AtomEntry& e) {
 void FeedItemData::setRead(const AtomEntry& e) {
 	feed_.setRead(e);
 	api_->setRead(e);
-	e.update();
 }
 
 void FeedItemData::setStarred(const AtomEntry& e, bool starred) {

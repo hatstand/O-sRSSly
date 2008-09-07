@@ -57,10 +57,6 @@ int AllItems::rowCount(const QModelIndex& parent) const {
 	return row_count_;
 }
 
-int AllItems::columnCount(const QModelIndex& parent) const {
-	return 14;
-}
-
 void AllItems::fetchMore(const QModelIndex& parent) {
 	api_->getFresh();
 }

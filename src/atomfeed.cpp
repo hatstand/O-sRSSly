@@ -145,6 +145,9 @@ void AtomFeed::setRead(const AtomEntry& e) {
 		f.read = true;
 
 		m_entries.get<hash>().replace(it, f);
+
+		// Sync change to sql.
+		f.update();
 	}
 }
 
@@ -156,6 +159,9 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 		f.starred = starred;
 
 		m_entries.get<hash>().replace(it, f);
+
+		// Sync change to sql.
+		f.update();
 	}
 }
 

@@ -85,10 +85,6 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 	return rows;
 }
 
-int FolderItem::columnCount(const QModelIndex& parent) const {
-	return 14;
-}
-
 void FolderItem::fetchMore(const QModelIndex& parent) {
 	api_->getCategory(id_, continuation_);
 }
