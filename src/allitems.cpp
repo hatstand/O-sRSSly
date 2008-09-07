@@ -5,20 +5,16 @@
 #include <QDebug>
 
 #define FOREACH_CHILD \
-	QSet<QString> dups; \
-	foreach (TreeItem* item, parent_->allChildren()) { \
-		FeedItem* feed = qobject_cast<FeedItem*>(item); \
-		if (!feed) \
-			continue; \
-		if (dups.contains(feed->subscription().id())) \
-			continue; \
-		dups << feed->subscription().id();
+	if (unique_feeds_dirty_) \
+		const_cast<AllItems*>(this)->regenerateFeedCache(); \
+	foreach (FeedItem* feed, unique_feeds_) {
 
 QIcon AllItems::sIcon;
 
 AllItems::AllItems(TreeItem* parent, ReaderApi* api)
 	: TreeItem(parent, "All Items"),
 	  row_count_(-1),
+	  unique_feeds_dirty_(true),
 	  api_(api)
 {
 	if (sIcon.isNull())
@@ -55,7 +51,7 @@ int AllItems::rowCount(const QModelIndex& parent) const {
 		rowCountRef = 0;
 		
 		FOREACH_CHILD
-			rowCountRef += item->rowCount(QModelIndex());
+			rowCountRef += feed->rowCount(QModelIndex());
 		}
 	}
 	return row_count_;
@@ -73,7 +69,7 @@ QModelIndex AllItems::getItem(const QModelIndex& index) const {
 	int rows = 0;
 	
 	FOREACH_CHILD
-		int row_count = item->rowCount(QModelIndex());
+		int row_count = feed->rowCount(QModelIndex());
 		rows += row_count;
 
 		if (rows <= index.row())
@@ -82,10 +78,10 @@ QModelIndex AllItems::getItem(const QModelIndex& index) const {
 		int row_index = index.row() - rows + row_count;
 		
 		int safe_column = index.column();
-		if (safe_column >= item->columnCount(QModelIndex()))
-			safe_column = item->columnCount(QModelIndex()) - 1;
+		if (safe_column >= feed->columnCount(QModelIndex()))
+			safe_column = feed->columnCount(QModelIndex()) - 1;
 	
-		return item->index(row_index, safe_column);
+		return feed->index(row_index, safe_column);
 	}
 
 	qWarning() << "Reached end";
@@ -103,13 +99,34 @@ void AllItems::childRowsInserted(TreeItem* sender, const QModelIndex& parent, in
 	
 	int rows = 0;
 	FOREACH_CHILD
-		if (item == sender)
+		if (feed == sender)
 			break;
 
-		rows += item->rowCount(QModelIndex());
+		rows += feed->rowCount(QModelIndex());
 	}
 
 	beginInsertRows(QModelIndex(), rows + start, rows + end);
 	endInsertRows();
+}
+
+void AllItems::invalidateFeedCache() {
+	unique_feeds_dirty_ = true;
+}
+
+void AllItems::regenerateFeedCache() {
+	unique_feeds_.clear();
+	
+	QSet<QString> dups;
+	foreach (TreeItem* item, parent_->allChildren()) {
+		FeedItem* feed = qobject_cast<FeedItem*>(item);
+		if (!feed)
+			continue;
+		if (dups.contains(feed->subscription().id()))
+			continue;
+		dups << feed->subscription().id();
+		unique_feeds_ << feed;
+	}
+	
+	unique_feeds_dirty_ = false;
 }
 

@@ -4,6 +4,7 @@
 #include "treeitem.h"
 
 class ReaderApi;
+class FeedItem;
 
 /*
  * Folder that contains all other feeds
@@ -27,18 +28,21 @@ public:
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
 
-
-
 	const AtomEntry& entry(const QModelIndex& index) const;
 
 public slots:
 	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);
+	void invalidateFeedCache();
+	void regenerateFeedCache();
 
 private:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
 	
 	int row_count_;
+	bool unique_feeds_dirty_;
+	QList<FeedItem*> unique_feeds_;
+	
 	ReaderApi* api_;
 	
 	static QIcon sIcon;

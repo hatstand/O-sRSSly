@@ -197,6 +197,8 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 
 		new FeedItem(parent, d);
 	}
+	
+	all_items_->invalidateFeedCache();
 }
 
 QAbstractItemModel* FeedsModel::getEntries(const QModelIndex& index) const {
