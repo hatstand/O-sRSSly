@@ -27,5 +27,7 @@ CREATE TABLE IF NOT EXISTS Entry
 	date TEXT,
 	link TEXT,
 	read INTEGER,
-	starred INTEGER
+	starred INTEGER,
+	author TEXT,
+	shared_by TEXT
 )

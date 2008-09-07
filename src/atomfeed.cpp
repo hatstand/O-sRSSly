@@ -40,7 +40,7 @@ AtomFeed::AtomFeed(const QSqlQuery& query)
 	  m_id(query.value(1).toString())
 {
 	QSqlQuery entryQuery;
-	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read, starred FROM Entry WHERE feedId=:feedId");
+	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read, starred, author, shared_by FROM Entry WHERE feedId=:feedId");
 	entryQuery.bindValue(":feedId", query.value(0).toLongLong());
 	if (!entryQuery.exec())
 		Database::handleError(entryQuery.lastError());
@@ -167,7 +167,7 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 
 void AtomFeed::saveEntries(qint64 feedId) {
 	QSqlQuery query;
-	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read, starred) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred)");
+	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred, :author, :shared_by)");
 	query.bindValue(":feedId", feedId);
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
@@ -184,6 +184,8 @@ void AtomFeed::saveEntries(qint64 feedId) {
 		query.bindValue(":link", entry.link.toString());
 		query.bindValue(":read", QVariant(entry.read).toString());
 		query.bindValue(":starred", QVariant(entry.starred).toString());
+		query.bindValue(":author", entry.author);
+		query.bindValue(":shared_by", entry.shared_by);
 		if (!query.exec())
 			Database::handleError(query.lastError());
 	}
@@ -259,6 +261,8 @@ AtomEntry::AtomEntry(const QSqlQuery& query) {
 	link = query.value(6).toString();
 	read = query.value(7).toBool();
 	starred = query.value(8).toBool();
+	author = query.value(9).toString();
+	shared_by = query.value(10).toString();
 }
 
 const QString& AtomEntry::previewText() const {

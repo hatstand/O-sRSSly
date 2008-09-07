@@ -154,7 +154,13 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 	current_contents_ = index;
 
-	ui_.title_->setText("<b>" + index.sibling(index.row(), TreeItem::Column_Title).data(Qt::DisplayRole).toString() + "</b>");
+	QString title = index.sibling(index.row(), TreeItem::Column_Title).data().toString();
+	QString author = index.sibling(index.row(), TreeItem::Column_Author).data().toString();
+	QString label_text = "<b>" + title + "</b>";
+	if (!author.isEmpty())
+		label_text += "<i> by " + author + "</i>";
+
+	ui_.title_->setText(label_text);
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
 
