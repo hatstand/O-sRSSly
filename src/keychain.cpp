@@ -2,7 +2,7 @@
 
 #ifdef Q_OS_DARWIN
 #include <Security/Security.h>
-#elif defined (Q_OS_UNIX)
+#elif !defined(NO_KEYRING) && defined (Q_OS_UNIX)
 const GnomeKeyringPasswordSchema Keychain::sOurSchema = {
 	GNOME_KEYRING_ITEM_GENERIC_SECRET,
 	{
@@ -11,6 +11,10 @@ const GnomeKeyringPasswordSchema Keychain::sOurSchema = {
 		{ NULL }
 	},
 };
+#endif
+
+#ifdef NO_KEYRING
+QString Keychain::password_;
 #endif
 
 #include <QDebug>
@@ -38,7 +42,7 @@ QString Keychain::getPassword(QString account) {
 		SecKeychainItemFreeContent(NULL, password);
 		return pass;
 	}
-#elif defined (Q_OS_UNIX)
+#elif !defined(NO_KEYRING) && defined (Q_OS_UNIX)
 	GnomeKeyringResult result = gnome_keyring_find_password_sync(
 		&sOurSchema,
 		&password,
@@ -55,7 +59,7 @@ QString Keychain::getPassword(QString account) {
 		return pass;
 	}
 #else
-	return QString::null;
+	return password_;
 #endif
 }
 
@@ -73,7 +77,7 @@ void Keychain::setPassword(QString account, QString password) {
 
 	if (ret != 0)
 		qWarning() << "Error setting password in keychain";
-#elif defined (Q_OS_UNIX)
+#elif !defined(NO_KEYRING) && defined (Q_OS_UNIX)
     QString displayName=("Feeder Google Reader account for ");
     displayName.append(account);
 	GnomeKeyringResult result = gnome_keyring_store_password_sync(
@@ -87,6 +91,6 @@ void Keychain::setPassword(QString account, QString password) {
 		qWarning() << "Error setting password in keychain";
 	}
 #else
-	return;
+	password_ = password;
 #endif
 }

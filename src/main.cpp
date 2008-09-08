@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+#if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 #include <glib.h>
 #endif
 
@@ -13,7 +13,7 @@ int main (int argc, char** argv) {
 	app.setOrganizationName("Purple Hatstands");
 	app.setApplicationName("Feeder");
 	
-#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+#if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// For gnome keyring
 	g_set_application_name("Feeder");
 #endif
