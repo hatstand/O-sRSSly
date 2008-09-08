@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionUnreadOnly_, SIGNAL(triggered(bool)), SLOT(showUnreadOnly(bool)));
 	
 	// Prompt the user for google account details
-	if (Settings::instance()->googleUsername().isNull())
+	if (Settings::instance()->googleUsername().isNull() || Settings::instance()->googlePassword().isNull())
 		if (configure_dialog_->exec() == QDialog::Rejected)
 			exit(0);
 
