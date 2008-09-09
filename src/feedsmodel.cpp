@@ -403,6 +403,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__ << "Size:" << feed.entries().size();
 
 	int new_unread = 0;
+        QSqlDatabase::database().transaction();
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
 		qDebug() << it->source;
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
@@ -423,6 +424,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		new_unread += data->update(*it);
 	}
+        QSqlDatabase::database().commit();
 	
 	emit newUnreadItems(new_unread);
 }
