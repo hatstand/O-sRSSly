@@ -47,8 +47,11 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
 	connect(ui_.action_refresh_, SIGNAL(activated()), feeds_model_, SLOT(fetchMore()));
 	ui_.refresh_->setDefaultAction(ui_.action_refresh_);
-	
-	ui_.title_->setText("<b>Welcome to Feeder</b>");
+
+	QFont bold_font;
+	bold_font.setBold(true);
+	ui_.title_->setFont(bold_font);
+	ui_.title_->setText("Welcome to Feeder");
 	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
 	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 	connect(ui_.contents_, SIGNAL(linkClicked(const QUrl&)),
@@ -156,11 +159,12 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 	QString title = index.sibling(index.row(), TreeItem::Column_Title).data().toString();
 	QString author = index.sibling(index.row(), TreeItem::Column_Author).data().toString();
-	QString label_text = "<b>" + title + "</b>";
-	if (!author.isEmpty())
-		label_text += "<i> by " + author + "</i>";
+	//if (!author.isEmpty())
+	//	label_text += "<i> by " + author + "</i>";
 
-	ui_.title_->setText(label_text);
+	QFont bold_font;
+	bold_font.setBold(true);
+	ui_.title_->setText(title);
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
 
