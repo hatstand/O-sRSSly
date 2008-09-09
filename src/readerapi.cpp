@@ -212,9 +212,6 @@ void ReaderApi::setState(const AtomEntry& e, const char* state, bool set) {
 	QUrl url(kEditTagUrl);
 	url.addQueryItem("client", kApplicationSource);
 
-	if (!checkThrottle(url))
-		return;
-
 	QNetworkRequest req(url);
 	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
 
@@ -246,9 +243,6 @@ void ReaderApi::editCategory(const Subscription& s, const QString& category, boo
 	
 	QUrl url(kEditSubscriptionUrl);
 	url.addQueryItem("client", kApplicationSource);
-
-	if (!checkThrottle(url))
-		return;
 
 	QNetworkRequest req(url);
 	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
