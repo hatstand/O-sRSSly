@@ -162,6 +162,8 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 	// Notify the view that the model has changed.
 	reset();
+
+        //api_->search("cheese");
 }
 
 void FeedsModel::addFeed(FeedItemData* data, bool update)

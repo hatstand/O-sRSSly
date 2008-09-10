@@ -120,6 +120,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
 
 	ui_.title_->setTextElideMode(Qt::ElideRight);
+	QFont italic_font;
+	italic_font.setItalic(true);
+	//ui_.author_->setFont(italic_font);
 }
 
 MainWindow::~MainWindow() {
@@ -162,9 +165,10 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 	//if (!author.isEmpty())
 	//	label_text += "<i> by " + author + "</i>";
 
-	QFont bold_font;
-	bold_font.setBold(true);
 	ui_.title_->setText(title);
+
+	//ui_.author_->setText(author);
+
 	ui_.date_->setText(date.toString());
 	ui_.date_->show();
 

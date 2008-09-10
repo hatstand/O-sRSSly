@@ -5,6 +5,11 @@
 #include "atomfeed.h"
 #include "subscriptionlist.h"
 
+#include "../tinyjson/tinyjson.hpp"
+
+#include <list>
+#include <string>
+
 #include <QMap>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -32,6 +37,8 @@ public:
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
 
+        void search(const QString& query);
+
 private:
 	void getToken();
 	void editCategory(const Subscription& s, const QString& category, bool add);
@@ -50,6 +57,10 @@ private:
 	// Checks whether this request has been submitted recently.
 	bool checkThrottle(const QUrl& url);
 
+        // Parses the intermediate search results into individual ids.
+	QStringList parseIntermediateSearch(QIODevice* data);
+	void traverseJson(const json::grammar<char>::variant& var, std::list<std::string>* current_ids);
+
 private slots:
 	void loginComplete();
 	void getSubscriptionListComplete();
@@ -62,6 +73,10 @@ private slots:
 	void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
 	void processActionQueue();
 	void actionFailed();
+        // First part of search - getting ids.
+	void searchPart();
+        // Search complete - full detail.
+        void searchFinished();
 	
 	void replyDownloadProgress(qint64, qint64);
 	void replyFinished();
@@ -127,6 +142,9 @@ public:
 	static const QUrl kAtomUrl;
 
 	static const char* kReadingList;
+
+	static const QUrl kSearchUrl;
+	static const QUrl kIdConvertUrl;
 };
 
 #endif

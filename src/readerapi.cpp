@@ -2,6 +2,8 @@
 #include "subscriptionlist.h"
 #include "xmlutils.h"
 
+#include <string>
+
 #include <QBuffer>
 #include <QDebug>
 #include <QFile>
@@ -38,6 +40,10 @@ const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/s
 
 // Atom feed url base
 const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
+
+// Search feeds url
+const QUrl ReaderApi::kSearchUrl("http://www.google.com/reader/api/0/search/items/ids");
+const QUrl ReaderApi::kIdConvertUrl("http://www.google.com/reader/api/0/stream/items/contents");
 
 
 ReaderApi::ReaderApi(const QString& username, const QString& password, QObject* parent) 
@@ -538,6 +544,110 @@ void ReaderApi::clearThrottle() {
 		it != network_throttle_.end(); ++it) {
 		if (it.value().elapsed() > 60000) {
 			network_throttle_.erase(it);
+		}
+	}
+}
+
+void ReaderApi::search(const QString& query) {
+	QUrl url(kSearchUrl);
+	url.addQueryItem("q", query);
+	url.addQueryItem("num", QString::number(1000));
+	url.addQueryItem("client", kApplicationSource);
+
+	if (!checkThrottle(url))
+		return;
+	
+	QNetworkRequest req(url);
+	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
+	connect(reply, SIGNAL(finished()), SLOT(searchPart()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::searchPart() {
+	qDebug() << __PRETTY_FUNCTION__;
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+	QStringList ids = parseIntermediateSearch(reply);
+
+	reply->deleteLater();
+
+	if (ids.isEmpty())
+		return;
+
+	QByteArray post_data;
+	foreach (QString id, ids) {
+		post_data += "i=";
+		post_data += id;
+		post_data += "&";
+	}
+
+	post_data.chop(1);
+
+	QUrl url(kIdConvertUrl);
+	url.addQueryItem("output", "xml");
+	url.addQueryItem("client", kApplicationSource);
+
+	QNetworkRequest req(url);
+	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, post_data);
+	connect(action, SIGNAL(completed()), SLOT(searchFinished()));
+
+	queued_actions_.enqueue(action);
+	processActionQueue();
+}
+
+QStringList ReaderApi::parseIntermediateSearch(QIODevice* data) {
+	qDebug() << __PRETTY_FUNCTION__;
+	QXmlStreamReader s(data);
+
+	QStringList ids;
+
+	while (!s.atEnd()) {
+		QXmlStreamReader::TokenType type = s.readNext();
+		switch (type) {
+			case QXmlStreamReader::StartElement:
+				if (s.name() == "number" && s.attributes().value("name") == "id")
+					ids << s.readElementText();
+				break;
+			default:
+				break;
+		}
+	}
+
+	return ids;
+}
+
+void ReaderApi::searchFinished() {
+	qDebug() << __PRETTY_FUNCTION__;
+	ApiAction* action = static_cast<ApiAction*>(sender());
+
+	std::string json(action->reply()->readAll().data());
+	json::grammar<char>::variant v = json::parse(json.begin(), json.end());
+
+	std::list<std::string> current_id;
+	traverseJson(v, &current_id);
+}
+
+void ReaderApi::traverseJson(const json::grammar<char>::variant& var, std::list<std::string>* current_ids) {
+	if (var->empty())
+		return;
+
+	if (var->type() == typeid(std::string)) {
+		std::string value = boost::any_cast<std::string>(*var);
+                qDebug() << current_ids->rbegin()->c_str() << ":" << value.c_str();
+	} else if (var->type() == typeid(json::grammar<char>::array)) {
+		const json::grammar<char>::array& a = boost::any_cast<json::grammar<char>::array>(*var);
+		for (json::grammar<char>::array::const_iterator it = a.begin(); it != a.end(); ++it) {
+			traverseJson(*it, current_ids);
+		}
+	} else if (var->type() == typeid(json::grammar<char>::object)) {
+		const json::grammar<char>::object& o = boost::any_cast<json::grammar<char>::object>(*var);
+		for (json::grammar<char>::object::const_iterator it = o.begin(); it != o.end(); ++it) {
+			if (it->second->type() == typeid(std::string)) {
+				current_ids->push_back(it->first);
+				traverseJson(it->second, current_ids);
+				current_ids->pop_back();
+			}
 		}
 	}
 }

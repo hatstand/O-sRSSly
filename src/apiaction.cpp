@@ -14,7 +14,7 @@ ApiAction::~ApiAction() {
 }
 
 void ApiAction::start(QNetworkAccessManager* manager) {
-	qDebug() << __PRETTY_FUNCTION__ << request_.url() << content_;
+	qDebug() << __PRETTY_FUNCTION__ << request_.url();
 	switch (op_) {
 		case QNetworkAccessManager::HeadOperation:
 			reply_ = manager->head(request_);
