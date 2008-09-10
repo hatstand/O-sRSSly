@@ -206,8 +206,9 @@ bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role
 				return true;
 
 			data_->setRead(e);
-			QModelIndex top_left = createIndex(index.row(), 1);
-			emit dataChanged(top_left, top_left);
+			// Shhhhh... Don't tell anyone. We might disappear.
+			/*QModelIndex top_left = createIndex(index.row(), 1);
+			emit dataChanged(top_left, top_left);*/
 			decrementUnreadCount();
 			return true;
 		}

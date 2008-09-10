@@ -161,7 +161,7 @@
        <property name="orientation" >
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QWidget" name="layoutWidget" >
+       <widget class="QWidget" name="layoutWidget2" >
         <layout class="QHBoxLayout" name="horizontalLayout" >
          <property name="spacing" >
           <number>0</number>
