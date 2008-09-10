@@ -124,9 +124,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	QFont italic_font;
 	italic_font.setItalic(true);
 	//ui_.author_->setFont(italic_font);
-	
-	Webclipper* clipper = new Webclipper(QUrl("http://www.google.com"));
-	clipper->run();
 }
 
 MainWindow::~MainWindow() {
@@ -278,6 +275,9 @@ void MainWindow::webclipClicked() {
 	webclipping_ = !webclipping_;
 
 	ui_.contents_->setWebclipping(webclipping_);
+	
+	Webclipper* clipper = new Webclipper(QUrl("http://www.google.com"));
+	clipper->run();
 }
 
 void MainWindow::closeTab() {
