@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "settings.h"
 #include "browser.h"
+#include "webclipper.h"
 #include "xmlutils.h"
 
 #include <QSortFilterProxyModel>
@@ -123,6 +124,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	QFont italic_font;
 	italic_font.setItalic(true);
 	//ui_.author_->setFont(italic_font);
+	
+	Webclipper* clipper = new Webclipper(QUrl("http://www.google.com"));
+	clipper->run();
 }
 
 MainWindow::~MainWindow() {

@@ -634,7 +634,7 @@ void ReaderApi::traverseJson(const json::grammar<char>::variant& var, std::list<
 
 	if (var->type() == typeid(std::string)) {
 		std::string value = boost::any_cast<std::string>(*var);
-                qDebug() << current_ids->rbegin()->c_str() << ":" << value.c_str();
+		qDebug() << current_ids->rbegin()->c_str() << ":" << value.c_str();
 	} else if (var->type() == typeid(json::grammar<char>::array)) {
 		const json::grammar<char>::array& a = boost::any_cast<json::grammar<char>::array>(*var);
 		for (json::grammar<char>::array::const_iterator it = a.begin(); it != a.end(); ++it) {
