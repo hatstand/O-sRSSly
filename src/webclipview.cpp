@@ -13,6 +13,11 @@ WebclipView::WebclipView(QWidget* parent)
 	: QWebView(parent),
 	  webclipping_(false) {
 
+	getHelperJs();
+	connect(this, SIGNAL(loadFinished(bool)), SLOT(loaded()));
+}
+
+const QString& WebclipView::getHelperJs() {
 	if (kHelperJs.isEmpty()) {
 		QFile helper_js(":helpers.js");
 		helper_js.open(QIODevice::ReadOnly);
@@ -23,7 +28,7 @@ WebclipView::WebclipView(QWidget* parent)
 		kHelperJs += webclip_js.readAll();
 	}
 
-	connect(this, SIGNAL(loadFinished(bool)), SLOT(loaded()));
+	return kHelperJs;
 }
 
 void WebclipView::mouseMoveEvent(QMouseEvent* event) {

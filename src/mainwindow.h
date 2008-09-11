@@ -43,6 +43,8 @@ private slots:
 	void toggleWindowVisibility();
 
 	void xpathSet(const QString& xpath);
+
+	void webclipLoaded();
 	
 private:
 	void updateProgressBar();

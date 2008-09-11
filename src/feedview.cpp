@@ -78,10 +78,11 @@ FeedView::FeedView(QWidget* parent)
 	behaviour_actions_[0] = new QAction("Decide automatically", behaviourGroup);
 	behaviour_actions_[1] = new QAction("Show article summary", behaviourGroup);
 	behaviour_actions_[2] = new QAction("Open linked webpage", behaviourGroup);
+	behaviour_actions_[3] = new QAction("Webclip", behaviourGroup);
 	behaviour_menu_->addActions(behaviourGroup->actions());
 	
 	QSignalMapper* mapper = new QSignalMapper(this);
-	for (int i=0 ; i<3 ; ++i) {
+	for (int i=0 ; i < behaviourGroup->actions().size(); ++i) {
 		behaviour_actions_[i]->setCheckable(true);
 		mapper->setMapping(behaviour_actions_[i], i);
 		connect(behaviour_actions_[i], SIGNAL(triggered(bool)), mapper, SLOT(map()));

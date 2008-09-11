@@ -10,6 +10,8 @@ public:
 	void setWebclipping(bool enable = true) { webclipping_ = enable; }
 	virtual void setUrl(const QUrl& url);
 	void getXpath(const QString& xpath);
+
+	static const QString& getHelperJs();
 private:
 	virtual void mouseMoveEvent(QMouseEvent* event);
 	virtual void mousePressEvent(QMouseEvent* event);

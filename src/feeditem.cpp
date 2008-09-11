@@ -193,6 +193,8 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 			return data_->subscription().title();
 		case Column_Xpath:
 			return data_->subscription().xpath();
+		case Column_EntryId:
+			return e.id;
 		default:
 			return QVariant();
 	}
