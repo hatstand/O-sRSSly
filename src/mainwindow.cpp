@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 #include "settings.h"
 #include "browser.h"
-#include "webclipper.h"
 #include "xmlutils.h"
 
 #include <QSortFilterProxyModel>
@@ -212,10 +211,8 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 
 		case Settings::Behaviour_Webclip:
 			QString xpath = index.sibling(index.row(), TreeItem::Column_Xpath).data().toString();
-			Webclipper* clipper = new Webclipper(link, xpath);
-			QString entry_id = index.sibling(index.row(), TreeItem::Column_EntryId).data().toString();
-			connect(clipper, SIGNAL(finished()), SLOT(webclipLoaded()));
-			clipper->start();
+			ui_.contents_->setUrl(link);
+			ui_.contents_->getXpath(xpath);
 			ui_.actionWebclip_->setEnabled(false);
 			break;
 	}
@@ -356,22 +353,6 @@ void MainWindow::newUnreadItems(int count) {
 	bool p = count != 1;
 	if (count != 0)
 		tray_icon_->showMessage("Feeder", "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");
-}
-
-void MainWindow::webclipLoaded() {
-	qDebug() << __PRETTY_FUNCTION__;
-	Webclipper* clipper = static_cast<Webclipper*>(sender());
-	Q_ASSERT(!clipper->isRunning());
-
-	QImage image = clipper->snapshot();
-	image.save("yay.png");
-
-	qDebug() << "Image saved. Trying to grab the QWebPage";
-	shared_ptr<QWebPage> webpage = clipper->webpage();
-	if (webpage->thread() == QThread::currentThread())
-		qDebug() << "Great success";
-
-	clipper->deleteLater();
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)

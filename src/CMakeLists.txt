@@ -23,7 +23,6 @@ SET(FEEDER-SOURCES
 	keychain.cpp
 	longcatbar.cpp
 	ksqueezedtextlabel.cpp
-	webclipper.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -46,7 +45,6 @@ SET(FEEDER-MOC-HEADERS
 	rootitem.h
 	ksqueezedtextlabel.h
 	longcatbar.h
-	webclipper.h
 )
 
 # UI files
