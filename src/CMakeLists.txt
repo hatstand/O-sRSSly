@@ -23,6 +23,7 @@ SET(FEEDER-SOURCES
 	keychain.cpp
 	longcatbar.cpp
 	ksqueezedtextlabel.cpp
+	jsonutils.cpp
 )
 
 # Header files that have Q_OBJECT in

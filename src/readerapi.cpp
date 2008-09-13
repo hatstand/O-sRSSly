@@ -1,3 +1,4 @@
+#include "jsonutils.h"
 #include "readerapi.h"
 #include "subscriptionlist.h"
 #include "xmlutils.h"
@@ -44,6 +45,9 @@ const QUrl ReaderApi::kAtomUrl("http://www.google.com/reader/atom/");
 // Search feeds url
 const QUrl ReaderApi::kSearchUrl("http://www.google.com/reader/api/0/search/items/ids");
 const QUrl ReaderApi::kIdConvertUrl("http://www.google.com/reader/api/0/stream/items/contents");
+
+// Subscribe url
+const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscription/quickadd");
 
 
 ReaderApi::ReaderApi(const QString& username, const QString& password, QObject* parent) 
@@ -621,33 +625,43 @@ void ReaderApi::searchFinished() {
 	qDebug() << __PRETTY_FUNCTION__;
 	ApiAction* action = static_cast<ApiAction*>(sender());
 
-	std::string json(action->reply()->readAll().data());
-	json::grammar<char>::variant v = json::parse(json.begin(), json.end());
-
-	std::list<std::string> current_id;
-	traverseJson(v, &current_id);
+	JsonUtils::JsonObject* object = JsonUtils::parseJson(action->reply()->readAll());
+	qDebug() << *object;
+	delete object;
 }
 
-void ReaderApi::traverseJson(const json::grammar<char>::variant& var, std::list<std::string>* current_ids) {
-	if (var->empty())
-		return;
 
-	if (var->type() == typeid(std::string)) {
-		std::string value = boost::any_cast<std::string>(*var);
-		qDebug() << current_ids->rbegin()->c_str() << ":" << value.c_str();
-	} else if (var->type() == typeid(json::grammar<char>::array)) {
-		const json::grammar<char>::array& a = boost::any_cast<json::grammar<char>::array>(*var);
-		for (json::grammar<char>::array::const_iterator it = a.begin(); it != a.end(); ++it) {
-			traverseJson(*it, current_ids);
-		}
-	} else if (var->type() == typeid(json::grammar<char>::object)) {
-		const json::grammar<char>::object& o = boost::any_cast<json::grammar<char>::object>(*var);
-		for (json::grammar<char>::object::const_iterator it = o.begin(); it != o.end(); ++it) {
-			if (it->second->type() == typeid(std::string)) {
-				current_ids->push_back(it->first);
-				traverseJson(it->second, current_ids);
-				current_ids->pop_back();
-			}
-		}
+void ReaderApi::subscribe(const QString& feed) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QUrl url(kSubscribeUrl);
+	url.addQueryItem("client", kApplicationSource);
+
+	QNetworkRequest req(url);
+	QString content = "quickadd=%1";
+	content = content.arg(feed);
+	ApiAction* action = new ApiAction(req, QNetworkAccessManager::PostOperation, content.toUtf8());
+	connect(action, SIGNAL(completed()), SLOT(subscribeFinished()));
+
+	queued_actions_.enqueue(action);
+	processActionQueue();
+}
+
+void ReaderApi::subscribeFinished() {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	ApiAction* action = static_cast<ApiAction*>(sender());
+
+	JsonUtils::JsonObject* object = JsonUtils::parseJson(action->reply()->readAll());
+	qDebug() << *object;
+
+	// Get the first result
+	QString feed_id = object->getString("streamId");
+
+	if (!feed_id.isEmpty()) {
+		// Successfully subscribed to something. Update subscriptions.
+		getSubscriptionList();
 	}
+
+	delete object;
 }

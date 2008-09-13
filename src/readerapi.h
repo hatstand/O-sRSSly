@@ -5,8 +5,6 @@
 #include "atomfeed.h"
 #include "subscriptionlist.h"
 
-#include "../tinyjson/tinyjson.hpp"
-
 #include <list>
 #include <string>
 
@@ -37,7 +35,8 @@ public:
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
 
-        void search(const QString& query);
+	void search(const QString& query);
+	void subscribe(const QString& feed);
 
 private:
 	void getToken();
@@ -59,7 +58,6 @@ private:
 
         // Parses the intermediate search results into individual ids.
 	QStringList parseIntermediateSearch(QIODevice* data);
-	void traverseJson(const json::grammar<char>::variant& var, std::list<std::string>* current_ids);
 
 private slots:
 	void loginComplete();
@@ -76,13 +74,15 @@ private slots:
         // First part of search - getting ids.
 	void searchPart();
         // Search complete - full detail.
-        void searchFinished();
+	void searchFinished();
 	
 	void replyDownloadProgress(qint64, qint64);
 	void replyFinished();
 
 	// Call to clean out the network_throttle_ of old entries 
 	void clearThrottle();
+
+	void subscribeFinished();
 
 signals:
 	void loggedIn();
@@ -145,6 +145,8 @@ public:
 
 	static const QUrl kSearchUrl;
 	static const QUrl kIdConvertUrl;
+
+	static const QUrl kSubscribeUrl;
 };
 
 #endif
