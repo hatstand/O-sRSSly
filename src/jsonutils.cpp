@@ -7,7 +7,8 @@ JsonUtils::JsonObject::JsonObject() {
 }
 
 JsonUtils::JsonObject::~JsonObject() {
-	for (QMultiMap<QString, JsonObject*>::const_iterator it = objects_.begin(); it != objects_.end(); ++it) {
+	for (QMultiMap<QString, JsonObject*>::const_iterator it = objects_.begin();
+		it != objects_.end(); ++it) {
 		delete it.value();
 	}
 }
@@ -33,44 +34,24 @@ void JsonUtils::JsonObject::addItem(const QString& key, const QString& value) {
 }
 
 
-JsonObject* JsonUtils::JsonObject::getObject(const QString& key) const {
-	QMultiMap<QString, JsonObject*>::const_iterator it = objects_.find(key);
-	if (it != objects_.end())
-		return it.value();
-	else
-		return NULL;
+QList<JsonObject*> JsonUtils::JsonObject::getObject(const QString& key) const {
+	return objects_.values(key);
 }
 
-int JsonUtils::JsonObject::getInt(const QString& key) const {
-	QMultiMap<QString, int>::const_iterator it = integers_.find(key);
-	if (it != integers_.end())
-		return it.value();
-	else
-		return NULL;
+QList<int> JsonUtils::JsonObject::getInt(const QString& key) const {
+	return integers_.values(key);
 }
 
-double JsonUtils::JsonObject::getDouble(const QString& key) const {
-	QMultiMap<QString, double>::const_iterator it = reals_.find(key);
-	if (it != reals_.end())
-		return it.value();
-	else
-		return NULL;
+QList<double> JsonUtils::JsonObject::getDouble(const QString& key) const {
+	return reals_.values(key);
 }
 
-bool JsonUtils::JsonObject::getBool(const QString& key) const {
-	QMultiMap<QString, bool>::const_iterator it = bools_.find(key);
-	if (it != bools_.end())
-		return it.value();
-	else
-		return NULL;
+QList<bool> JsonUtils::JsonObject::getBool(const QString& key) const {
+	return bools_.values(key);
 }
 
-QString JsonUtils::JsonObject::getString(const QString& key) const {
-	QMultiMap<QString, QString>::const_iterator it = strings_.find(key);
-	if (it != strings_.end())
-		return it.value();
-	else
-		return NULL;
+QList<QString> JsonUtils::JsonObject::getString(const QString& key) const {
+	return strings_.values(key);
 }
 
 JsonObject* JsonUtils::parseJson(const QByteArray& data) {
@@ -88,40 +69,33 @@ JsonObject* JsonUtils::traverseJson(const json::grammar<char>::variant& var) {
 
 		// Create a new JSON object.
 		const json::grammar<char>::object& o = boost::any_cast<json::grammar<char>::object>(*var);
-		qDebug() << "JSON: New object:";
 		JsonObject* object = new JsonObject();
 
 		// Iterate through and add its properties.
 		for (json::grammar<char>::object::const_iterator it = o.begin(); it != o.end(); ++it) {
-			qDebug() << "JSON: <object element>" << it->first.c_str();
 			QString key = QString::fromUtf8(it->first.c_str());
 			const json::grammar<char>::variant& var_value = it->second;
 
 			if (var_value->type() == typeid(int)) {
 				int value = boost::any_cast<int>(*var_value);
-				qDebug() << "JSON: int" << value;
 				object->addItem(key, value);
 			} else if (var_value->type() == typeid(std::string)) {
 				std::string value = boost::any_cast<std::string>(*var_value);
-				qDebug() << "JSON: string" << value.c_str();
 				object->addItem(key, QString::fromUtf8(value.c_str()));
 			} else if (var_value->type() == typeid(json::grammar<char>::array)) {
-				qDebug() << "JSON: New array:";
 				const json::grammar<char>::array& a =
 					boost::any_cast<json::grammar<char>::array>(*var_value);
 				for (json::grammar<char>::array::const_iterator it = a.begin(); it != a.end(); ++it) {
-					qDebug() << "JSON: <array element>";
 					JsonObject* value = traverseJson(*it);
-					object->addItem(key, value);
-					qDebug() << "JSON: </array element>";
+					if (value)
+						object->addItem(key, value);
 				}
 			} else {
 				JsonObject* value = traverseJson(it->second);
-				object->addItem(key, value);
+				if (value)
+					object->addItem(key, value);
 			}
-			qDebug() << "JSON: </object element>";
 		}
-		qDebug() << "JSON: End object";
 
 		return object;
 	}
@@ -135,7 +109,7 @@ QDebug operator <<(QDebug dbg, const JsonObject& o) {
 
 	for (QMultiMap<QString, JsonObject*>::const_iterator it = o.getObjects().begin();
 		it != o.getObjects().end(); ++it) {
-		dbg.nospace() << it.key() << ":" << it.value() << "\n";
+		dbg.nospace() << it.key() << ":" << *it.value() << "\n";
 	}
 	for (QMultiMap<QString, int>::const_iterator it = o.getInts().begin();
 		it != o.getInts().end(); ++it) {

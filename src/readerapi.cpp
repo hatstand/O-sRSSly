@@ -656,9 +656,9 @@ void ReaderApi::subscribeFinished() {
 	qDebug() << *object;
 
 	// Get the first result
-	QString feed_id = object->getString("streamId");
+	QStringList feed_ids = object->getString("streamId");
 
-	if (!feed_id.isEmpty()) {
+	if (!feed_ids.isEmpty() && !feed_ids[0].isEmpty()) {
 		// Successfully subscribed to something. Update subscriptions.
 		getSubscriptionList();
 	}

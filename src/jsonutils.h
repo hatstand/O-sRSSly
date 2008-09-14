@@ -19,11 +19,11 @@ public:
 	void addItem(const QString& key, bool value);
 	void addItem(const QString& key, const QString& value);
 
-	JsonObject* getObject(const QString& key) const;
-	int getInt(const QString& key) const;
-	double getDouble(const QString& key) const;
-	bool getBool(const QString& key) const;
-	QString getString(const QString& key) const;
+	QList<JsonObject*> getObject(const QString& key) const;
+	QList<int> getInt(const QString& key) const;
+	QList<double> getDouble(const QString& key) const;
+	QList<bool> getBool(const QString& key) const;
+	QList<QString> getString(const QString& key) const;
 
 	const QMultiMap<QString, JsonObject*>& getObjects() const { return objects_; }
 	const QMultiMap<QString, int>& getInts() const { return integers_; }
