@@ -390,6 +390,7 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 
 	it.value()->setContinuation(feed.continuation());
 
+	QSqlDatabase::database().transaction();
 	for (AtomFeed::AtomList::const_iterator kt = feed.entries().begin(); kt != feed.entries().end(); ++kt) {
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(kt->id);
 		if (jt == id_mappings_.end())
@@ -399,6 +400,7 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		data->update(*kt);
 	}
+	QSqlDatabase::database().commit();
 }
 
 void FeedsModel::freshFeedArrived(const AtomFeed& feed) {

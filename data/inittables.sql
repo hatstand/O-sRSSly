@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Tag
 (
-	id TEXT,
+	id TEXT PRIMARY KEY,
 	title TEXT
 )
 

@@ -61,7 +61,9 @@ int FeedItemData::update(const AtomFeed& feed) {
 
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
+			QSqlDatabase::database().transaction();
 			save();
+			QSqlDatabase::database().commit();
 			return afterCount - beforeCount;
 		}
 	}
