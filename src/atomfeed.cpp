@@ -38,7 +38,7 @@ AtomFeed::AtomFeed(const QUrl& url, QIODevice* device)
 
 AtomFeed::AtomFeed(const QSqlQuery& query)
 	: m_error(false),
-	  m_id(query.value(1).toString())
+	  m_id(query.value(0).toString())
 {
 	QSqlQuery entryQuery;
 	entryQuery.prepare("SELECT title, id, summary, content, date, link, read, starred, author, shared_by FROM Entry WHERE feedId=:feedId");
