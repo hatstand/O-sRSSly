@@ -23,8 +23,9 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e)
 	return dbg.space();
 }
 
-AtomFeed::AtomFeed()
-	: m_error(false)
+AtomFeed::AtomFeed(const QString& id)
+	: m_error(false),
+	  m_id(id)
 {
 }
 
@@ -40,8 +41,8 @@ AtomFeed::AtomFeed(const QSqlQuery& query)
 	  m_id(query.value(1).toString())
 {
 	QSqlQuery entryQuery;
-	entryQuery.prepare("SELECT ROWID, title, id, summary, content, date, link, read, starred, author, shared_by FROM Entry WHERE feedId=:feedId");
-	entryQuery.bindValue(":feedId", query.value(0).toLongLong());
+	entryQuery.prepare("SELECT title, id, summary, content, date, link, read, starred, author, shared_by FROM Entry WHERE feedId=:feedId");
+	entryQuery.bindValue(":feedId", m_id);
 	if (!entryQuery.exec())
 		Database::handleError(entryQuery.lastError());
 	
@@ -165,16 +166,13 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 	}
 }
 
-void AtomFeed::saveEntries(qint64 feedId) {
+void AtomFeed::saveEntries() {
 	QSqlQuery query;
-	query.prepare("INSERT INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred, :author, :shared_by)");
-	query.bindValue(":feedId", feedId);
+	query.prepare("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred, :author, :shared_by)");
+	query.bindValue(":feedId", m_id);
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
 		const AtomEntry& entry(*it);
-		
-		if (entry.rowid != -1)
-			continue;
 		
 		query.bindValue(":title", entry.title);
 		query.bindValue(":id", entry.id);
@@ -193,8 +191,7 @@ void AtomFeed::saveEntries(qint64 feedId) {
 
 AtomEntry::AtomEntry(QXmlStreamReader& s)
 	: read(false),
-	  starred(false),
-	  rowid(-1)
+	  starred(false)
 {
 	while (!s.atEnd())
 	{
@@ -252,17 +249,16 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 }
 
 AtomEntry::AtomEntry(const QSqlQuery& query) {
-	rowid = query.value(0).toLongLong();
-	title = query.value(1).toString();
-	id = query.value(2).toString();
-	summary = query.value(3).toString();
-	content = query.value(4).toString();
-	date = QDateTime::fromString(query.value(5).toString());
-	link = query.value(6).toString();
-	read = query.value(7).toBool();
-	starred = query.value(8).toBool();
-	author = query.value(9).toString();
-	shared_by = query.value(10).toString();
+	title = query.value(0).toString();
+	id = query.value(1).toString();
+	summary = query.value(2).toString();
+	content = query.value(3).toString();
+	date = QDateTime::fromString(query.value(4).toString());
+	link = query.value(5).toString();
+	read = query.value(6).toBool();
+	starred = query.value(7).toBool();
+	author = query.value(8).toString();
+	shared_by = query.value(9).toString();
 }
 
 const QString& AtomEntry::previewText() const {
@@ -331,8 +327,8 @@ QString AtomEntry::parseAuthor(QXmlStreamReader& s) {
 
 void AtomEntry::update() const {
 	QSqlQuery query;
-	query.prepare("UPDATE Entry SET read=:read, starred=:starred WHERE ROWID=:rowId");
-	query.bindValue(":rowId", rowid);
+	query.prepare("UPDATE Entry SET read=:read, starred=:starred WHERE id=:id");
+	query.bindValue(":id", id);
 	query.bindValue(":read", QVariant(read).toString());
 	query.bindValue(":starred", QVariant(starred).toString());
 	if (!query.exec())

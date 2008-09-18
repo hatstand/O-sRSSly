@@ -21,9 +21,8 @@ FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
 	: TreeItem(parent),
 	  api_(api)
 {
-	rowid_ = query.value(0).toLongLong();
-	id_ = query.value(1).toString();
-	title_ = query.value(2).toString();
+	id_ = query.value(0).toString();
+	title_ = query.value(1).toString();
 	
 	if (sIcon.isNull())
 		sIcon = QIcon(":directory.png");
@@ -32,25 +31,11 @@ FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
 void FolderItem::save()
 {
 	QSqlQuery query;
-	if (rowid_ == -1)
-	{
-		query.prepare("INSERT INTO Tag (id, title) VALUES (:id, :title)");
-		query.bindValue(":id", id_);
-		query.bindValue(":title", title_);
-		if (!query.exec())
-			Database::handleError(query.lastError());
-		
-		rowid_ = query.lastInsertId().toLongLong();
-	}
-	else
-	{
-		query.prepare("UPDATE Tag SET id=:id, title=:title WHERE ROWID=:rowid");
-		query.bindValue(":id", id_);
-		query.bindValue(":title", title_);
-		query.bindValue(":rowid", rowid_);
-		if (!query.exec())
-			Database::handleError(query.lastError());
-	}
+	query.prepare("REPLACE INTO Tag (id, title) VALUES (:id, :title)");
+	query.bindValue(":id", id_);
+	query.bindValue(":title", title_);
+	if (!query.exec())
+		Database::handleError(query.lastError());
 }
 
 QVariant FolderItem::data(const QModelIndex& index, int role) const {

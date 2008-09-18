@@ -28,8 +28,8 @@ QVariant FeedItem::data(int column, int role) const {
 
 FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
 	: subscription_(s),
-	  api_(api),
-	  rowid_(-1)
+	  feed_(s.id()),
+	  api_(api)
 {
 	save();
 	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
@@ -38,8 +38,7 @@ FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
 FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
 	: subscription_(query),
 	  feed_(query),
-	  api_(api),
-	  rowid_(query.value(0).toLongLong())
+	  api_(api)
 {
 	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
@@ -121,41 +120,30 @@ void FeedItemData::save() {
 	QSqlQuery query;
 	
 	// Save the feed itself
-	if (rowid_ == -1) {
-		query.prepare("INSERT INTO Feed (id, title, sortId) VALUES (:id, :title, :sortId)");
-		query.bindValue(":id", subscription_.id());
-		query.bindValue(":title", subscription_.title());
-		query.bindValue(":sortId", subscription_.sortid());
-		if (!query.exec())
-			Database::handleError(query.lastError());
+	query.prepare("REPLACE INTO Feed (id, title, sortId) VALUES (:id, :title, :sortId)");
+	query.bindValue(":id", subscription_.id());
+	query.bindValue(":title", subscription_.title());
+	query.bindValue(":sortId", subscription_.sortid());
+	if (!query.exec())
+		Database::handleError(query.lastError());
 		
-		rowid_ = query.lastInsertId().toLongLong();
-	} else {
-		query.prepare("UPDATE Feed SET id=:id, title=:title, sortId=:sortId WHERE ROWID=:rowid");
-		query.bindValue(":id", subscription_.id());
-		query.bindValue(":title", subscription_.title());
-		query.bindValue(":sortId", subscription_.sortid());
-		query.bindValue(":rowid", rowid_);
-		if (!query.exec())
-			Database::handleError(query.lastError());
-		
-		query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
-		query.bindValue(":id", rowid_);
-		if (!query.exec())
-			Database::handleError(query.lastError());
-	}
+	// Clear out the old mappings
+	query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
+	query.bindValue(":id", subscription_.id());
+	if (!query.exec())
+		Database::handleError(query.lastError());
 	
 	// Save the list of tags it has
 	query.prepare("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
 	foreach (const Category& category, subscription_.categories()) {
-		query.bindValue(":feedId", rowid_);
+		query.bindValue(":feedId", subscription_.id());
 		query.bindValue(":tagId", category.first);
 		if (!query.exec())
 			Database::handleError(query.lastError());
 	}
 	
 	// Save its entries
-	feed_.saveEntries(rowid_);
+	feed_.saveEntries();
 }
 
 QVariant FeedItem::data(const QModelIndex& index, int role) const {

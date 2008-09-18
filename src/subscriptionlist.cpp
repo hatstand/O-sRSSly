@@ -45,14 +45,14 @@ Subscription::Subscription(QXmlStreamReader& s) {
 
 Subscription::Subscription(const QSqlQuery& query) {
 	// Load data about the subscription itself
-	id_ = query.value(1).toString();
-	title_ = query.value(2).toString();
-	sortid_ = query.value(3).toString();
+	id_ = query.value(0).toString();
+	title_ = query.value(1).toString();
+	sortid_ = query.value(2).toString();
 	
 	// Now load the list of categories
 	QSqlQuery categoryQuery;
 	categoryQuery.prepare("SELECT Tag.id, Tag.title FROM Tag INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId WHERE FeedTagMap.feedId=:feedId");
-	categoryQuery.bindValue(":feedId", query.value(0).toLongLong());
+	categoryQuery.bindValue(":feedId", id_);
 	if (!categoryQuery.exec())
 		Database::handleError(categoryQuery.lastError());
 	

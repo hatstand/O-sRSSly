@@ -19,7 +19,7 @@ class QSqlQuery;
 class AtomEntry
 {
 public:
-	AtomEntry() : rowid(-1) {}
+	AtomEntry() {}
 	AtomEntry(QXmlStreamReader& s);
 	AtomEntry(const QSqlQuery& query);
 	
@@ -36,8 +36,6 @@ public:
 	QString source;
 	QString author;
 	QString shared_by;
-	
-	qint64 rowid;
 	
 	void update() const;
 
@@ -89,7 +87,7 @@ public:
 	typedef AtomEntryList::index<hash>::type AtomEntries;
 	typedef AtomEntryList::index<random>::type AtomList;
 
-	AtomFeed();
+	AtomFeed(const QString& id);
 	AtomFeed(const QUrl& url, QIODevice* data);
 	AtomFeed(const QSqlQuery& query);
 	~AtomFeed();
@@ -119,7 +117,7 @@ public:
 
 	void setStarred(const AtomEntry& e, bool starred);
 	
-	void saveEntries(qint64 feedId);
+	void saveEntries();
 	void updateEntry(const AtomEntry& entry);
 
 	static const char* kReaderXmlNamespace;
@@ -135,6 +133,8 @@ private:
 	// Magic string which represents to Google where we got up to in downloading entries.
 	QString m_continuation;
 	AtomEntryList m_entries;
+
+	AtomFeed();
 };
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f);

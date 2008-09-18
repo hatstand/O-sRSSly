@@ -7,21 +7,21 @@ CREATE TABLE IF NOT EXISTS Tag
 CREATE TABLE IF NOT EXISTS FeedTagMap
 (
 	tagId TEXT,
-	feedId INTEGER
+	feedId TEXT
 )
 
 CREATE TABLE IF NOT EXISTS Feed
 (
-	id TEXT,
+	id TEXT PRIMARY KEY,
 	title TEXT,
 	sortId TEXT
 )
 
 CREATE TABLE IF NOT EXISTS Entry
 (
-	feedId INTEGER,
+	feedId TEXT,
 	title TEXT,
-	id TEXT,
+	id TEXT PRIMARY KEY,
 	summary TEXT,
 	content TEXT,
 	date TEXT,

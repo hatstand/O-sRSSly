@@ -49,7 +49,6 @@ private:
 	// The atom entries.
 	AtomFeed feed_;
 	ReaderApi* api_;
-	qint64 rowid_;
 };
 
 /*

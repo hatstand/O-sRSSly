@@ -365,7 +365,7 @@ void FeedsModel::dataDestroyed(QObject* object) {
 
 void FeedsModel::load() {
 	// Load tags
-	QSqlQuery query("SELECT ROWID, id, title FROM Tag");
+	QSqlQuery query("SELECT id, title FROM Tag");
 	while (query.next())
 	{
 		FolderItem* f = new FolderItem(&root_, query, api_);
@@ -373,7 +373,7 @@ void FeedsModel::load() {
 	}
 	
 	// Load feeds
-	query = QSqlQuery("SELECT ROWID, id, title, sortId FROM Feed");
+	query = QSqlQuery("SELECT id, title, sortId FROM Feed");
 	while (query.next())
 		addFeed(new FeedItemData(query, api_), false);
 }

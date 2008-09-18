@@ -30,7 +30,6 @@ void TreeItem::init(TreeItem* parent, const QString& title, FeedsModel* model) {
 	feeds_model_ = model;
 	changed_proxy_ = NULL;
 	fail_prevention_ = false;
-	rowid_ = -1;
 	unread_count_= -1;
 	deleting_ = false;
 }

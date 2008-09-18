@@ -104,7 +104,6 @@ protected:
 	QList<TreeItem*> children_;
 	QString title_;
 	QString id_;
-	qint64 rowid_;
 	int unread_count_;
 	
 	FeedsModel* feeds_model_;
