@@ -23,17 +23,30 @@ void WebpageProcess::pageLoaded(bool ok) {
 
 QSize WebpageProcess::render() {
 	qDebug() << __PRETTY_FUNCTION__;
-	page_->setViewportSize(page_->mainFrame()->contentsSize());
-	QImage image(page_->viewportSize(), QImage::Format_ARGB32);
-	QPainter painter(&image);
+	QSize page_size = page_->mainFrame()->contentsSize();
+	page_->setViewportSize(page_size);
+	Q_ASSERT(page_->viewportSize() == page_size);
 
+	int num_bytes = 4 * page_size.width() * page_size.height();
+
+	if (!shared_memory_.isAttached()) {
+		if (!shared_memory_.attach(QSharedMemory::ReadWrite)) {
+			if (!shared_memory_.create(num_bytes, QSharedMemory::ReadWrite)) {
+				qFatal("Could not create shared memory:" + shared_memory_.error());
+			}
+		}
+	}
+
+	if (shared_memory_.size() < num_bytes) {
+		qFatal("Shared memory not large enough");
+	}
+
+	shared_memory_.lock();
+	QImage image((uchar*)shared_memory_.data(), page_size.width(), page_size.height(), QImage::Format_ARGB32);
+	QPainter painter(&image);
 	page_->mainFrame()->render(&painter);
 	painter.end();
-
-	shared_memory_.create(image.numBytes(), QSharedMemory::ReadWrite);
-	shared_memory_.lock();
-	memcpy(shared_memory_.data(), image.bits(), image.numBytes());
 	shared_memory_.unlock();
 
-	return image.size();
+	return page_size;
 }
