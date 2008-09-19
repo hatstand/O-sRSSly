@@ -62,8 +62,8 @@ SET(FEEDER-RESOURCES
 
 # protobuf messages
 SET(FEEDER-MESSAGES
-	../messages/spawn_event.proto
-	../messages/mouse_event.proto
+	../messages/spawnevent.proto
+	../messages/mouseevent.proto
 	../messages/point.proto
 )
 
@@ -79,7 +79,7 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${QT_QTWEBKIT_INCLUDE_DIR}
 	${GNOME_KEYRING_INCLUDE_DIRS}
-	../protobuf/
+	${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/src/
 )
 
 ADD_EXECUTABLE(feeder ${FEEDER-SOURCES} ${FEEDER-SOURCES-MOC} ${FEEDER-SOURCES-UI} ${FEEDER-SOURCES-RESOURCE} ${FEEDER-SOURCES-MESSAGES})
@@ -89,6 +89,7 @@ TARGET_LINK_LIBRARIES(feeder
 	${QT_QTWEBKIT_LIBRARY}
 	${SECURITY}
 	${GNOME_KEYRING_LIBRARIES}
+	protobuf
 )
 
 LINK_DIRECTORIES(${GNOME_KEYRING_LIBRARY_DIRS})
