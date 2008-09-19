@@ -1,0 +1,9 @@
+import "mouseevent.proto";
+
+message SpawnEvent {
+	enum Type {
+		MOUSE_EVENT = 0;
+	}
+	required Type type = 1;
+	optional MouseEvent mouse_event = 2;
+}

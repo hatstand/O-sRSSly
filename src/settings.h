@@ -3,9 +3,9 @@
 
 #include <QSettings>
 
-class Settings : public QObject
-{
+class Settings : public QObject {
 	Q_OBJECT
+
 public:
 	static Settings* instance();
 	
@@ -28,14 +28,33 @@ public:
 	int progressBarStyle() const;
 	bool unreadOnly() const;
 	
+	bool showTrayIcon() const;
+	bool startMinimized() const;
+	bool checkNew() const;
+	int checkNewInterval() const;
+	bool showBubble() const;
+	
 	void setGoogleAccount(const QString& username, const QString& password);
 	void setBehaviour(const QString& feedId, int behaviour);
 	void setProgressBarStyle(int style);
 	void setUnreadOnly(bool unread_only);
+	
+	void setShowTrayIcon(bool v);
+	void setStartMinimized(bool v);
+	void setCheckNew(bool v);
+	void setCheckNewInterval(int v);
+	void setShowBubble(bool v);
 
 signals:
 	void googleAccountChanged();
-	void progressBarStyleChanged();
+	void progressBarStyleChanged(int v);
+	void unreadOnlyChanged(bool v);
+	
+	void showTrayIconChanged(bool v);
+	void startMinimizedChanged(bool v);
+	void checkNewChanged(bool v);
+	void checkNewIntervalChanged(bool v);
+	void showBubbleChanged(bool v);
 
 private:
 	Settings();

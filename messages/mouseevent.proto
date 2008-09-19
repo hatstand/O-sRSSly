@@ -1,0 +1,7 @@
+import "point.proto";
+
+message MouseEvent {
+	required int32 button = 1;
+	required int32 buttons = 2;
+	required Point pos = 3;
+}

@@ -1,6 +1,10 @@
 #include "keychain.h"
 #include "settings.h"
 
+#define SIMPLE_GET_SET(T, getter, setter, default) \
+	T Settings::getter() const { return m_settings.value(#getter, default).value<T>(); } \
+	void Settings::setter(T v) { m_settings.setValue(#getter, v); emit getter ## Changed(v); }
+
 Settings* Settings::s_instance = NULL;
 
 Settings* Settings::instance() {
@@ -82,19 +86,11 @@ void Settings::setBehaviour(const QString& feedId, int behaviour) {
 	writeBehaviours();
 }
 
-void Settings::setUnreadOnly(bool unread_only) {
-	m_settings.setValue("unread_only", unread_only);
-}
+SIMPLE_GET_SET(int, progressBarStyle, setProgressBarStyle, ProgressBar_Normal);
+SIMPLE_GET_SET(bool, unreadOnly, setUnreadOnly, false);
 
-bool Settings::unreadOnly() const {
-	return m_settings.value("unread_only", false).toBool();
-}
-
-int Settings::progressBarStyle() const {
-	return m_settings.value("progress_bar_style", ProgressBar_Normal).toInt();
-}
-
-void Settings::setProgressBarStyle(int style) {
-	m_settings.setValue("progress_bar_style", style);
-	emit progressBarStyleChanged();
-}
+SIMPLE_GET_SET(bool, showTrayIcon, setShowTrayIcon, true);
+SIMPLE_GET_SET(bool, startMinimized, setStartMinimized, false);
+SIMPLE_GET_SET(bool, checkNew, setCheckNew, true);
+SIMPLE_GET_SET(int, checkNewInterval, setCheckNewInterval, 5);
+SIMPLE_GET_SET(bool, showBubble, setShowBubble, true);

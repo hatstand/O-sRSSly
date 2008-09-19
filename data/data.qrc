@@ -24,5 +24,6 @@
 		<file>feed.png</file>
 		<file>directory.png</file>
 		<file>allitems.png</file>
+		<file>behaviour.png</file>
 	</qresource>
 </RCC>

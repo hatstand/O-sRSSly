@@ -23,6 +23,12 @@ void ConfigureDialog::accept()
 	
 	settings_->setGoogleAccount(ui_.user_->text(), ui_.password_->text());
 	settings_->setProgressBarStyle(progressBarStyle);
+	
+	settings_->setShowTrayIcon(ui_.show_tray_icon_->isChecked());
+	settings_->setStartMinimized(ui_.start_minimized_->isChecked());
+	settings_->setCheckNew(ui_.check_new_->isChecked());
+	settings_->setCheckNewInterval(ui_.check_new_interval_->value());
+	settings_->setShowBubble(ui_.show_bubble_->isChecked());
 
 	QDialog::accept();
 }
@@ -49,6 +55,12 @@ void ConfigureDialog::populateData()
 		case Settings::ProgressBar_Longcat: ui_.progressBarLongcat->setChecked(true); break;
 		case Settings::ProgressBar_Tacgnol: ui_.progressBarTacgnol->setChecked(true); break;
 	}
+	
+	ui_.show_tray_icon_->setChecked(settings_->showTrayIcon());
+	ui_.start_minimized_->setChecked(settings_->startMinimized());
+	ui_.check_new_->setChecked(settings_->checkNew());
+	ui_.check_new_interval_->setValue(settings_->checkNewInterval());
+	ui_.show_bubble_->setChecked(settings_->showBubble());
 }
 
 void ConfigureDialog::pageChanged(const QString& text)

@@ -33,6 +33,9 @@ ELSE(${CMAKE_SYSTEM} MATCHES "Darwin")
 ENDIF(${CMAKE_SYSTEM} MATCHES "Darwin")
 
 # Subdirectories
+ADD_SUBDIRECTORY(protobuf)
+ADD_SUBDIRECTORY(messages)
+ADD_SUBDIRECTORY(spawn)
 ADD_SUBDIRECTORY(src)
 
 # Uninstall support
