@@ -5,5 +5,7 @@ message SpawnEvent {
 		MOUSE_EVENT = 0;
 	}
 	required Type type = 1;
-	optional MouseEvent mouse_event = 2;
+	optional int32 destination = 2;
+	
+	optional MouseEvent mouse_event = 3;
 }

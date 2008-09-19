@@ -6,8 +6,21 @@
 
 #include "mainwindow.h"
 
+#include "spawn/manager.h"
+#include "spawn/view.h"
+#include <QDebug>
+
 int main (int argc, char** argv) {
 	QApplication app(argc, argv);
+	
+	if (app.arguments().count() > 1) {
+		qDebug() << app.arguments();
+		return 0;
+	}
+	
+	Spawn::Manager manager;
+	Spawn::View view(&manager);
+	return app.exec();
 
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");
