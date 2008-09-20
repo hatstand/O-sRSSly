@@ -4,6 +4,10 @@
 #include <glib.h>
 #endif
 
+#ifdef Q_OS_DARWIN
+#include <Carbon/Carbon.h>
+#endif
+
 #include "mainwindow.h"
 
 #include "spawn/manager.h"
@@ -36,6 +40,11 @@ int main (int argc, char** argv) {
 #if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// For gnome keyring
 	g_set_application_name("Feeder");
+#endif
+
+#ifdef Q_OS_DARWIN
+	ProcessSerialNumber psn = { 0, kCurrentProcess };
+	TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 #endif
 	
 	MainWindow win;

@@ -16,5 +16,7 @@
 	<string>0.1</string>
 	<key>CFBundleIconFile</key>
 	<string>Feeder</string>
+	<key>LSUIElement</key>
+	<string>1</string>
 </dict>
 </plist>
