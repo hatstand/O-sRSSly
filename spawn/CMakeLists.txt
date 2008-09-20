@@ -19,9 +19,9 @@ SET(SPAWN-MOC-HEADERS
 # protobuf messages
 SET(SPAWN-MESSAGES
 	../messages/spawnevent.proto
-	../messages/mouseevent.proto
+	../messages/inputevents.proto
 	../messages/point.proto
-	../messages/newpageevent.proto
+	../messages/controlevents.proto
 )
 
 SET (EXECUTABLE_OUTPUT_PATH ..)

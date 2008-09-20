@@ -1,14 +1,20 @@
-import "newpageevent.proto";
-import "mouseevent.proto";
+import "controlevents.proto";
+import "inputevents.proto";
 
 message SpawnEvent {
 	enum Type {
 		NEW_PAGE_EVENT = 0;
-		MOUSE_EVENT = 1;
+		CLOSE_EVENT = 1;
+		MOUSE_EVENT = 2;
+		RESIZE_EVENT = 3;
+		SHARED_MEMORY_CHANGED = 4;
 	}
 	required Type type = 1;
-	optional int32 destination = 2;
+	optional uint64 destination = 2;
 	
 	optional NewPageEvent new_page_event = 3;
-	optional MouseEvent mouse_event = 4;
+	optional CloseEvent close_event = 4;
+	optional MouseEvent mouse_event = 5;
+	optional ResizeEvent resize_event = 6;
+	optional SharedMemoryChanged shared_memory_changed = 7;
 }

@@ -4,7 +4,7 @@
 #include "iodevicestream.h"
 
 #include "spawnevent.pb.h"
-#include "newpageevent.pb.h"
+#include "controlevents.pb.h"
 
 #include <QtDebug>
 #include <QCoreApplication>
@@ -12,6 +12,7 @@
 #include <QLocalSocket>
 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/io/coded_stream.h>
 
 #include <iostream>
 
@@ -55,6 +56,37 @@ Manager::Manager(QObject* parent, const QString& executable)
 }
 
 Manager::~Manager() {
+	qDebug() << __PRETTY_FUNCTION__;
+	
+	// Destroy all pages
+	// This will release shared memory and terminate the processes
+	foreach (Child* child, children_.keys()) {
+		destroyPage(child);
+	}
+	
+	// Since we're not going back to the event loop, make sure all the
+	// sockets write their data
+	foreach (QLocalSocket* socket, sockets_) {
+		if (socket->bytesToWrite() > 0) {
+			qDebug() << "Flushing data to" << socket;
+			socket->waitForBytesWritten(1000);
+		}
+	}
+	
+	// Now wait for all child processes to shutdown
+	// Kill them if we need to
+	foreach (QProcess* process, processes_) {
+		process->waitForFinished(1000);
+		if (process->state() != QProcess::Running) continue;
+		
+		qDebug() << "Process" << process << "still running - sending SIGTERM";
+		process->terminate();
+		process->waitForFinished(1000);
+		if (process->state() != QProcess::Running) continue;
+		
+		qDebug() << "Process" << process << "still running - sending SIGKILL";
+		process->kill();
+	}
 }
 
 Child* Manager::createPage() {
@@ -72,14 +104,17 @@ Child* Manager::createPage() {
 	process->setProcessChannelMode(QProcess::ForwardedChannels);
 	//connect(process, SIGNAL(started()), SLOT(processStarted()));
 	connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(processError(QProcess::ProcessError)));
+	connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(processFinished()));
+	
 	process->start(executable_, QStringList() << kSpawnArgument << server_->serverName());
+	processes_ << process;
 	
 	// Queue a message to create a new page
 	NewPageEvent newPage;
-	newPage.set_id(child->id());
 	
 	SpawnEvent message;
 	message.set_type(SpawnEvent_Type_NEW_PAGE_EVENT);
+	message.set_destination(child->id());
 	*(message.mutable_new_page_event()) = newPage;
 	
 	sendMessage(child, message);
@@ -91,10 +126,36 @@ Child* Manager::createPage() {
 void Manager::destroyPage(Child* child) {
 	qDebug() << __PRETTY_FUNCTION__;
 	if (children_.contains(child)) {
-		// If this child had a socket open, close it
-		// TODO
+		// This child was active.  Send it a close message.
+		CloseEvent close;
+		SpawnEvent e;
+		e.set_destination(child->id());
+		e.set_type(SpawnEvent_Type_CLOSE_EVENT);
+		*(e.mutable_close_event()) = close;
+		
+		sendMessage(child, e);
+		
+		// Remove the child from our list
+		QLocalSocket* socket = children_[child];
+		children_.remove(child);
+		
+		// Now see if it was the last one using its socket.
+		// If so, terminate the process.
+		bool found = false;
+		foreach (QLocalSocket* s, children_.values()) {
+			if (s == socket) {
+				found = true;
+				break;
+			}
+		}
+		
+		if (!found) {
+			e.clear_destination();
+			sendMessage(socket, e);
+		}
 	} else {
-		// Otherwise it must've been waiting
+		// Otherwise it must've been waiting for a process.
+		// So just remove it
 		children_waiting_for_socket_.removeAll(child);
 	}
 }
@@ -102,6 +163,7 @@ void Manager::destroyPage(Child* child) {
 void Manager::newConnection() {
 	qDebug() << __PRETTY_FUNCTION__;
 	QLocalSocket* socket = server_->nextPendingConnection();
+	connect(socket, SIGNAL(disconnected()), SLOT(socketDisconnected()));
 	sockets_ << socket;
 	
 	if (children_waiting_for_socket_.isEmpty()) {
@@ -117,8 +179,30 @@ void Manager::newConnection() {
 	
 	// Send any messages that were queued
 	if (child->message_queue_.size() != 0) {
-		*socket << child->message_queue_;
+		qDebug() << "Flusing queued messages for" << child << "to" << socket;
+		child->message_queue_.seek(0);
+		socket->write(child->message_queue_.readAll());
+		child->clearQueue();
 	}
+}
+
+void Manager::socketDisconnected() {
+	QLocalSocket* socket = qobject_cast<QLocalSocket*>(sender());
+	
+	// Find out if there were any pages using that socket
+	QMap<Child*, QLocalSocket*>::iterator i = children_.begin();
+	while (i != children_.end()) {
+		if (i.value() == socket) {
+			Child* child = i.key();
+			child->setError();
+			
+			children_.erase(i);
+			children_waiting_for_socket_ << child;
+		}
+	}
+	
+	// Remove the socket from the list
+	sockets_.removeAll(socket);
 }
 
 void Manager::processError(QProcess::ProcessError error) {
@@ -133,18 +217,33 @@ void Manager::processError(QProcess::ProcessError error) {
 	}
 }
 
+void Manager::sendMessage(QIODevice* dev, const google::protobuf::Message& m) {
+	qDebug() << "Sending message" << m << "to" << dev;
+	
+	int messageSize = m.ByteSize();
+	
+	IODeviceOutputStream stream(dev);
+	google::protobuf::io::CopyingOutputStreamAdaptor zeroCopyStream(&stream);
+	google::protobuf::io::CodedOutputStream codedStream(&zeroCopyStream);
+	codedStream.WriteVarint32(messageSize);
+	m.SerializeWithCachedSizes(&codedStream);
+}
 
 void Manager::sendMessage(Child* child, const google::protobuf::Message& m) {
 	if (!child->isReady()) {
-		m.AppendToString(&child->message_queue_);
-		return;
+		sendMessage(&child->message_queue_, m);
 	}
+	else {
+		sendMessage(children_[child], m);
+	}
+}
+
+void Manager::processFinished() {
+	qDebug() << __PRETTY_FUNCTION__;
 	
-	QLocalSocket* socket = children_[child];
-	
-	IODeviceOutputStream stream(socket);
-	google::protobuf::io::CopyingOutputStreamAdaptor zeroCopyStream(&stream);
-	m.SerializeToZeroCopyStream(&zeroCopyStream);
+	QProcess* process = qobject_cast<QProcess*>(sender());
+	processes_.removeAll(process);
+	//process->deleteLater();
 }
 
 

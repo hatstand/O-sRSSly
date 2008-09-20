@@ -32,14 +32,19 @@ public:
 private slots:
 	void newConnection();
 	void processError(QProcess::ProcessError error);
+	void processFinished();
+	void socketDisconnected();
 	
 private:
 	// To be used by Child
 	void sendMessage(Child* child, const google::protobuf::Message& m);
 	
 	// For internal use
+	void sendMessage(QIODevice* dev, const google::protobuf::Message& m);
+	
 	QLocalServer* server_;
 	QList<QLocalSocket*> sockets_;
+	QList<QProcess*> processes_;
 	QMap<Child*, QLocalSocket*> children_;
 	QQueue<Child*> children_waiting_for_socket_;
 	

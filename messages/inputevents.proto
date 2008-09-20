@@ -5,3 +5,8 @@ message MouseEvent {
 	required int32 buttons = 2;
 	required Point pos = 3;
 }
+
+message ResizeEvent {
+	required int32 width = 1;
+	required int32 height = 2;
+}

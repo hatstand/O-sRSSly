@@ -1,7 +1,7 @@
 #include "qthelpers.h"
 
 QDebug operator <<(QDebug d, const google::protobuf::Message& m) {
-	std::string debug(m.DebugString());
+	std::string debug(m.ShortDebugString());
 	d << debug.c_str();
 	return d.space();
 }

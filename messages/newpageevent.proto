@@ -1,3 +1,0 @@
-message NewPageEvent {
-	required uint64 id = 1;
-}

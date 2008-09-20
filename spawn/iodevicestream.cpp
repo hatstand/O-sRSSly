@@ -1,6 +1,7 @@
 #include "iodevicestream.h"
 
 #include <QIODevice>
+#include <QtDebug>
 
 namespace Spawn {
 

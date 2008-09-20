@@ -31,6 +31,9 @@ int main (int argc, char** argv) {
 	
 	Spawn::Manager manager;
 	Spawn::View view(&manager);
+	view.resize(1024, 768);
+	view.show();
+	
 	return app.exec();
 
 	app.setOrganizationDomain("purplehatstands.com");
