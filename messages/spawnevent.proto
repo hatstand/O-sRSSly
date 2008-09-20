@@ -7,7 +7,6 @@ message SpawnEvent {
 		CLOSE_EVENT = 1;
 		MOUSE_EVENT = 2;
 		RESIZE_EVENT = 3;
-		SHARED_MEMORY_CHANGED = 4;
 	}
 	required Type type = 1;
 	optional uint64 destination = 2;
@@ -16,5 +15,4 @@ message SpawnEvent {
 	optional CloseEvent close_event = 4;
 	optional MouseEvent mouse_event = 5;
 	optional ResizeEvent resize_event = 6;
-	optional SharedMemoryChanged shared_memory_changed = 7;
 }

@@ -24,11 +24,6 @@ int main (int argc, char** argv) {
 		return app.exec();
 	}
 	
-	if (app.arguments().count() > 1) {
-		qDebug() << app.arguments();
-		return 0;
-	}
-	
 	Spawn::Manager manager;
 	Spawn::View view(&manager);
 	view.resize(1024, 768);

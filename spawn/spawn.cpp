@@ -11,9 +11,24 @@
 
 namespace Spawn {
 
+Page::Page(QWebPage* p)
+	: page_(p),
+	  memory_(NULL)
+{
+}
+
 Page::~Page() {
-	delete page;
-	delete memory;
+	delete page_;
+	delete memory_;
+}
+
+void Page::resize(int width, int height, const QString& memoryKey) {
+	delete memory_;
+	memory_ = new QSharedMemory(memoryKey);
+	memory_->attach();
+	
+	page_->setViewportSize(QSize(width, height));
+	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
 }
 
 Spawn::Spawn(const QString& server, QObject* parent)
@@ -62,46 +77,28 @@ void Spawn::socketReadyRead() {
 void Spawn::processEvent(const SpawnEvent& m) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
+	quint64 id = m.destination();
+	
 	switch (m.type()) {
 	case SpawnEvent_Type_NEW_PAGE_EVENT:
-		newPage(m.destination());
+		pages_[id] = new Page(new QWebPage(this));
 		break;
 	
 	case SpawnEvent_Type_CLOSE_EVENT:
 		if (m.has_destination())
-			closePage(m.destination());
+			delete pages_.take(id);
 		else
 			QCoreApplication::quit();
 		break;
 	
-	case SpawnEvent_Type_SHARED_MEMORY_CHANGED:
-		sharedMemoryChanged(m.destination(), QString::fromStdString(m.shared_memory_changed().key()));
+	case SpawnEvent_Type_RESIZE_EVENT:
+		pages_[id]->resize(m.resize_event().width(), m.resize_event().height(), QString::fromStdString(m.resize_event().memory_key()));
 		break;
 		
 	default:
 		qDebug() << "Unhandled message" << m;
 		break;
 	}
-}
-
-void Spawn::newPage(quint64 id) {
-	qDebug() << __PRETTY_FUNCTION__;
-	
-	pages_[id] = new Page(new QWebPage(this));
-}
-
-void Spawn::closePage(quint64 id) {
-	qDebug() << __PRETTY_FUNCTION__;
-
-	Page* page = pages_.take(id);
-	delete page;
-}
-
-void Spawn::sharedMemoryChanged(quint64 id, const QString& key) {
-	Page* page = pages_[id];
-	delete page->memory;
-	page->memory = new QSharedMemory(key, this);
-	page->memory->attach();
 }
 
 }

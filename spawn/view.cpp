@@ -5,6 +5,7 @@
 
 #include <QEvent>
 #include <QtDebug>
+#include <QPainter>
 
 namespace Spawn {
 
@@ -23,16 +24,18 @@ View::~View() {
 bool View::event(QEvent* event) {
 	switch (event->type()) {
 	case QEvent::Resize: {
-		ResizeEvent e;
-		e.set_width(width());
-		e.set_height(height());
-		child_->sendResizeEvent(e);
+		child_->sendResizeEvent(width(), height());
 		break;
 	}
 	default:
 		break;
 	}
 	return QWidget::event(event);
+}
+
+void View::paintEvent(QPaintEvent* event) {
+	QPainter p(this);
+	child_->paint(p);
 }
 
 }

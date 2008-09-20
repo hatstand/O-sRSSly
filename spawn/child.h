@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQueue>
 #include <QBuffer>
+#include <QImage>
 
 #include <google/protobuf/message.h>
 
@@ -34,7 +35,7 @@ public:
 	bool isError() const { return state_ == Error; }
 	
 	void sendMouseEvent(const MouseEvent& e);
-	void sendResizeEvent(const ResizeEvent& e);
+	void sendResizeEvent(int width, int height);
 	
 	void paint(QPainter& p);
 
@@ -58,6 +59,7 @@ private:
 	quint64 id_;
 	State state_;
 	QSharedMemory* memory_;
+	QImage image;
 };
 
 }

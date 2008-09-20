@@ -19,6 +19,7 @@ public:
 
 protected:
 	bool event(QEvent* event);
+	void paintEvent(QPaintEvent* event);
 
 private:
 	int page_id_;

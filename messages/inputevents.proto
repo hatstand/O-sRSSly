@@ -9,4 +9,5 @@ message MouseEvent {
 message ResizeEvent {
 	required int32 width = 1;
 	required int32 height = 2;
+	required string memory_key = 3;
 }

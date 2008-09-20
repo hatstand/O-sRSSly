@@ -3,7 +3,3 @@ message NewPageEvent {
 
 message CloseEvent {
 }
-
-message SharedMemoryChanged {
-	required string key = 1;
-}

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QImage>
 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/io/coded_stream.h>
@@ -17,11 +18,15 @@ namespace Spawn {
 
 class Page {
 public:
-	Page(QWebPage* p = NULL) : page(p), memory(NULL) {}
+	Page(QWebPage* p = NULL);
 	~Page();
 	
-	QWebPage* page;
-	QSharedMemory* memory;
+	void resize(int width, int height, const QString& memoryKey);
+
+private:
+	QSharedMemory* memory_;
+	QWebPage* page_;
+	QImage image_;
 };
 
 class Spawn : public QObject {
@@ -35,8 +40,6 @@ private slots:
 
 private:
 	void processEvent(const SpawnEvent& m);
-	void newPage(quint64 id);
-	void closePage(quint64 id);
 	void sharedMemoryChanged(quint64 id, const QString& key);
 	
 	QLocalSocket* socket_;

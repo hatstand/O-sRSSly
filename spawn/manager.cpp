@@ -136,8 +136,7 @@ void Manager::destroyPage(Child* child) {
 		sendMessage(child, e);
 		
 		// Remove the child from our list
-		QLocalSocket* socket = children_[child];
-		children_.remove(child);
+		QLocalSocket* socket = children_.take(child);
 		
 		// Now see if it was the last one using its socket.
 		// If so, terminate the process.

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QSharedMemory>
 #include <QCoreApplication>
+#include <QPainter>
 
 namespace Spawn {
 
@@ -49,15 +50,20 @@ void Child::sendMouseEvent(const MouseEvent& mouseEvent) {
 	manager_->sendMessage(this, e);
 }
 
-void Child::sendResizeEvent(const ResizeEvent& resizeEvent) {
+void Child::sendResizeEvent(int width, int height) {
+	resizeSharedMemory(width, height);
+	
+	ResizeEvent resizeEvent;
+	resizeEvent.set_width(width);
+	resizeEvent.set_height(height);
+	*(resizeEvent.mutable_memory_key()) = memory_->key().toStdString();
+	
 	SpawnEvent e;
 	e.set_destination(id_);
 	e.set_type(SpawnEvent_Type_RESIZE_EVENT);
 	*(e.mutable_resize_event()) = resizeEvent;
 	
 	manager_->sendMessage(this, e);
-	
-	resizeSharedMemory(resizeEvent.width(), resizeEvent.height());
 }
 
 void Child::resizeSharedMemory(int width, int height) {
@@ -74,21 +80,17 @@ void Child::resizeSharedMemory(int width, int height) {
 		}
 	}
 	
-	SharedMemoryChanged m;
-	*(m.mutable_key()) = memory_->key().toStdString();
-	
-	SpawnEvent e;
-	e.set_destination(id_);
-	e.set_type(SpawnEvent_Type_SHARED_MEMORY_CHANGED);
-	*(e.mutable_shared_memory_changed()) = m;
-	
-	manager_->sendMessage(this, e);
+	image = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
 }
 
 void Child::clearQueue() {
 	message_queue_.close();
 	message_queue_.setBuffer(0);
 	message_queue_.open(QBuffer::ReadWrite);
+}
+
+void Child::paint(QPainter& p) {
+	p.drawImage(0, 0, image);
 }
 
 }
