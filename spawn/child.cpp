@@ -1,5 +1,6 @@
 #include "child.h"
 #include "manager.h"
+#include "spawnevent.pb.h"
 
 #include <QDebug>
 
@@ -7,7 +8,6 @@ namespace Spawn {
 
 Child::Child(Manager* manager, quint64 id)
 	: QObject(manager),
-	  starting_process_(NULL),
 	  manager_(manager),
 	  id_(id),
 	  ready_(false)
@@ -18,8 +18,16 @@ Child::Child(Manager* manager, quint64 id)
 void Child::setReady() {
 	qDebug() << __PRETTY_FUNCTION__;
 	ready_ = true;
-	starting_process_ = NULL;
 	emit ready();
+}
+
+void Child::sendMouseEvent(const MouseEvent& mouseEvent) {
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(SpawnEvent_Type_MOUSE_EVENT);
+	*(e.mutable_mouse_event()) = mouseEvent;
+	
+	manager_->sendMessage(this, e);
 }
 
 }

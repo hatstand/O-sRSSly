@@ -8,10 +8,17 @@
 
 #include "spawn/manager.h"
 #include "spawn/view.h"
+#include "spawn/spawn.h"
 #include <QDebug>
 
 int main (int argc, char** argv) {
 	QApplication app(argc, argv);
+	
+	QString server(Spawn::Manager::serverName());
+	if (!server.isNull()) {
+		Spawn::Spawn spawn(server);
+		return app.exec();
+	}
 	
 	if (app.arguments().count() > 1) {
 		qDebug() << app.arguments();

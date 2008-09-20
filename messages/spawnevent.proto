@@ -1,11 +1,14 @@
+import "newpageevent.proto";
 import "mouseevent.proto";
 
 message SpawnEvent {
 	enum Type {
-		MOUSE_EVENT = 0;
+		NEW_PAGE_EVENT = 0;
+		MOUSE_EVENT = 1;
 	}
 	required Type type = 1;
 	optional int32 destination = 2;
 	
-	optional MouseEvent mouse_event = 3;
+	optional NewPageEvent new_page_event = 3;
+	optional MouseEvent mouse_event = 4;
 }

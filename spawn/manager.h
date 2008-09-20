@@ -4,9 +4,13 @@
 #include <QProcess>
 #include <QObject>
 #include <QQueue>
+#include <QList>
 #include <QMap>
 
-#include "mouseevent.pb.h"
+#include <google/protobuf/message.h>
+
+class QLocalSocket;
+class QLocalServer;
 
 namespace Spawn {
 
@@ -14,6 +18,7 @@ class Child;
 
 class Manager : public QObject {
 	Q_OBJECT
+	friend class Child;
 public:
 	Manager(QObject* parent = 0, const QString& executable = QString::null);
 	~Manager();
@@ -21,18 +26,22 @@ public:
 	Child* createPage();
 	void destroyPage(Child* child);
 	
-	void sendEvent(MouseEvent* e);
+	static QString serverName();
+	static const char* const kSpawnArgument;
 
 private slots:
-	void processStarted();
+	void newConnection();
 	void processError(QProcess::ProcessError error);
 	
-	void processReadyReadStderr();
-	
 private:
-	QMap<Q_PID, QProcess*> processes_;
-	QMap<Child*, Q_PID> children_;
-	QQueue<Child*> children_waiting_for_process_;
+	// To be used by Child
+	void sendMessage(Child* child, const google::protobuf::Message& m);
+	
+	// For internal use
+	QLocalServer* server_;
+	QList<QLocalSocket*> sockets_;
+	QMap<Child*, QLocalSocket*> children_;
+	QQueue<Child*> children_waiting_for_socket_;
 	
 	quint64 next_child_id_;
 	

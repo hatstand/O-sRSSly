@@ -2,8 +2,13 @@
 #define CHILD_H
 
 #include <QObject>
+#include <QQueue>
+
+#include <google/protobuf/message.h>
 
 class QProcess;
+
+class MouseEvent;
 
 namespace Spawn {
 
@@ -15,6 +20,8 @@ class Child : public QObject {
 public:
 	quint64 id() const { return id_; }
 	bool isReady() const { return ready_; }
+	
+	void sendMouseEvent(const MouseEvent& e);
 
 signals:
 	void ready();
@@ -24,7 +31,7 @@ private:
 	Child(Manager* manager, quint64 id);
 	void setReady();
 	
-	QProcess* starting_process_;
+	std::string message_queue_;
 	
 	// For internal use
 	Manager* manager_;

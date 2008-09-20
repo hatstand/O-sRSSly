@@ -3,6 +3,9 @@ SET(SPAWN-SOURCES
 	manager.cpp
 	view.cpp
 	child.cpp
+	spawn.cpp
+	iodevicestream.cpp
+	qthelpers.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -10,6 +13,7 @@ SET(SPAWN-MOC-HEADERS
 	manager.h
 	view.h
 	child.h
+	spawn.h
 )
 
 # protobuf messages
@@ -17,6 +21,7 @@ SET(SPAWN-MESSAGES
 	../messages/spawnevent.proto
 	../messages/mouseevent.proto
 	../messages/point.proto
+	../messages/newpageevent.proto
 )
 
 SET (EXECUTABLE_OUTPUT_PATH ..)
