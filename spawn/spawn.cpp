@@ -8,6 +8,7 @@
 #include <QLocalSocket>
 #include <QtDebug>
 #include <QCoreApplication>
+#include <QUrl>
 
 namespace Spawn {
 
@@ -61,12 +62,12 @@ void Spawn::processEvent(const SpawnEvent& m) {
 	quint64 id = m.destination();
 	
 	switch (m.type()) {
-	case SpawnEvent_Type_NEW_PAGE_EVENT:
+	case SpawnEvent_Type_NEW_PAGE:
 		pages_[id] = new Page(id);
 		connect(pages_[id], SIGNAL(reply(const SpawnReply&)), SLOT(sendReply(const SpawnReply&)));
 		break;
 	
-	case SpawnEvent_Type_CLOSE_EVENT:
+	case SpawnEvent_Type_CLOSE:
 		if (m.has_destination())
 			delete pages_.take(id);
 		else
@@ -91,6 +92,17 @@ void Spawn::processEvent(const SpawnEvent& m) {
 	case SpawnEvent_Type_KEY_RELEASE_EVENT:
 		pages_[id]->keyEvent(m.type(), m.key_event());
 		break;
+	
+	case SpawnEvent_Type_SET_URL:
+		pages_[id]->setUrl(QUrl(QString::fromStdString(m.simple_string())));
+		break;
+	
+	case SpawnEvent_Type_SET_LINK_DELEGATION_POLICY:
+		pages_[id]->setLinkDelegationPolicy(m.simple_int());
+		break;
+	
+	case SpawnEvent_Type_SET_HTML:
+		pages_[id]->setHtml(QString::fromStdString(m.simple_string()));
 		
 	default:
 		qDebug() << "Unhandled message" << m;

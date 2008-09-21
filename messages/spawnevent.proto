@@ -5,9 +5,9 @@ import "inputevents.proto";
 
 message SpawnEvent {
 	enum Type {
-		// Control events
-		NEW_PAGE_EVENT = 0;
-		CLOSE_EVENT = 1;
+		// Control
+		NEW_PAGE = 0;
+		CLOSE = 1;
 		RESIZE_EVENT = 2;
 		
 		// Input events
@@ -17,13 +17,21 @@ message SpawnEvent {
 		KEY_PRESS_EVENT = 6;
 		KEY_RELEASE_EVENT = 7;
 		WHEEL_EVENT = 8;
+		
+		// Functions
+		SET_URL = 9;
+		SET_LINK_DELEGATION_POLICY = 10;
+		SET_HTML = 11;
 	}
 	required Type type = 1;
 	optional uint64 destination = 2;
 	
-	optional NewPageEvent new_page_event = 3;
-	optional CloseEvent close_event = 4;
+	optional NewPage new_page = 3;
+	optional Close close = 4;
 	optional MouseEvent mouse_event = 5;
 	optional ResizeEvent resize_event = 6;
 	optional KeyEvent key_event = 7;
+	
+	optional int32 simple_int = 8;
+	optional string simple_string = 9;
 }

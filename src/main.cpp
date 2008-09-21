@@ -8,12 +8,9 @@
 #include <Carbon/Carbon.h>
 #endif
 
-#include "mainwindow.h"
-
-#include "spawn/manager.h"
-#include "spawn/view.h"
 #include "spawn/spawn.h"
-#include <QDebug>
+#include "spawn/manager.h"
+#include "mainwindow.h"
 
 int main(int argc, char** argv) {
 	QApplication app(argc, argv);
@@ -25,14 +22,6 @@ int main(int argc, char** argv) {
 		Spawn::Spawn spawn(server);
 		return app.exec();
 	}
-	
-	Spawn::Manager manager;
-	Spawn::View view(&manager);
-	view.resize(1024, 768);
-	view.show();
-	QObject::connect(&view, SIGNAL(titleChanged(const QString&)), &view, SLOT(setWindowTitle( const QString& )));
-	
-	return app.exec();
 
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");

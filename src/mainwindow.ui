@@ -124,7 +124,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>266</width>
+                <width>321</width>
                 <height>26</height>
                </rect>
               </property>
@@ -232,12 +232,12 @@
         <property name="currentIndex" >
          <number>0</number>
         </property>
-        <widget class="QWidget" name="tab" >
+        <widget class="QWidget" name="contents_tab_" >
          <property name="geometry" >
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>670</width>
+           <width>615</width>
            <height>228</height>
           </rect>
          </property>
@@ -254,7 +254,7 @@
           <item>
            <widget class="QFrame" name="frame_2" >
             <property name="sizePolicy" >
-             <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+             <sizepolicy vsizetype="Maximum" hsizetype="Preferred" >
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -376,7 +376,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>537</width>
+                    <width>482</width>
                     <height>18</height>
                    </rect>
                   </property>
@@ -443,17 +443,12 @@
            </widget>
           </item>
           <item>
-           <widget class="WebclipView" native="1" name="contents_" >
+           <widget class="QWidget" native="1" name="view_container_" >
             <property name="sizePolicy" >
-             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="url" stdset="0" >
-             <url>
-              <string>about:blank</string>
-             </url>
             </property>
            </widget>
           </item>
@@ -464,8 +459,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>frame_3</zorder>
-   <zorder>splitter_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
@@ -612,11 +605,6 @@
    <class>EntryView</class>
    <extends>QListView</extends>
    <header>entryview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>WebclipView</class>
-   <extends>QWidget</extends>
-   <header>webclipview.h</header>
   </customwidget>
   <customwidget>
    <class>LongCatBar</class>

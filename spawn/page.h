@@ -27,6 +27,10 @@ public:
 	void mouseEvent(SpawnEvent_Type type, const MouseEvent& e);
 	void keyEvent(SpawnEvent_Type type, const KeyEvent& e);
 	void wheelEvent(const MouseEvent& e);
+	
+	void setUrl(const QUrl& url);
+	void setLinkDelegationPolicy(int policy);
+	void setHtml(const QString& html);
 
 signals:
 	void reply(const SpawnReply& reply);
@@ -39,6 +43,7 @@ private slots:
 	void statusBarMessage(const QString& text);
 	void titleChanged(const QString& title);
 	void urlChanged(const QUrl& url);
+	void linkClicked(const QUrl& url);
 
 private:
 	quint64 id_;

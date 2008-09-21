@@ -7,6 +7,7 @@
 #include <QQueue>
 #include <QBuffer>
 #include <QImage>
+#include <QWebPage>
 
 #include <google/protobuf/message.h>
 
@@ -42,6 +43,10 @@ public:
 	void sendWheelEvent(QWheelEvent* event);
 	void sendResizeEvent(int width, int height);
 	
+	void setUrl(const QUrl& url);
+	void setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy);
+	void setHtml(const QString& html);
+	
 	void paint(QPainter& p, const QRect& rect);
 
 signals:
@@ -54,6 +59,7 @@ signals:
 	void statusBarMessage(const QString& text);
 	void titleChanged(const QString& title);
 	void urlChanged(const QUrl& url);
+	void linkClicked(const QUrl& url);
 
 private:
 	// To be used by Manager
@@ -65,7 +71,7 @@ private:
 	QBuffer message_queue_;
 	
 	// For internal use
-	void resizeSharedMemory(int width, int height);
+	bool resizeSharedMemory(int width, int height);
 	
 	Manager* manager_;
 	quint64 id_;

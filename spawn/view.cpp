@@ -25,13 +25,33 @@ View::View(Manager* manager, QWidget* parent)
 	connect(child_, SIGNAL(statusBarMessage(const QString&)), SIGNAL(statusBarMessage(const QString&)));
 	connect(child_, SIGNAL(titleChanged(const QString&)), SIGNAL(titleChanged(const QString&)));
 	connect(child_, SIGNAL(urlChanged(const QUrl&)), SIGNAL(urlChanged(const QUrl&)));
+	connect(child_, SIGNAL(linkClicked(const QUrl&)), SIGNAL(linkClicked(const QUrl&)));
+	
+	QPalette pal = palette();
+	pal.setBrush(QPalette::Background, Qt::white);
+	setPalette(pal);
 	
 	setMouseTracking(true);
+	setFocusPolicy(Qt::WheelFocus);
+	
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 View::~View() {
 	qDebug() << __PRETTY_FUNCTION__;
 	manager_->destroyPage(child_);
+}
+
+void View::setUrl(const QUrl& url) {
+	child_->setUrl(url);
+}
+
+void View::setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy) {
+	child_->setLinkDelegationPolicy(policy);
+}
+
+void View::setHtml(const QString& html) {
+	child_->setHtml(html);
 }
 
 void View::resizeEvent(QResizeEvent*) {
@@ -117,6 +137,10 @@ void View::messageLinkClicked(const QUrl& url) {
 		manager_->restartPage(child_);
 		child_->sendResizeEvent(width(), height());
 	}
+}
+
+QSize View::sizeHint() const {
+	return QSize(800, 600);
 }
 
 

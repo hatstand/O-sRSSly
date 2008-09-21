@@ -16,6 +16,7 @@ message SpawnReply {
 		STATUS_BAR_MESSAGE = 4;
 		TITLE_CHANGED = 5;
 		URL_CHANGED = 6;
+		LINK_CLICKED = 7;
 	}
 	required Type type = 1;
 	required uint64 source = 2;

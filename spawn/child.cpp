@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QWheelEvent>
+#include <QUrl>
 
 namespace Spawn {
 
@@ -104,7 +105,9 @@ void Child::sendKeyEvent(SpawnEvent_Type type, QKeyEvent* event) {
 }
 
 void Child::sendResizeEvent(int width, int height) {
-	resizeSharedMemory(width, height);
+	if (!resizeSharedMemory(width, height)) {
+		return;
+	}
 	
 	ResizeEvent resizeEvent;
 	resizeEvent.set_width(width);
@@ -119,8 +122,12 @@ void Child::sendResizeEvent(int width, int height) {
 	manager_->sendMessage(this, e);
 }
 
-void Child::resizeSharedMemory(int width, int height) {
+bool Child::resizeSharedMemory(int width, int height) {
 	int size = width*height*4;
+	
+	if (size <= 0) {
+		return false;
+	}
 	
 	delete memory_;
 	memory_ = new QSharedMemory(this);
@@ -134,6 +141,8 @@ void Child::resizeSharedMemory(int width, int height) {
 	}
 	
 	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+	
+	return true;
 }
 
 void Child::clearQueue() {
@@ -149,6 +158,33 @@ void Child::paint(QPainter& p, const QRect& rect) {
 	memory_->lock();
 	p.drawImage(rect, image_, rect);
 	memory_->unlock();
+}
+
+void Child::setUrl(const QUrl& url) {
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(SpawnEvent_Type_SET_URL);
+	*(e.mutable_simple_string()) = url.toString().toStdString();
+	
+	manager_->sendMessage(this, e);
+}
+
+void Child::setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy) {
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(SpawnEvent_Type_SET_LINK_DELEGATION_POLICY);
+	e.set_simple_int(policy);
+	
+	manager_->sendMessage(this, e);
+}
+
+void Child::setHtml(const QString& html) {
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(SpawnEvent_Type_SET_HTML);
+	e.set_simple_string(html.toStdString());
+	
+	manager_->sendMessage(this, e);
 }
 
 }

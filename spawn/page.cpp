@@ -24,6 +24,8 @@ Page::Page(quint64 id)
 	connect(page_, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
 	connect(page_, SIGNAL(loadStarted()), SLOT(loadStarted()));
 	connect(page_, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
+	connect(page_, SIGNAL(linkClicked(const QUrl&)), SLOT(linkClicked(const QUrl&)));
+	
 	connect(page_->mainFrame(), SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(page_->mainFrame(), SIGNAL(urlChanged(const QUrl&)), SLOT(urlChanged(const QUrl&)));
 	
@@ -132,6 +134,18 @@ void Page::keyEvent(SpawnEvent_Type type, const KeyEvent& e) {
 	page_->event(&event);
 }
 
+void Page::setUrl(const QUrl& url) {
+	page_->mainFrame()->setUrl(url);
+}
+
+void Page::setLinkDelegationPolicy(int policy) {
+	page_->setLinkDelegationPolicy(static_cast<QWebPage::LinkDelegationPolicy>(policy));
+}
+
+void Page::setHtml(const QString& html) {
+	page_->mainFrame()->setHtml(html);
+}
+
 void Page::loadFinished(bool ok) {
 	SpawnReply m;
 	m.set_type(SpawnReply_Type_LOAD_FINISHED);
@@ -179,6 +193,15 @@ void Page::titleChanged(const QString& title) {
 void Page::urlChanged(const QUrl& url) {
 	SpawnReply m;
 	m.set_type(SpawnReply_Type_URL_CHANGED);
+	m.set_source(id_);
+	m.set_simple_string(url.toString().toStdString());
+	
+	emit reply(m);
+}
+
+void Page::linkClicked(const QUrl& url) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_LINK_CLICKED);
 	m.set_source(id_);
 	m.set_simple_string(url.toString().toStdString());
 	

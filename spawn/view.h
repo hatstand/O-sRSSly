@@ -19,6 +19,10 @@ public:
 	~View();
 	
 	void setUrl(const QUrl& url);
+	void setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy);
+	void setHtml(const QString& html);
+	
+	QSize sizeHint() const;
 
 signals:
 	void loadFinished(bool ok);
@@ -27,6 +31,7 @@ signals:
 	void statusBarMessage(const QString& text);
 	void titleChanged(const QString& title);
 	void urlChanged(const QUrl& url);
+	void linkClicked(const QUrl& url);
 
 protected:
 	void resizeEvent(QResizeEvent* e);

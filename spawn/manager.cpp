@@ -113,12 +113,12 @@ Child* Manager::createPage() {
 	processes_ << process;
 	
 	// Queue a message to create a new page
-	NewPageEvent newPage;
+	NewPage newPage;
 	
 	SpawnEvent message;
-	message.set_type(SpawnEvent_Type_NEW_PAGE_EVENT);
+	message.set_type(SpawnEvent_Type_NEW_PAGE);
 	message.set_destination(child->id());
-	*(message.mutable_new_page_event()) = newPage;
+	*(message.mutable_new_page()) = newPage;
 	
 	sendMessage(child, message);
 	
@@ -142,12 +142,12 @@ void Manager::restartPage(Child* child) {
 	processes_ << process;
 	
 	// Queue a message to create a new page
-	NewPageEvent newPage;
+	NewPage newPage;
 	
 	SpawnEvent message;
-	message.set_type(SpawnEvent_Type_NEW_PAGE_EVENT);
+	message.set_type(SpawnEvent_Type_NEW_PAGE);
 	message.set_destination(child->id());
-	*(message.mutable_new_page_event()) = newPage;
+	*(message.mutable_new_page()) = newPage;
 	
 	sendMessage(child, message);
 }
@@ -156,11 +156,11 @@ void Manager::destroyPage(Child* child) {
 	qDebug() << __PRETTY_FUNCTION__;
 	if (children_.contains(child)) {
 		// This child was active.  Send it a close message.
-		CloseEvent close;
+		Close close;
 		SpawnEvent e;
 		e.set_destination(child->id());
-		e.set_type(SpawnEvent_Type_CLOSE_EVENT);
-		*(e.mutable_close_event()) = close;
+		e.set_type(SpawnEvent_Type_CLOSE);
+		*(e.mutable_close()) = close;
 		
 		sendMessage(child, e);
 		
@@ -338,6 +338,9 @@ void Manager::processReply(const SpawnReply& reply) {
 	case SpawnReply_Type_URL_CHANGED:
 		emit child->urlChanged(QUrl(QString::fromStdString(reply.simple_string())));
 		break;
+	
+	case SpawnReply_Type_LINK_CLICKED:
+		emit child->linkClicked(QUrl(QString::fromStdString(reply.simple_string())));
 	
 	default:
 		break;

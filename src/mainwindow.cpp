@@ -5,6 +5,9 @@
 #include "browser.h"
 #include "xmlutils.h"
 
+#include <spawn/view.h>
+#include <spawn/manager.h>
+
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
 #include <QShortcut>
@@ -22,7 +25,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  web_progress_bar_(new LongCatBar(this)),
 	  configure_dialog_(new ConfigureDialog(this)),
 	  webclipping_(false),
-	  unread_only_(false)
+	  unread_only_(false),
+	  spawn_manager_(new Spawn::Manager(this))
 {
 	ui_.setupUi(this);
 	
@@ -52,9 +56,16 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	bold_font.setBold(true);
 	ui_.title_->setFont(bold_font);
 	ui_.title_->setText("Welcome to Feeder");
-	ui_.contents_->setUrl(QUrl("qrc:/welcome.html"));
-	ui_.contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-	connect(ui_.contents_, SIGNAL(linkClicked(const QUrl&)),
+	
+	contents_ = new Spawn::View(spawn_manager_, ui_.contents_tab_);
+	ui_.contents_tab_->layout()->removeWidget(ui_.view_container_);
+	delete ui_.view_container_;
+	ui_.contents_tab_->layout()->addWidget(contents_);
+	
+	contents_->setUrl(QUrl("qrc:/welcome.html"));
+	contents_->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+	
+	connect(contents_, SIGNAL(linkClicked(const QUrl&)),
 		SLOT(externalLinkClicked(const QUrl&)));
 
 	ui_.feeds_->setModel(feeds_model_);
@@ -97,7 +108,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	web_progress_bar_->setMinimum(0);
 	web_progress_bar_->setMaximum(100);
 	ui_.tabs_->setCornerWidget(web_progress_bar_, Qt::BottomRightCorner);
-	connect(ui_.contents_, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
+	connect(contents_, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
 	
 	// General progress bar
 	connect(feeds_model_, SIGNAL(progressChanged(int, int)), SLOT(apiProgress(int, int)));
@@ -116,8 +127,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.webclip_->setDefaultAction(ui_.actionWebclip_);
 
 	ui_.actionWebclip_->setEnabled(false);
-	connect(ui_.contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
-	connect(ui_.contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
+	connect(contents_, SIGNAL(loadFinished(bool)), ui_.actionWebclip_, SLOT(setEnabled(bool)));
+	// TODO: Fixme
+	//connect(contents_, SIGNAL(xpathSet(const QString&)), SLOT(xpathSet(const QString&)));
 
 	ui_.title_->setTextElideMode(Qt::ElideRight);
 	QFont italic_font;
@@ -180,14 +192,14 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 		case Settings::Behaviour_Auto:
 			if (summary.isEmpty() && content.isEmpty()) {
 				ui_.actionWebclip_->setEnabled(true);
-				ui_.contents_->setUrl(link);
+				contents_->setUrl(link);
 				ui_.subtitleStack_->setCurrentIndex(1);
 			} else {
 				ui_.actionWebclip_->setEnabled(false);
 				if (content.isEmpty())
-					ui_.contents_->setHtml(summary);
+					contents_->setHtml(summary);
 				else
-					ui_.contents_->setHtml(content);
+					contents_->setHtml(content);
 
 				ui_.subtitleStack_->setCurrentIndex(0);
 				ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
@@ -197,22 +209,23 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 			
 		case Settings::Behaviour_ShowInline:
 			ui_.actionWebclip_->setEnabled(false);
-			ui_.contents_->setHtml(content.isEmpty() ? summary : content);
+			contents_->setHtml(content.isEmpty() ? summary : content);
 			ui_.subtitleStack_->setCurrentIndex(0);
 			ui_.seeOriginal_->setText("<a href=\"" + Qt::escape(link.toString()) + "\">See original</a>");
 			ui_.subtitleStack_->show();
 			break;
 		
 		case Settings::Behaviour_OpenInBrowser:
-			ui_.contents_->setUrl(link);
+			contents_->setUrl(link);
 			ui_.actionWebclip_->setEnabled(true);
 			ui_.subtitleStack_->hide();
 			break;
 
 		case Settings::Behaviour_Webclip:
 			QString xpath = index.sibling(index.row(), TreeItem::Column_Xpath).data().toString();
-			ui_.contents_->setUrl(link);
-			ui_.contents_->getXpath(xpath);
+			contents_->setUrl(link);
+			// TODO: Fixme
+			//ui_.contents_->getXpath(xpath);
 			ui_.actionWebclip_->setEnabled(false);
 			break;
 	}
@@ -274,7 +287,8 @@ void MainWindow::webclipClicked() {
 	qDebug() << __PRETTY_FUNCTION__;
 	webclipping_ = !webclipping_;
 
-	ui_.contents_->setWebclipping(webclipping_);
+	// TODO: Fixme
+	//ui_.contents_->setWebclipping(webclipping_);
 }
 
 void MainWindow::closeTab() {
@@ -320,7 +334,7 @@ void MainWindow::updateProgressBar() {
 	if (browser)
 		web_view = browser;
 	else
-		web_view = ui_.contents_;
+		web_view = contents_;
 	
 	int value = 100;
 	if (web_progress_.contains(web_view)) {

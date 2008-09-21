@@ -9,6 +9,11 @@ class FeedsModel;
 
 class QSortFilterProxyModel;
 
+namespace Spawn {
+	class View;
+	class Manager;
+}
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
@@ -65,4 +70,7 @@ private:
 	bool unread_only_;
 
 	QModelIndex current_contents_;
+	
+	Spawn::Manager* spawn_manager_;
+	Spawn::View* contents_;
 };
