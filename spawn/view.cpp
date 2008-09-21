@@ -90,18 +90,6 @@ void View::repaintRequested(const QRect& rect) {
 		update(rect);
 }
 
-void View::drawMessagePage(QPainter& p, const QString& msg, const QColor& backgroundColor) {
-	p.fillRect(rect(), backgroundColor);
-	QRect textRect(rect().adjusted(10, 10, -10, -10));
-	
-	QFont font;
-	font.setPointSize(18);
-	font.setBold(true);
-	
-	p.setFont(font);
-	p.drawText(textRect, msg, Qt::AlignHCenter | Qt::AlignTop);
-}
-
 void View::childStateChanged(Child::State state) {
 	qDebug() << __PRETTY_FUNCTION__;
 	if (state == Child::Error) {
