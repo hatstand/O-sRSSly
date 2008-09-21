@@ -7,15 +7,18 @@
 #include <QtDebug>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QWebView>
 
 namespace Spawn {
 
 View::View(Manager* manager, QWidget* parent)
 	: QWidget(parent),
-	  manager_(manager)
+	  manager_(manager),
+	  message_view_(NULL)
 {
 	child_ = manager_->createPage();
 	connect(child_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
+	connect(child_, SIGNAL(stateChanged(Child::State)), SLOT(childStateChanged(Child::State)));
 	connect(child_, SIGNAL(loadFinished(bool)), SIGNAL(loadFinished(bool)));
 	connect(child_, SIGNAL(loadProgress(int)), SIGNAL(loadProgress(int)));
 	connect(child_, SIGNAL(loadStarted()), SIGNAL(loadStarted()));
@@ -33,6 +36,9 @@ View::~View() {
 
 void View::resizeEvent(QResizeEvent*) {
 	child_->sendResizeEvent(width(), height());
+	
+	if (message_view_)
+		message_view_->resize(width(), height());
 }
 
 void View::mouseMoveEvent(QMouseEvent* e) {
@@ -68,12 +74,11 @@ void View::paintEvent(QPaintEvent* e) {
 		child_->paint(p, e->rect());
 		break;
 	
-	case Child::Error:
-		drawMessagePage(p, "Error!", QColor(157, 0, 0));
+	case Child::Starting:
+		p.fillRect(e->rect(), palette().brush(QPalette::Background));
 		break;
 	
-	case Child::Starting:
-		drawMessagePage(p, "Starting...", QColor(251, 255, 171));
+	default:
 		break;
 	}
 }
@@ -95,6 +100,35 @@ void View::drawMessagePage(QPainter& p, const QString& msg, const QColor& backgr
 	
 	p.setFont(font);
 	p.drawText(textRect, msg, Qt::AlignHCenter | Qt::AlignTop);
+}
+
+void View::childStateChanged(Child::State state) {
+	qDebug() << __PRETTY_FUNCTION__;
+	if (state == Child::Error) {
+		if (!message_view_) {
+			message_view_ = new QWebView(this);
+			connect(message_view_, SIGNAL(titleChanged(const QString&)), SIGNAL(titleChanged(const QString&)));
+			connect(message_view_->page(), SIGNAL(linkClicked(const QUrl&)), SLOT(messageLinkClicked(const QUrl&)));
+			message_view_->resize(width(), height());
+			message_view_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+		}
+		
+		message_view_->setUrl(QUrl("qrc:/spawn/error.html"));
+		message_view_->show();
+	} else {
+		if (message_view_)
+			message_view_->hide();
+	}
+}
+
+void View::messageLinkClicked(const QUrl& url) {
+	if (url.scheme() != "spawn")
+		return;
+	
+	if (url.path() == "/restart") {
+		manager_->restartPage(child_);
+		child_->sendResizeEvent(width(), height());
+	}
 }
 
 

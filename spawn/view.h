@@ -1,13 +1,16 @@
 #ifndef SPAWNVIEW_H
 #define SPAWNVIEW_H
 
+#include "child.h"
+
 #include <QWidget>
 #include <QUrl>
+
+class QWebView;
 
 namespace Spawn {
 
 class Manager;
-class Child;
 
 class View : public QWidget {
 	Q_OBJECT
@@ -37,6 +40,8 @@ protected:
 
 private slots:
 	void repaintRequested(const QRect& rect);
+	void childStateChanged(Child::State state);
+	void messageLinkClicked(const QUrl& url);
 
 private:
 	void drawMessagePage(QPainter& p, const QString& msg, const QColor& backgroundColor);
@@ -44,6 +49,7 @@ private:
 	int page_id_;
 	Manager* manager_;
 	Child* child_;
+	QWebView* message_view_;
 };
 
 }

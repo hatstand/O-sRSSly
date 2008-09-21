@@ -26,7 +26,7 @@ Child::Child(Manager* manager, quint64 id)
 void Child::setReady() {
 	qDebug() << __PRETTY_FUNCTION__;
 	state_ = Ready;
-	emit ready();
+	emit stateChanged(state_);
 }
 
 void Child::setError() {
@@ -38,7 +38,7 @@ void Child::setError() {
 	memory_ = NULL;
 	image_ = QImage();
 	
-	emit error();
+	emit stateChanged(state_);
 	emit repaintRequested(QRect());
 }
 
@@ -143,7 +143,7 @@ void Child::clearQueue() {
 }
 
 void Child::paint(QPainter& p, const QRect& rect) {
-	if (state_ != Ready)
+	if (state_ != Ready || !memory_)
 		return;
 	
 	memory_->lock();

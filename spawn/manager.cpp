@@ -126,6 +126,32 @@ Child* Manager::createPage() {
 	return child;
 }
 
+void Manager::restartPage(Child* child) {
+	// Move the child to the front of the waiting for socket queue
+	children_waiting_for_socket_.removeAll(child);
+	children_waiting_for_socket_.push_front(child);
+	
+	//Make a new process for it
+	QProcess* process = new QProcess(this);
+	process->setProcessChannelMode(QProcess::ForwardedChannels);
+	//connect(process, SIGNAL(started()), SLOT(processStarted()));
+	connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(processError(QProcess::ProcessError)));
+	connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(processFinished()));
+	
+	process->start(executable_, QStringList() << kSpawnArgument << server_->serverName());
+	processes_ << process;
+	
+	// Queue a message to create a new page
+	NewPageEvent newPage;
+	
+	SpawnEvent message;
+	message.set_type(SpawnEvent_Type_NEW_PAGE_EVENT);
+	message.set_destination(child->id());
+	*(message.mutable_new_page_event()) = newPage;
+	
+	sendMessage(child, message);
+}
+
 void Manager::destroyPage(Child* child) {
 	qDebug() << __PRETTY_FUNCTION__;
 	if (children_.contains(child)) {

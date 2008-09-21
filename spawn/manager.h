@@ -26,6 +26,7 @@ public:
 	
 	Child* createPage();
 	void destroyPage(Child* child);
+	void restartPage(Child* child);
 	
 	static QString serverName();
 	static const char* const kSpawnArgument;

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/spawn/" >
+        <file>error.html</file>
+        <file>error.jpg</file>
+    </qresource>
+</RCC>

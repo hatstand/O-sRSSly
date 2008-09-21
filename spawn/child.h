@@ -1,7 +1,7 @@
 #ifndef CHILD_H
 #define CHILD_H
 
-#include "spawnevent.pb.h"
+#include "spawn/spawnevent.pb.h"
 
 #include <QObject>
 #include <QQueue>
@@ -45,8 +45,7 @@ public:
 	void paint(QPainter& p, const QRect& rect);
 
 signals:
-	void ready();
-	void error();
+	void stateChanged(Child::State state);
 	
 	void repaintRequested(const QRect& rect);
 	void loadFinished(bool ok);

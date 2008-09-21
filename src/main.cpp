@@ -18,6 +18,8 @@
 int main(int argc, char** argv) {
 	QApplication app(argc, argv);
 	
+	Q_INIT_RESOURCE(spawn);
+	
 	QString server(Spawn::Manager::serverName());
 	if (!server.isNull()) {
 		Spawn::Spawn spawn(server);
