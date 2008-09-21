@@ -1,16 +1,27 @@
+package Spawn;
+
 message RepaintRequested {
-	optional int32 x = 2;
-	optional int32 y = 3;
-	optional int32 w = 4;
-	optional int32 h = 5;
+	optional int32 x = 1;
+	optional int32 y = 2;
+	optional int32 w = 3;
+	optional int32 h = 4;
 }
 
 message SpawnReply {
 	enum Type {
 		REPAINT_REQUESTED = 0;
+		LOAD_PROGRESS = 1;
+		LOAD_FINISHED = 2;
+		LOAD_STARTED = 3;
+		STATUS_BAR_MESSAGE = 4;
+		TITLE_CHANGED = 5;
+		URL_CHANGED = 6;
 	}
 	required Type type = 1;
 	required uint64 source = 2;
 	
 	optional RepaintRequested repaint_requested = 3;
+	optional int32 simple_int = 4;
+	optional bool simple_bool = 5;
+	optional string simple_string = 6;
 }

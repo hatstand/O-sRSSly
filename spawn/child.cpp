@@ -1,11 +1,13 @@
 #include "child.h"
 #include "manager.h"
-#include "spawnevent.pb.h"
 
 #include <QDebug>
 #include <QSharedMemory>
 #include <QCoreApplication>
 #include <QPainter>
+#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QWheelEvent>
 
 namespace Spawn {
 
@@ -37,15 +39,63 @@ void Child::setError() {
 	memory_ = NULL;
 }
 
-void Child::sendMouseEvent(const MouseEvent& mouseEvent) {
+void Child::sendMouseEvent(SpawnEvent_Type type, QMouseEvent* event) {
 	if (!isReady()) {
 		return;
 	}
 	
+	MouseEvent mouseEvent;
+	mouseEvent.set_x(event->pos().x());
+	mouseEvent.set_y(event->pos().y());
+	mouseEvent.set_button(event->button());
+	mouseEvent.set_buttons(event->buttons());
+	mouseEvent.set_modifiers(event->modifiers());
+	
 	SpawnEvent e;
 	e.set_destination(id_);
-	e.set_type(SpawnEvent_Type_MOUSE_EVENT);
+	e.set_type(type);
 	*(e.mutable_mouse_event()) = mouseEvent;
+	
+	manager_->sendMessage(this, e);
+}
+
+void Child::sendWheelEvent(QWheelEvent* event) {
+	if (!isReady()) {
+		return;
+	}
+	
+	MouseEvent mouseEvent;
+	mouseEvent.set_x(event->pos().x());
+	mouseEvent.set_y(event->pos().y());
+	mouseEvent.set_buttons(event->buttons());
+	mouseEvent.set_modifiers(event->modifiers());
+	mouseEvent.set_delta(event->delta());
+	mouseEvent.set_orientation(event->orientation());
+	
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(SpawnEvent_Type_WHEEL_EVENT);
+	*(e.mutable_mouse_event()) = mouseEvent;
+	
+	manager_->sendMessage(this, e);
+}
+
+void Child::sendKeyEvent(SpawnEvent_Type type, QKeyEvent* event) {
+	if (!isReady()) {
+		return;
+	}
+	
+	KeyEvent keyEvent;
+	keyEvent.set_key(event->key());
+	keyEvent.set_modifiers(event->modifiers());
+	keyEvent.set_text(event->text().toStdString());
+	keyEvent.set_auto_repeat(event->isAutoRepeat());
+	keyEvent.set_count(event->count());
+	
+	SpawnEvent e;
+	e.set_destination(id_);
+	e.set_type(type);
+	*(e.mutable_key_event()) = keyEvent;
 	
 	manager_->sendMessage(this, e);
 }

@@ -15,7 +15,7 @@
 #include "spawn/spawn.h"
 #include <QDebug>
 
-int main (int argc, char** argv) {
+int main(int argc, char** argv) {
 	QApplication app(argc, argv);
 	
 	QString server(Spawn::Manager::serverName());
@@ -28,6 +28,7 @@ int main (int argc, char** argv) {
 	Spawn::View view(&manager);
 	view.resize(1024, 768);
 	view.show();
+	QObject::connect(&view, SIGNAL(titleChanged(const QString&)), &view, SLOT(setWindowTitle( const QString& )));
 	
 	return app.exec();
 

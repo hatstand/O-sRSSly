@@ -22,7 +22,6 @@ SET(SPAWN-MOC-HEADERS
 SET(SPAWN-MESSAGES
 	../messages/spawnevent.proto
 	../messages/inputevents.proto
-	../messages/point.proto
 	../messages/controlevents.proto
 	../messages/spawnreply.proto
 )

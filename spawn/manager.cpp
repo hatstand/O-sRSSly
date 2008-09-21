@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QUrl>
 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/io/coded_stream.h>
@@ -77,7 +78,7 @@ Manager::~Manager() {
 	// Now wait for all child processes to shutdown
 	// Kill them if we need to
 	foreach (QProcess* process, processes_) {
-		process->waitForFinished(1000);
+		process->waitForFinished(-1);
 		if (process->state() != QProcess::Running) continue;
 		
 		qDebug() << "Process" << process << "still running - sending SIGTERM";
@@ -192,6 +193,7 @@ void Manager::newConnection() {
 }
 
 void Manager::socketDisconnected() {
+	qDebug() << __PRETTY_FUNCTION__;
 	QLocalSocket* socket = qobject_cast<QLocalSocket*>(sender());
 	
 	// Find out if there were any pages using that socket
@@ -223,7 +225,7 @@ void Manager::processError(QProcess::ProcessError error) {
 }
 
 void Manager::sendMessage(QIODevice* dev, const google::protobuf::Message& m) {
-	qDebug() << "Sending message" << m << "to" << dev;
+	//qDebug() << "Sending message" << m << "to" << dev;
 	
 	int messageSize = m.ByteSize();
 	
@@ -252,7 +254,7 @@ void Manager::processFinished() {
 }
 
 void Manager::socketReadyRead() {
-	qDebug() << __PRETTY_FUNCTION__;
+	//qDebug() << __PRETTY_FUNCTION__;
 	QLocalSocket* socket = qobject_cast<QLocalSocket*>(sender());
 	int bytesRemaining = socket->bytesAvailable();
 	
@@ -269,7 +271,7 @@ void Manager::socketReadyRead() {
 		m.ParseFromCodedStream(&codedStream);
 		codedStream.PopLimit(limit);
 		
-		qDebug() << "Read reply" << m;
+		//qDebug() << "Read reply" << m;
 		processReply(m);
 		
 		bytesRemaining -= size + google::protobuf::io::CodedOutputStream::VarintSize32(size);
@@ -291,11 +293,29 @@ void Manager::processReply(const SpawnReply& reply) {
 		emit child->repaintRequested(region);
 		break;
 	}
+	case SpawnReply_Type_LOAD_PROGRESS:
+		emit child->loadProgress(reply.simple_int());
+		break;
+	case SpawnReply_Type_LOAD_FINISHED:
+		emit child->loadFinished(reply.simple_bool());
+		break;
+	case SpawnReply_Type_LOAD_STARTED:
+		emit child->loadStarted();
+		break;
+	case SpawnReply_Type_STATUS_BAR_MESSAGE:
+		emit child->statusBarMessage(QString::fromStdString(reply.simple_string()));
+		break;
+	case SpawnReply_Type_TITLE_CHANGED:
+		emit child->titleChanged(QString::fromStdString(reply.simple_string()));
+		break;
+	case SpawnReply_Type_URL_CHANGED:
+		emit child->urlChanged(QUrl(QString::fromStdString(reply.simple_string())));
+		break;
+	
 	default:
 		break;
 	}
 }
-
 
 
 }

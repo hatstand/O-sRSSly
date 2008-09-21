@@ -7,6 +7,8 @@
 #include <QPainter>
 #include <QWebFrame>
 #include <QtDebug>
+#include <QMouseEvent>
+#include <QUrl>
 
 namespace Spawn {
 
@@ -18,10 +20,18 @@ Page::Page(quint64 id)
 	  no_recursion_please_(false)
 {
 	connect(page_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
-	page_->mainFrame()->load(QUrl("http://www.google.com"));
+	connect(page_, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+	connect(page_, SIGNAL(loadProgress(int)), SLOT(loadProgress(int)));
+	connect(page_, SIGNAL(loadStarted()), SLOT(loadStarted()));
+	connect(page_, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
+	connect(page_->mainFrame(), SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
+	connect(page_->mainFrame(), SIGNAL(urlChanged(const QUrl&)), SLOT(urlChanged(const QUrl&)));
+	
+	page_->mainFrame()->load(QUrl("http://10.0.0.176"));
 }
 
 Page::~Page() {
+	qDebug() << __PRETTY_FUNCTION__;
 }
 
 void Page::resize(int width, int height, const QString& memoryKey) {
@@ -44,7 +54,7 @@ void Page::repaintRequested(const QRect& region) {
 	if (image_.isNull() || no_recursion_please_) {
 		return;
 	}
-	qDebug() << __PRETTY_FUNCTION__;
+	//qDebug() << __PRETTY_FUNCTION__;
 	
 	no_recursion_please_ = true;
 	memory_->lock();
@@ -68,6 +78,109 @@ void Page::repaintRequested(const QRect& region) {
 	m.set_type(SpawnReply_Type_REPAINT_REQUESTED);
 	m.set_source(id_);
 	*(m.mutable_repaint_requested()) = r;
+	
+	emit reply(m);
+}
+
+void Page::mouseEvent(SpawnEvent_Type type, const MouseEvent& e) {
+	QEvent::Type qtype;
+	switch (type) {
+	case SpawnEvent_Type_MOUSE_MOVE_EVENT:    qtype = QEvent::MouseMove;          break;
+	case SpawnEvent_Type_MOUSE_PRESS_EVENT:   qtype = QEvent::MouseButtonPress;   break;
+	case SpawnEvent_Type_MOUSE_RELEASE_EVENT: qtype = QEvent::MouseButtonRelease; break;
+	default:
+		return;
+	}
+	
+	QPoint pos(e.x(), e.y());
+	QMouseEvent event(qtype, pos,
+		static_cast<Qt::MouseButton>(e.button()),
+		Qt::MouseButtons(QFlag(e.buttons())),
+		Qt::KeyboardModifiers(QFlag(e.modifiers()))
+	);
+	
+	page_->event(&event);
+}
+
+void Page::wheelEvent(const MouseEvent& e) {
+	QPoint pos(e.x(), e.y());
+	QWheelEvent event(pos, e.delta(),
+		Qt::MouseButtons(QFlag(e.buttons())),
+		Qt::KeyboardModifiers(QFlag(e.modifiers())),
+		static_cast<Qt::Orientation>(e.orientation())
+	);
+	
+	page_->event(&event);
+}
+
+void Page::keyEvent(SpawnEvent_Type type, const KeyEvent& e) {
+	QEvent::Type qtype;
+	switch (type) {
+	case SpawnEvent_Type_KEY_PRESS_EVENT:   qtype = QEvent::KeyPress;   break;
+	case SpawnEvent_Type_KEY_RELEASE_EVENT: qtype = QEvent::KeyRelease; break;
+	default:
+		return;
+	}
+	
+	QKeyEvent event(qtype, e.key(),
+		Qt::KeyboardModifiers(QFlag(e.modifiers())),
+		QString::fromStdString(e.text()),
+		e.auto_repeat(),
+		e.count()
+	);
+	
+	page_->event(&event);
+}
+
+void Page::loadFinished(bool ok) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_LOAD_FINISHED);
+	m.set_source(id_);
+	m.set_simple_bool(ok);
+	
+	emit reply(m);
+}
+
+void Page::loadProgress(int progress) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_LOAD_PROGRESS);
+	m.set_source(id_);
+	m.set_simple_int(progress);
+	
+	emit reply(m);
+}
+
+void Page::loadStarted() {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_LOAD_STARTED);
+	m.set_source(id_);
+	
+	emit reply(m);
+}
+
+void Page::statusBarMessage(const QString& text) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_STATUS_BAR_MESSAGE);
+	m.set_source(id_);
+	m.set_simple_string(text.toStdString());
+	
+	emit reply(m);
+}
+
+void Page::titleChanged(const QString& title) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_TITLE_CHANGED);
+	m.set_source(id_);
+	m.set_simple_string(title.toStdString());
+	
+	emit reply(m);
+}
+
+void Page::urlChanged(const QUrl& url) {
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_URL_CHANGED);
+	m.set_source(id_);
+	m.set_simple_string(url.toString().toStdString());
 	
 	emit reply(m);
 }

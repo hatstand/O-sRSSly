@@ -1,6 +1,8 @@
 #ifndef CHILD_H
 #define CHILD_H
 
+#include "spawnevent.pb.h"
+
 #include <QObject>
 #include <QQueue>
 #include <QBuffer>
@@ -11,9 +13,10 @@
 class QProcess;
 class QSharedMemory;
 class QPainter;
-
-class MouseEvent;
-class ResizeEvent;
+class QMouseEvent;
+class QKeyEvent;
+class QWheelEvent;
+class QUrl;
 
 namespace Spawn {
 
@@ -34,7 +37,9 @@ public:
 	bool isReady() const { return state_ == Ready; }
 	bool isError() const { return state_ == Error; }
 	
-	void sendMouseEvent(const MouseEvent& e);
+	void sendMouseEvent(SpawnEvent_Type type, QMouseEvent* event);
+	void sendKeyEvent(SpawnEvent_Type type, QKeyEvent* event);
+	void sendWheelEvent(QWheelEvent* event);
 	void sendResizeEvent(int width, int height);
 	
 	void paint(QPainter& p);
@@ -44,6 +49,12 @@ signals:
 	void error();
 	
 	void repaintRequested(const QRect& rect);
+	void loadFinished(bool ok);
+	void loadProgress(int progress);
+	void loadStarted();
+	void statusBarMessage(const QString& text);
+	void titleChanged(const QString& title);
+	void urlChanged(const QUrl& url);
 
 private:
 	// To be used by Manager

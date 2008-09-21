@@ -35,7 +35,7 @@ Spawn::~Spawn() {
 }
 
 void Spawn::socketReadyRead() {
-	qDebug() << __PRETTY_FUNCTION__;
+	//qDebug() << __PRETTY_FUNCTION__;
 	
 	int bytesRemaining = socket_->bytesAvailable();
 	
@@ -48,7 +48,7 @@ void Spawn::socketReadyRead() {
 		m.ParseFromCodedStream(coded_input_stream_);
 		coded_input_stream_->PopLimit(limit);
 		
-		qDebug() << "Read message" << m;
+		//qDebug() << "Read message" << m;
 		processEvent(m);
 		
 		bytesRemaining -= size + google::protobuf::io::CodedOutputStream::VarintSize32(size);
@@ -56,7 +56,7 @@ void Spawn::socketReadyRead() {
 }
 
 void Spawn::processEvent(const SpawnEvent& m) {
-	qDebug() << __PRETTY_FUNCTION__;
+	//qDebug() << __PRETTY_FUNCTION__;
 	
 	quint64 id = m.destination();
 	
@@ -76,6 +76,21 @@ void Spawn::processEvent(const SpawnEvent& m) {
 	case SpawnEvent_Type_RESIZE_EVENT:
 		pages_[id]->resize(m.resize_event().width(), m.resize_event().height(), QString::fromStdString(m.resize_event().memory_key()));
 		break;
+	
+	case SpawnEvent_Type_MOUSE_MOVE_EVENT:
+	case SpawnEvent_Type_MOUSE_PRESS_EVENT:
+	case SpawnEvent_Type_MOUSE_RELEASE_EVENT:
+		pages_[id]->mouseEvent(m.type(), m.mouse_event());
+		break;
+	
+	case SpawnEvent_Type_WHEEL_EVENT:
+		pages_[id]->wheelEvent(m.mouse_event());
+		break;
+	
+	case SpawnEvent_Type_KEY_PRESS_EVENT:
+	case SpawnEvent_Type_KEY_RELEASE_EVENT:
+		pages_[id]->keyEvent(m.type(), m.key_event());
+		break;
 		
 	default:
 		qDebug() << "Unhandled message" << m;
@@ -85,7 +100,7 @@ void Spawn::processEvent(const SpawnEvent& m) {
 
 void Spawn::sendReply(const SpawnReply& m) {
 	int messageSize = m.ByteSize();
-	qDebug() << "Sending reply" << m << messageSize;
+	//qDebug() << "Sending reply" << m << messageSize;
 	
 	// TODO: These don't seem to work when they're members.  Find out why.
 	IODeviceOutputStream stream(socket_);

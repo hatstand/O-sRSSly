@@ -17,9 +17,23 @@ public:
 	
 	void setUrl(const QUrl& url);
 
+signals:
+	void loadFinished(bool ok);
+	void loadProgress(int progress);
+	void loadStarted();
+	void statusBarMessage(const QString& text);
+	void titleChanged(const QString& title);
+	void urlChanged(const QUrl& url);
+
 protected:
-	bool event(QEvent* event);
-	void paintEvent(QPaintEvent* event);
+	void resizeEvent(QResizeEvent* e);
+	void mouseMoveEvent(QMouseEvent* e);
+	void mousePressEvent(QMouseEvent* e);
+	void mouseReleaseEvent(QMouseEvent* e);
+	void paintEvent(QPaintEvent* e);
+	void keyPressEvent(QKeyEvent* e);
+	void keyReleaseEvent(QKeyEvent* e);
+	void wheelEvent(QWheelEvent* e);
 
 private slots:
 	void repaintRequested(const QRect& rect);

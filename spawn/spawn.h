@@ -9,12 +9,11 @@
 
 class QLocalSocket;
 
-class SpawnEvent;
-class SpawnReply;
-
 namespace Spawn {
 
 class Page;
+class SpawnEvent;
+class SpawnReply;
 
 class Spawn : public QObject {
 	Q_OBJECT

@@ -11,11 +11,11 @@
 
 class QLocalSocket;
 class QLocalServer;
-class SpawnReply;
 
 namespace Spawn {
 
 class Child;
+class SpawnReply;
 
 class Manager : public QObject {
 	Q_OBJECT

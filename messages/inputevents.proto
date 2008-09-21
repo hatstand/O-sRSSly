@@ -1,9 +1,25 @@
-import "point.proto";
+package Spawn;
 
 message MouseEvent {
-	required int32 button = 1;
-	required int32 buttons = 2;
-	required Point pos = 3;
+	required int32 x = 1;
+	required int32 y = 2;
+	required int32 buttons = 3;
+	required int32 modifiers = 4;
+	
+	// For mouse events
+	optional int32 button = 5;
+	
+	// For wheel events
+	optional int32 delta = 6;
+	optional int32 orientation = 7;
+}
+
+message KeyEvent {
+	required int32 key = 1;
+	required int32 modifiers = 2;
+	required string text = 3;
+	required bool auto_repeat = 4;
+	required int32 count = 5;
 }
 
 message ResizeEvent {

@@ -1,12 +1,22 @@
+package Spawn;
+
 import "controlevents.proto";
 import "inputevents.proto";
 
 message SpawnEvent {
 	enum Type {
+		// Control events
 		NEW_PAGE_EVENT = 0;
 		CLOSE_EVENT = 1;
-		MOUSE_EVENT = 2;
-		RESIZE_EVENT = 3;
+		RESIZE_EVENT = 2;
+		
+		// Input events
+		MOUSE_MOVE_EVENT = 3;
+		MOUSE_PRESS_EVENT = 4;
+		MOUSE_RELEASE_EVENT = 5;
+		KEY_PRESS_EVENT = 6;
+		KEY_RELEASE_EVENT = 7;
+		WHEEL_EVENT = 8;
 	}
 	required Type type = 1;
 	optional uint64 destination = 2;
@@ -15,4 +25,5 @@ message SpawnEvent {
 	optional CloseEvent close_event = 4;
 	optional MouseEvent mouse_event = 5;
 	optional ResizeEvent resize_event = 6;
+	optional KeyEvent key_event = 7;
 }
