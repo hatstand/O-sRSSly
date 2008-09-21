@@ -206,6 +206,7 @@ void Manager::socketDisconnected() {
 			children_.erase(i);
 			children_waiting_for_socket_ << child;
 		}
+		i++;
 	}
 	
 	// Remove the socket from the list

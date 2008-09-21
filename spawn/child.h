@@ -42,7 +42,7 @@ public:
 	void sendWheelEvent(QWheelEvent* event);
 	void sendResizeEvent(int width, int height);
 	
-	void paint(QPainter& p);
+	void paint(QPainter& p, const QRect& rect);
 
 signals:
 	void ready();
@@ -72,7 +72,7 @@ private:
 	quint64 id_;
 	State state_;
 	QSharedMemory* memory_;
-	QImage image;
+	QImage image_;
 };
 
 }

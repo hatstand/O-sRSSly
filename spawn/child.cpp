@@ -32,11 +32,14 @@ void Child::setReady() {
 void Child::setError() {
 	qDebug() << __PRETTY_FUNCTION__;
 	state_ = Error;
-	emit error();
 	
 	// TODO: Clean this up properly, because the child process won't have
 	delete memory_;
 	memory_ = NULL;
+	image_ = QImage();
+	
+	emit error();
+	emit repaintRequested(QRect());
 }
 
 void Child::sendMouseEvent(SpawnEvent_Type type, QMouseEvent* event) {
@@ -130,7 +133,7 @@ void Child::resizeSharedMemory(int width, int height) {
 		}
 	}
 	
-	image = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
 }
 
 void Child::clearQueue() {
@@ -139,11 +142,12 @@ void Child::clearQueue() {
 	message_queue_.open(QBuffer::ReadWrite);
 }
 
-void Child::paint(QPainter& p) {
+void Child::paint(QPainter& p, const QRect& rect) {
+	if (state_ != Ready)
+		return;
+	
 	memory_->lock();
-	
-	p.drawImage(0, 0, image);
-	
+	p.drawImage(rect, image_, rect);
 	memory_->unlock();
 }
 

@@ -39,6 +39,8 @@ private slots:
 	void repaintRequested(const QRect& rect);
 
 private:
+	void drawMessagePage(QPainter& p, const QString& msg, const QColor& backgroundColor);
+	
 	int page_id_;
 	Manager* manager_;
 	Child* child_;

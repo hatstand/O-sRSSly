@@ -6,6 +6,7 @@
 #include <QEvent>
 #include <QtDebug>
 #include <QPainter>
+#include <QPaintEvent>
 
 namespace Spawn {
 
@@ -58,13 +59,43 @@ void View::wheelEvent(QWheelEvent* e) {
 	child_->sendWheelEvent(e);
 }
 
-void View::paintEvent(QPaintEvent*) {
+void View::paintEvent(QPaintEvent* e) {
 	QPainter p(this);
-	child_->paint(p);
+	p.setClipRect(e->rect());
+	
+	switch (child_->state()) {
+	case Child::Ready:
+		child_->paint(p, e->rect());
+		break;
+	
+	case Child::Error:
+		drawMessagePage(p, "Error!", QColor(157, 0, 0));
+		break;
+	
+	case Child::Starting:
+		drawMessagePage(p, "Starting...", QColor(251, 255, 171));
+		break;
+	}
 }
 
 void View::repaintRequested(const QRect& rect) {
-	update(rect);
+	if (rect.isNull())
+		update();
+	else
+		update(rect);
 }
+
+void View::drawMessagePage(QPainter& p, const QString& msg, const QColor& backgroundColor) {
+	p.fillRect(rect(), backgroundColor);
+	QRect textRect(rect().adjusted(10, 10, -10, -10));
+	
+	QFont font;
+	font.setPointSize(18);
+	font.setBold(true);
+	
+	p.setFont(font);
+	p.drawText(textRect, msg, Qt::AlignHCenter | Qt::AlignTop);
+}
+
 
 }
