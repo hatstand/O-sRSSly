@@ -33,8 +33,6 @@ private:
 	QLocalSocket* socket_;
 	google::protobuf::io::CopyingInputStreamAdaptor* input_stream_;
 	google::protobuf::io::CodedInputStream* coded_input_stream_;
-	google::protobuf::io::CopyingOutputStreamAdaptor* output_stream_;
-	google::protobuf::io::CodedOutputStream* coded_output_stream_;
 	
 	QMap<quint64, Page*> pages_;
 };

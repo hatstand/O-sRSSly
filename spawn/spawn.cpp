@@ -15,12 +15,9 @@ Spawn::Spawn(const QString& server, QObject* parent)
 	: QObject(parent),
 	  socket_(new QLocalSocket(this)),
 	  input_stream_(new google::protobuf::io::CopyingInputStreamAdaptor(new IODeviceInputStream(socket_))),
-	  coded_input_stream_(new google::protobuf::io::CodedInputStream(input_stream_)),
-	  output_stream_(new google::protobuf::io::CopyingOutputStreamAdaptor(new IODeviceOutputStream(socket_))),
-	  coded_output_stream_(new google::protobuf::io::CodedOutputStream(output_stream_))
+	  coded_input_stream_(new google::protobuf::io::CodedInputStream(input_stream_))
 {
 	input_stream_->SetOwnsCopyingStream(true);
-	output_stream_->SetOwnsCopyingStream(true);
 	
 	qDebug() << __PRETTY_FUNCTION__;
 	qDebug() << "Connecting to" << server;
@@ -34,8 +31,6 @@ Spawn::~Spawn() {
 	qDebug() << __PRETTY_FUNCTION__;
 	delete input_stream_;
 	delete coded_input_stream_;
-	delete output_stream_;
-	delete coded_output_stream_;
 	qDeleteAll(pages_);
 }
 
@@ -92,6 +87,7 @@ void Spawn::sendReply(const SpawnReply& m) {
 	int messageSize = m.ByteSize();
 	qDebug() << "Sending reply" << m << messageSize;
 	
+	// TODO: These don't seem to work when they're members.  Find out why.
 	IODeviceOutputStream stream(socket_);
 	google::protobuf::io::CopyingOutputStreamAdaptor zeroCopyStream(&stream);
 	google::protobuf::io::CodedOutputStream codedStream(&zeroCopyStream);
