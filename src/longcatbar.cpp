@@ -23,7 +23,7 @@ LongCatBar::LongCatBar(QWidget* parent)
 		sMiddle = new QPixmap(":longcat-middle.png");
 	}
 	
-	connect(Settings::instance(), SIGNAL(progressBarStyleChanged()), SLOT(update()));
+	connect(Settings::instance(), SIGNAL(progressBarStyleChanged(int)), SLOT(update()));
 }
 
 void LongCatBar::resizeEvent(QResizeEvent* event) {
