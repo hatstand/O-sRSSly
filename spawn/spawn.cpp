@@ -103,6 +103,7 @@ void Spawn::processEvent(const SpawnEvent& m) {
 	
 	case SpawnEvent_Type_SET_HTML:
 		pages_[id]->setHtml(QString::fromStdString(m.simple_string()));
+		break;
 		
 	default:
 		qDebug() << "Unhandled message" << m;
