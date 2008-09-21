@@ -42,6 +42,8 @@ public:
 signals:
 	void ready();
 	void error();
+	
+	void repaintRequested(const QRect& rect);
 
 private:
 	// To be used by Manager

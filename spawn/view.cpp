@@ -14,6 +14,7 @@ View::View(Manager* manager, QWidget* parent)
 	  manager_(manager)
 {
 	child_ = manager_->createPage();
+	connect(child_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
 }
 
 View::~View() {
@@ -34,8 +35,13 @@ bool View::event(QEvent* event) {
 }
 
 void View::paintEvent(QPaintEvent* event) {
+	qDebug() << __PRETTY_FUNCTION__;
 	QPainter p(this);
 	child_->paint(p);
+}
+
+void View::repaintRequested(const QRect& rect) {
+	update(rect);
 }
 
 }

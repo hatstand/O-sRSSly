@@ -1,0 +1,16 @@
+message RepaintRequested {
+	optional int32 x = 2;
+	optional int32 y = 3;
+	optional int32 w = 4;
+	optional int32 h = 5;
+}
+
+message SpawnReply {
+	enum Type {
+		REPAINT_REQUESTED = 0;
+	}
+	required Type type = 1;
+	required uint64 source = 2;
+	
+	optional RepaintRequested repaint_requested = 3;
+}

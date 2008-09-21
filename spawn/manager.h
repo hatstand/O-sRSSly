@@ -11,6 +11,7 @@
 
 class QLocalSocket;
 class QLocalServer;
+class SpawnReply;
 
 namespace Spawn {
 
@@ -34,6 +35,7 @@ private slots:
 	void processError(QProcess::ProcessError error);
 	void processFinished();
 	void socketDisconnected();
+	void socketReadyRead();
 	
 private:
 	// To be used by Child
@@ -41,11 +43,13 @@ private:
 	
 	// For internal use
 	void sendMessage(QIODevice* dev, const google::protobuf::Message& m);
+	void processReply(const SpawnReply& reply);
 	
 	QLocalServer* server_;
 	QList<QLocalSocket*> sockets_;
 	QList<QProcess*> processes_;
 	QMap<Child*, QLocalSocket*> children_;
+	QMap<quint64, Child*> pages_;
 	QQueue<Child*> children_waiting_for_socket_;
 	
 	quint64 next_child_id_;

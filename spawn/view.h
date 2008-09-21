@@ -21,6 +21,9 @@ protected:
 	bool event(QEvent* event);
 	void paintEvent(QPaintEvent* event);
 
+private slots:
+	void repaintRequested(const QRect& rect);
+
 private:
 	int page_id_;
 	Manager* manager_;

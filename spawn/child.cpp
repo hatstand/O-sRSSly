@@ -90,7 +90,11 @@ void Child::clearQueue() {
 }
 
 void Child::paint(QPainter& p) {
+	memory_->lock();
+	
 	p.drawImage(0, 0, image);
+	
+	memory_->unlock();
 }
 
 }

@@ -5,6 +5,7 @@
 
 #include "spawnevent.pb.h"
 #include "controlevents.pb.h"
+#include "spawnreply.pb.h"
 
 #include <QtDebug>
 #include <QCoreApplication>
@@ -98,6 +99,7 @@ Child* Manager::createPage() {
 	// Make the child
 	Child* child = new Child(this, next_child_id_++);
 	children_waiting_for_socket_.enqueue(child);
+	pages_[child->id()] = child;
 	
 	// Make the process
 	QProcess* process = new QProcess(this);
@@ -157,12 +159,16 @@ void Manager::destroyPage(Child* child) {
 		// So just remove it
 		children_waiting_for_socket_.removeAll(child);
 	}
+	
+	pages_.remove(child->id());
+	child->deleteLater();
 }
 
 void Manager::newConnection() {
 	qDebug() << __PRETTY_FUNCTION__;
 	QLocalSocket* socket = server_->nextPendingConnection();
 	connect(socket, SIGNAL(disconnected()), SLOT(socketDisconnected()));
+	connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
 	sockets_ << socket;
 	
 	if (children_waiting_for_socket_.isEmpty()) {
@@ -243,6 +249,51 @@ void Manager::processFinished() {
 	QProcess* process = qobject_cast<QProcess*>(sender());
 	processes_.removeAll(process);
 	//process->deleteLater();
+}
+
+void Manager::socketReadyRead() {
+	qDebug() << __PRETTY_FUNCTION__;
+	QLocalSocket* socket = qobject_cast<QLocalSocket*>(sender());
+	int bytesRemaining = socket->bytesAvailable();
+	
+	IODeviceInputStream stream(socket);
+	google::protobuf::io::CopyingInputStreamAdaptor zeroCopyStream(&stream);
+	google::protobuf::io::CodedInputStream codedStream(&zeroCopyStream);
+	
+	while (bytesRemaining > 0) {
+		quint32 size;
+		SpawnReply m;
+		
+		codedStream.ReadVarint32(&size);
+		google::protobuf::io::CodedInputStream::Limit limit = codedStream.PushLimit(size);
+		m.ParseFromCodedStream(&codedStream);
+		codedStream.PopLimit(limit);
+		
+		qDebug() << "Read reply" << m;
+		processReply(m);
+		
+		bytesRemaining -= size + google::protobuf::io::CodedOutputStream::VarintSize32(size);
+	}
+}
+
+void Manager::processReply(const SpawnReply& reply) {
+	quint64 id = reply.source();
+	Child* child = pages_[id];
+	
+	switch (reply.type()) {
+	case SpawnReply_Type_REPAINT_REQUESTED:
+	{
+		QRect region;
+		if (reply.repaint_requested().has_x()) {
+			region = QRect(reply.repaint_requested().x(), reply.repaint_requested().y(),
+		                       reply.repaint_requested().w(), reply.repaint_requested().h());
+		}
+		emit child->repaintRequested(region);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 

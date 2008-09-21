@@ -6,6 +6,7 @@ SET(SPAWN-SOURCES
 	spawn.cpp
 	iodevicestream.cpp
 	qthelpers.cpp
+	page.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -14,6 +15,7 @@ SET(SPAWN-MOC-HEADERS
 	view.h
 	child.h
 	spawn.h
+	page.h
 )
 
 # protobuf messages
@@ -22,6 +24,7 @@ SET(SPAWN-MESSAGES
 	../messages/inputevents.proto
 	../messages/point.proto
 	../messages/controlevents.proto
+	../messages/spawnreply.proto
 )
 
 SET (EXECUTABLE_OUTPUT_PATH ..)
