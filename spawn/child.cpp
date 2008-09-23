@@ -135,12 +135,13 @@ bool Child::resizeSharedMemory(int width, int height) {
 	while (true) {
 		QString key = "feeder-" + QString::number(QCoreApplication::applicationPid()) + "-" + QString::number(qrand());
 		memory_->setKey(key);
-		if (memory_->create(size, QSharedMemory::ReadOnly)) {
+		if (memory_->create(size)) {
 			break;
 		}
 	}
 	
 	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+	image_.fill(qRgb(255, 255, 255));
 	
 	return true;
 }
