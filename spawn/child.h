@@ -8,6 +8,7 @@
 #include <QBuffer>
 #include <QImage>
 #include <QWebPage>
+#include <QUrl>
 
 #include <google/protobuf/message.h>
 
@@ -17,7 +18,6 @@ class QPainter;
 class QMouseEvent;
 class QKeyEvent;
 class QWheelEvent;
-class QUrl;
 
 namespace Spawn {
 
@@ -66,18 +66,23 @@ private:
 	Child(Manager* manager, quint64 id);
 	void setReady();
 	void setError();
+	void setLastUrl(const QUrl& url);
+	void restoreState();
 	
 	void clearQueue();
 	QBuffer message_queue_;
 	
 	// For internal use
 	bool resizeSharedMemory(int width, int height);
+	void setLastHtml(const QString& url);
 	
 	Manager* manager_;
 	quint64 id_;
 	State state_;
 	QSharedMemory* memory_;
 	QImage image_;
+	QUrl last_url_;
+	QString last_html_;
 };
 
 }

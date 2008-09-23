@@ -150,6 +150,9 @@ void Manager::restartPage(Child* child) {
 	*(message.mutable_new_page()) = newPage;
 	
 	sendMessage(child, message);
+	
+	// Load the last page
+	child->restoreState();
 }
 
 void Manager::destroyPage(Child* child) {

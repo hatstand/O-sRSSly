@@ -28,8 +28,6 @@ Page::Page(quint64 id)
 	
 	connect(page_->mainFrame(), SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(page_->mainFrame(), SIGNAL(urlChanged(const QUrl&)), SLOT(urlChanged(const QUrl&)));
-	
-	page_->mainFrame()->load(QUrl("http://www.google.com"));
 }
 
 Page::~Page() {

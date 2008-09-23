@@ -167,6 +167,8 @@ void Child::setUrl(const QUrl& url) {
 	*(e.mutable_simple_string()) = url.toString().toStdString();
 	
 	manager_->sendMessage(this, e);
+	
+	setLastUrl(url);
 }
 
 void Child::setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy) {
@@ -185,6 +187,26 @@ void Child::setHtml(const QString& html) {
 	e.set_simple_string(html.toStdString());
 	
 	manager_->sendMessage(this, e);
+	
+	setLastHtml(html);
+}
+
+void Child::setLastUrl(const QUrl& url) {
+	last_url_ = url;
+	last_html_ = QString::null;
+}
+
+void Child::setLastHtml(const QString& html) {
+	last_url_ = QUrl();
+	last_html_ = html;
+}
+
+void Child::restoreState() {
+	if (!last_html_.isNull()) {
+		setHtml(last_html_);
+	} else {
+		setUrl(last_url_);
+	}
 }
 
 }
