@@ -16,6 +16,8 @@ View::View(Manager* manager, QWidget* parent)
 	  manager_(manager),
 	  message_view_(NULL)
 {
+	connect(manager, SIGNAL(destroyed(QObject*)), SLOT(managerDestroyed()));
+	
 	child_ = manager_->createPage();
 	connect(child_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
 	connect(child_, SIGNAL(stateChanged(Child::State)), SLOT(childStateChanged(Child::State)));
@@ -39,7 +41,8 @@ View::View(Manager* manager, QWidget* parent)
 
 View::~View() {
 	qDebug() << __PRETTY_FUNCTION__;
-	manager_->destroyPage(child_);
+	if (manager_)
+		manager_->destroyPage(child_);
 }
 
 void View::setUrl(const QUrl& url) {
@@ -141,6 +144,11 @@ void View::messageLinkClicked(const QUrl& url) {
 
 QSize View::sizeHint() const {
 	return QSize(800, 600);
+}
+
+void View::managerDestroyed() {
+	manager_ = NULL;
+	child_ = NULL;
 }
 
 

@@ -44,6 +44,8 @@ protected:
 	void wheelEvent(QWheelEvent* e);
 
 private slots:
+	void managerDestroyed();
+	
 	void repaintRequested(const QRect& rect);
 	void childStateChanged(Child::State state);
 	void messageLinkClicked(const QUrl& url);
