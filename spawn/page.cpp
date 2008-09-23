@@ -41,12 +41,11 @@ void Page::resize(int width, int height, const QString& memoryKey) {
 	memory_ = new QSharedMemory(memoryKey, this);
 	if (memory_->attach()) {
 		image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+		page_->setViewportSize(QSize(width, height));
 		repaintRequested();
 	} else {
 		image_ = QImage();
 	}
-	
-	page_->setViewportSize(QSize(width, height));
 }
 
 void Page::repaintRequested(const QRect& region) {
@@ -58,16 +57,25 @@ void Page::repaintRequested(const QRect& region) {
 	}
 	//qDebug() << __PRETTY_FUNCTION__;
 	
+	// Lock the shared memory
 	no_recursion_please_ = true;
 	memory_->lock();
 	
+	// Render the page
 	QPainter p(&image_);
-	page_->mainFrame()->render(&p, region);
+	if (region.isNull()) {
+		page_->mainFrame()->render(&p);
+	} else {
+		page_->mainFrame()->render(&p, region);
+	}
 	p.end();
 	
+	// Unlock the shared memory
 	memory_->unlock();
 	no_recursion_please_ = false;
 	
+	// Now construct a message to the GUI process to tell it
+	// to redraw
 	RepaintRequested r;
 	if (region.isValid()) {
 		r.set_x(region.x());
