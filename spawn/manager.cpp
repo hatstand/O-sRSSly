@@ -341,9 +341,14 @@ void Manager::processReply(const SpawnReply& reply) {
 	case SpawnReply_Type_URL_CHANGED:
 		emit child->urlChanged(QUrl(QString::fromStdString(reply.simple_string())));
 		break;
-	
 	case SpawnReply_Type_LINK_CLICKED:
 		emit child->linkClicked(QUrl(QString::fromStdString(reply.simple_string())));
+		break;
+	case SpawnReply_Type_SCROLL_REQUESTED:
+		emit child->scrollRequested(reply.scroll_requested().dx(), reply.scroll_requested().dy(),
+		                            QRect(reply.scroll_requested().x(), reply.scroll_requested().y(),
+		                                  reply.scroll_requested().w(), reply.scroll_requested().h()));
+		break;
 	
 	default:
 		break;

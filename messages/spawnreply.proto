@@ -7,6 +7,15 @@ message RepaintRequested {
 	optional int32 h = 4;
 }
 
+message ScrollRequested {
+	required int32 dx = 1;
+	required int32 dy = 2;
+	required int32 x = 3;
+	required int32 y = 4;
+	required int32 w = 5;
+	required int32 h = 6;
+}
+
 message SpawnReply {
 	enum Type {
 		REPAINT_REQUESTED = 0;
@@ -17,6 +26,7 @@ message SpawnReply {
 		TITLE_CHANGED = 5;
 		URL_CHANGED = 6;
 		LINK_CLICKED = 7;
+		SCROLL_REQUESTED = 8;
 	}
 	required Type type = 1;
 	required uint64 source = 2;
@@ -25,4 +35,5 @@ message SpawnReply {
 	optional int32 simple_int = 4;
 	optional bool simple_bool = 5;
 	optional string simple_string = 6;
+	optional ScrollRequested scroll_requested = 7;
 }

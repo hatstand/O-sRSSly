@@ -47,6 +47,7 @@ private slots:
 	void managerDestroyed();
 	
 	void repaintRequested(const QRect& rect);
+	void scrollRequested(int dx, int dy, const QRect& rectToScroll);
 	void childStateChanged(Child::State state);
 	void messageLinkClicked(const QUrl& url);
 

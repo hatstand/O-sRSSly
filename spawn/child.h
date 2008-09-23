@@ -53,6 +53,7 @@ signals:
 	void stateChanged(Child::State state);
 	
 	void repaintRequested(const QRect& rect);
+	void scrollRequested(int dx, int dy, const QRect& rectToScroll);
 	void loadFinished(bool ok);
 	void loadProgress(int progress);
 	void loadStarted();

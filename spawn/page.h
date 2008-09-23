@@ -44,6 +44,7 @@ private slots:
 	void titleChanged(const QString& title);
 	void urlChanged(const QUrl& url);
 	void linkClicked(const QUrl& url);
+	void scrollRequested(int dx, int dy, const QRect& rectToScroll);
 
 private:
 	quint64 id_;

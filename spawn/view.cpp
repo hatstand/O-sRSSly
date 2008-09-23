@@ -20,6 +20,7 @@ View::View(Manager* manager, QWidget* parent)
 	
 	child_ = manager_->createPage();
 	connect(child_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
+	connect(child_, SIGNAL(scrollRequested(int, int, const QRect&)), SLOT(scrollRequested(int, int, const QRect&)));
 	connect(child_, SIGNAL(stateChanged(Child::State)), SLOT(childStateChanged(Child::State)));
 	connect(child_, SIGNAL(loadFinished(bool)), SIGNAL(loadFinished(bool)));
 	connect(child_, SIGNAL(loadProgress(int)), SIGNAL(loadProgress(int)));
@@ -32,6 +33,8 @@ View::View(Manager* manager, QWidget* parent)
 	QPalette pal = palette();
 	pal.setBrush(QPalette::Background, Qt::white);
 	setPalette(pal);
+	
+	setAttribute(Qt::WA_OpaquePaintEvent, true);
 	
 	setMouseTracking(true);
 	setFocusPolicy(Qt::WheelFocus);
@@ -149,6 +152,13 @@ QSize View::sizeHint() const {
 void View::managerDestroyed() {
 	manager_ = NULL;
 	child_ = NULL;
+}
+
+void View::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
+	// Scroll the existing area
+	scroll(dx, dy, rectToScroll);
+	
+	// Qt will repaint the exposed areas automatically
 }
 
 

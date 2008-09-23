@@ -1,4 +1,5 @@
 #include "page.h"
+#include "qthelpers.h"
 #include "spawnreply.pb.h"
 
 #include <QWebPage>
@@ -25,6 +26,7 @@ Page::Page(quint64 id)
 	connect(page_, SIGNAL(loadStarted()), SLOT(loadStarted()));
 	connect(page_, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
 	connect(page_, SIGNAL(linkClicked(const QUrl&)), SLOT(linkClicked(const QUrl&)));
+	connect(page_, SIGNAL(scrollRequested(int, int, const QRect&)), SLOT(scrollRequested(int, int, const QRect&)));
 	
 	connect(page_->mainFrame(), SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(page_->mainFrame(), SIGNAL(urlChanged(const QUrl&)), SLOT(urlChanged(const QUrl&)));
@@ -210,6 +212,57 @@ void Page::linkClicked(const QUrl& url) {
 	m.set_type(SpawnReply_Type_LINK_CLICKED);
 	m.set_source(id_);
 	m.set_simple_string(url.toString().toStdString());
+	
+	emit reply(m);
+}
+
+void Page::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
+	if (image_.isNull() || no_recursion_please_) {
+		return;
+	}
+	
+	// Lock the shared memory
+	no_recursion_please_ = true;
+	memory_->lock();
+	
+	// Open a painter on the image
+	QPainter p(&image_);
+	p.setClipRect(image_.rect());
+	
+	// Copy the bit that has been scrolled
+	QImage copy(image_.copy(rectToScroll));
+	p.drawImage(rectToScroll.translated(dx, dy), copy, rectToScroll);
+	
+	// Render the new parts of the page that have been exposed
+	QRect exposedX(QRegion(rectToScroll).subtracted(rectToScroll.translated(dx, 0)).boundingRect());
+	QRect exposedY(QRegion(rectToScroll).subtracted(rectToScroll.translated(0, dy)).subtracted(QRegion(exposedX)).boundingRect());
+	
+	if (exposedX.isValid()) {
+		page_->mainFrame()->render(&p, exposedX);
+	}
+	if (exposedY.isValid()) {
+		page_->mainFrame()->render(&p, exposedY);
+	}
+	
+	p.end();
+	
+	// Unlock the shared memory
+	memory_->unlock();
+	no_recursion_please_ = false;
+	
+	// Now tell the GUI to do the same
+	ScrollRequested s;
+	s.set_dx(dx);
+	s.set_dy(dy);
+	s.set_x(rectToScroll.x());
+	s.set_y(rectToScroll.y());
+	s.set_w(rectToScroll.width());
+	s.set_h(rectToScroll.height());
+	
+	SpawnReply m;
+	m.set_type(SpawnReply_Type_SCROLL_REQUESTED);
+	m.set_source(id_);
+	*(m.mutable_scroll_requested()) = s;
 	
 	emit reply(m);
 }
