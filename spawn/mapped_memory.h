@@ -29,7 +29,7 @@ private:
 	char* data_;
 	quint64 length_;
 #else
-	QSharedMemory* data_;
+	scoped_ptr<QSharedMemory> data_;
 #endif
 };
 
