@@ -17,7 +17,7 @@ Child::Child(Manager* manager, quint64 id)
 	  manager_(manager),
 	  id_(id),
 	  state_(Starting),
-	  memory_(NULL)
+	  memory_(new MappedMemory())
 {
 	qDebug() << __PRETTY_FUNCTION__;
 	
@@ -34,9 +34,6 @@ void Child::setError() {
 	qDebug() << __PRETTY_FUNCTION__;
 	state_ = Error;
 	
-	// TODO: Clean this up properly, because the child process won't have
-	delete memory_;
-	memory_ = NULL;
 	image_ = QImage();
 	
 	emit stateChanged(state_);
@@ -129,19 +126,10 @@ bool Child::resizeSharedMemory(int width, int height) {
 		return false;
 	}
 	
-	delete memory_;
-	memory_ = new QSharedMemory(this);
+	memory_->resize(size);
 	
-	while (true) {
-		QString key = "feeder-" + QString::number(QCoreApplication::applicationPid()) + "-" + QString::number(qrand());
-		memory_->setKey(key);
-		if (memory_->create(size)) {
-			break;
-		}
-	}
-	
-	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
-	image_.fill(qRgb(255, 255, 255));
+	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_ARGB32);
+	image_.fill(qRgba(255, 255, 255, 255));
 	
 	return true;
 }

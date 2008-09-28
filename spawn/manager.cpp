@@ -311,7 +311,7 @@ void Manager::socketReadyRead() {
 void Manager::processReply(const SpawnReply& reply) {
 	quint64 id = reply.source();
 	Child* child = pages_[id];
-	
+
 	switch (reply.type()) {
 	case SpawnReply_Type_REPAINT_REQUESTED:
 	{

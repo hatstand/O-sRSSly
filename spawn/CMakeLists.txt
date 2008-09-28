@@ -9,6 +9,14 @@ SET(SPAWN-SOURCES
 	page.cpp
 )
 
+SET(SPAWN-SOURCES-UNIX
+	mapped_memory_unix.cpp
+)
+
+SET(SPAWN-SOURCES-WIN32
+	mapped_memory_win32.cpp
+)
+
 # Header files that have Q_OBJECT in
 SET(SPAWN-MOC-HEADERS
 	manager.h
@@ -30,6 +38,12 @@ SET(SPAWN-MESSAGES
 	../messages/controlevents.proto
 	../messages/spawnreply.proto
 )
+
+IF(UNIX)
+	SET(SPAWN-SOURCES ${SPAWN-SOURCES} ${SPAWN-SOURCES-UNIX})
+ELSE(UNIX)
+	SET(SPAWN-SOURCES ${SPAWN-SOURCES} ${SPAWN-SOURCES-WIN32})
+ENDIF(UNIX)
 
 SET (EXECUTABLE_OUTPUT_PATH ..)
 

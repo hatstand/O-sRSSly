@@ -37,15 +37,13 @@ Page::~Page() {
 }
 
 void Page::resize(int width, int height, const QString& memoryKey) {
-	delete memory_;
-	memory_ = new QSharedMemory(memoryKey, this);
-	if (memory_->attach()) {
-		image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
-		page_->setViewportSize(QSize(width, height));
-		repaintRequested();
-	} else {
-		image_ = QImage();
+	if (!memory_) {
+		memory_.reset(new MappedMemory(memoryKey));
 	}
+
+	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+	page_->setViewportSize(QSize(width, height));
+	repaintRequested();
 }
 
 void Page::repaintRequested(const QRect& region) {

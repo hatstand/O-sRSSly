@@ -2,14 +2,19 @@
 #define PAGE_H
 
 #include "spawnevent.pb.h"
+#include "mapped_memory.h"
 
 #include <QObject>
 #include <QImage>
+
+#include <boost/scoped_ptr.hpp>
 
 class QWebPage;
 class QSharedMemory;
 class QRect;
 class QUrl;
+
+using boost::scoped_ptr;
 
 namespace Spawn {
 
@@ -48,7 +53,7 @@ private slots:
 
 private:
 	quint64 id_;
-	QSharedMemory* memory_;
+	scoped_ptr<MappedMemory> memory_;
 	QWebPage* page_;
 	QImage image_;
 	bool no_recursion_please_;

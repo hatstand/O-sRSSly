@@ -2,6 +2,7 @@
 #define CHILD_H
 
 #include "spawn/spawnevent.pb.h"
+#include "mapped_memory.h"
 
 #include <QObject>
 #include <QQueue>
@@ -11,6 +12,13 @@
 #include <QUrl>
 
 #include <google/protobuf/message.h>
+
+#ifdef Q_OS_UNIX
+#include <sys/mman.h>
+#endif
+
+#include <boost/scoped_ptr.hpp>
+using boost::scoped_ptr;
 
 class QProcess;
 class QSharedMemory;
@@ -80,7 +88,7 @@ private:
 	Manager* manager_;
 	quint64 id_;
 	State state_;
-	QSharedMemory* memory_;
+	scoped_ptr<MappedMemory> memory_;
 	QImage image_;
 	QUrl last_url_;
 	QString last_html_;
