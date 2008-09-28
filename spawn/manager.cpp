@@ -69,7 +69,7 @@ Manager::~Manager() {
 	// Since we're not going back to the event loop, make sure all the
 	// sockets write their data
 	foreach (QLocalSocket* socket, sockets_) {
-		if (socket->bytesToWrite() > 0) {
+		while (socket->bytesToWrite() > 0) {
 			qDebug() << "Flushing data to" << socket;
 			socket->waitForBytesWritten(1000);
 		}
