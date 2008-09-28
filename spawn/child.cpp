@@ -1,8 +1,9 @@
 #include "child.h"
 #include "manager.h"
 
+#include "spawnreply.pb.h"
+
 #include <QDebug>
-#include <QSharedMemory>
 #include <QCoreApplication>
 #include <QPainter>
 #include <QMouseEvent>
@@ -16,8 +17,7 @@ Child::Child(Manager* manager, quint64 id)
 	: QObject(manager),
 	  manager_(manager),
 	  id_(id),
-	  state_(Starting),
-	  memory_(NULL)
+	  state_(Starting)
 {
 	qDebug() << __PRETTY_FUNCTION__;
 	
@@ -33,11 +33,6 @@ void Child::setReady() {
 void Child::setError() {
 	qDebug() << __PRETTY_FUNCTION__;
 	state_ = Error;
-	
-	// TODO: Clean this up properly, because the child process won't have
-	delete memory_;
-	memory_ = NULL;
-	image_ = QImage();
 	
 	emit stateChanged(state_);
 	emit repaintRequested(QRect());
@@ -105,14 +100,15 @@ void Child::sendKeyEvent(SpawnEvent_Type type, QKeyEvent* event) {
 }
 
 void Child::sendResizeEvent(int width, int height) {
-	if (!resizeSharedMemory(width, height)) {
+	if (width <= 0 || height <= 0) {
 		return;
 	}
+
+	pixmap_ = QPixmap(width, height);
 	
 	ResizeEvent resizeEvent;
 	resizeEvent.set_width(width);
 	resizeEvent.set_height(height);
-	*(resizeEvent.mutable_memory_key()) = memory_->key().toStdString();
 	
 	SpawnEvent e;
 	e.set_destination(id_);
@@ -122,30 +118,6 @@ void Child::sendResizeEvent(int width, int height) {
 	manager_->sendMessage(this, e);
 }
 
-bool Child::resizeSharedMemory(int width, int height) {
-	int size = width*height*4;
-	
-	if (size <= 0) {
-		return false;
-	}
-	
-	delete memory_;
-	memory_ = new QSharedMemory(this);
-	
-	while (true) {
-		QString key = "feeder-" + QString::number(QCoreApplication::applicationPid()) + "-" + QString::number(qrand());
-		memory_->setKey(key);
-		if (memory_->create(size)) {
-			break;
-		}
-	}
-	
-	image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
-	image_.fill(qRgb(255, 255, 255));
-	
-	return true;
-}
-
 void Child::clearQueue() {
 	message_queue_.close();
 	message_queue_.setBuffer(0);
@@ -153,12 +125,10 @@ void Child::clearQueue() {
 }
 
 void Child::paint(QPainter& p, const QRect& rect) {
-	if (state_ != Ready || !memory_)
+	if (state_ != Ready)
 		return;
 	
-	memory_->lock();
-	p.drawImage(rect, image_, rect);
-	memory_->unlock();
+	p.drawPixmap(rect, pixmap_, rect);
 }
 
 void Child::setUrl(const QUrl& url) {
@@ -208,6 +178,16 @@ void Child::restoreState() {
 	} else {
 		setUrl(last_url_);
 	}
+}
+
+void Child::repaintRequested(const Image& image, const QRect& rect) {
+	QImage img(reinterpret_cast<const uchar*>(image.data().data()), image.w(), image.h(), QImage::Format_ARGB32);
+
+	QPainter p(&pixmap_);
+	p.drawImage(rect, img, rect);
+	p.end();
+
+	emit repaintRequested(rect);
 }
 
 }

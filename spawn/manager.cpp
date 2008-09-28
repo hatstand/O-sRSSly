@@ -22,6 +22,20 @@ namespace Spawn {
 
 const char* const Manager::kSpawnArgument = "--spawn";
 
+SocketMunge::SocketMunge()
+	: message_size(0),
+	  in_message(false)
+{
+	buffer.open(QBuffer::ReadWrite);
+}
+
+void SocketMunge::clear() {
+	buffer.close();
+	buffer.setBuffer(0);
+	buffer.open(QBuffer::ReadWrite);
+	in_message = false;
+}
+
 QString Manager::serverName() {
 	QStringList args(QCoreApplication::arguments());
 	for (int i=1 ; i<args.count() ; ++i) {
@@ -200,6 +214,7 @@ void Manager::newConnection() {
 	connect(socket, SIGNAL(disconnected()), SLOT(socketDisconnected()));
 	connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
 	sockets_ << socket;
+	socket_munges_[socket] = new SocketMunge;
 	
 	if (children_waiting_for_socket_.isEmpty()) {
 		return;
@@ -240,6 +255,7 @@ void Manager::socketDisconnected() {
 	
 	// Remove the socket from the list
 	sockets_.removeAll(socket);
+	delete socket_munges_.take(socket);
 }
 
 void Manager::processError(QProcess::ProcessError error) {
@@ -287,24 +303,38 @@ void Manager::socketReadyRead() {
 	//qDebug() << __PRETTY_FUNCTION__;
 	QLocalSocket* socket = qobject_cast<QLocalSocket*>(sender());
 	int bytesRemaining = socket->bytesAvailable();
+
+	SocketMunge* munge = socket_munges_[socket];
 	
 	IODeviceInputStream stream(socket);
 	google::protobuf::io::CopyingInputStreamAdaptor zeroCopyStream(&stream);
 	google::protobuf::io::CodedInputStream codedStream(&zeroCopyStream);
 	
 	while (bytesRemaining > 0) {
-		quint32 size;
-		SpawnReply m;
+		if (!munge->in_message) {
+			// Read the size out of the stream
+			codedStream.ReadVarint32(&munge->message_size);
+			bytesRemaining -= google::protobuf::io::CodedOutputStream::VarintSize32(munge->message_size);
+			munge->in_message = true;
+		}
+
+		const int bytesToRead = qMin(munge->message_size - munge->buffer.size(), qint64(bytesRemaining));
+
+		// Read that many bytes
+		char* buf = new char[bytesToRead];
+		codedStream.ReadRaw(buf, bytesToRead);
+		munge->buffer.write(buf, bytesToRead);
+		delete[] buf;
+
+		// If we've got a whole message then do something with it
+		if (munge->buffer.size() >= munge->message_size) {
+			SpawnReply m;
+			m.ParseFromArray(munge->buffer.data().constData(), munge->message_size);
+			processReply(m);
+			munge->clear();
+		}
 		
-		codedStream.ReadVarint32(&size);
-		google::protobuf::io::CodedInputStream::Limit limit = codedStream.PushLimit(size);
-		m.ParseFromCodedStream(&codedStream);
-		codedStream.PopLimit(limit);
-		
-		//qDebug() << "Read reply" << m;
-		processReply(m);
-		
-		bytesRemaining -= size + google::protobuf::io::CodedOutputStream::VarintSize32(size);
+		bytesRemaining -= bytesToRead;
 	}
 }
 
@@ -320,7 +350,7 @@ void Manager::processReply(const SpawnReply& reply) {
 			region = QRect(reply.repaint_requested().x(), reply.repaint_requested().y(),
 		                       reply.repaint_requested().w(), reply.repaint_requested().h());
 		}
-		emit child->repaintRequested(region);
+		child->repaintRequested(reply.repaint_requested().image(), region);
 		break;
 	}
 	case SpawnReply_Type_LOAD_PROGRESS:
