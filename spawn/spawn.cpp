@@ -75,7 +75,7 @@ void Spawn::processEvent(const SpawnEvent& m) {
 		break;
 	
 	case SpawnEvent_Type_RESIZE_EVENT:
-		pages_[id]->resize(m.resize_event().width(), m.resize_event().height());
+		pages_[id]->resize(m.resize_event().width(), m.resize_event().height(), QString::fromStdString(m.resize_event().memory_key()));
 		break;
 	
 	case SpawnEvent_Type_MOUSE_MOVE_EVENT:

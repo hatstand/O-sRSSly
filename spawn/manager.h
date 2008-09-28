@@ -6,7 +6,6 @@
 #include <QQueue>
 #include <QList>
 #include <QMap>
-#include <QBuffer>
 
 #include <google/protobuf/message.h>
 
@@ -14,15 +13,6 @@ class QLocalSocket;
 class QLocalServer;
 
 namespace Spawn {
-
-struct SocketMunge {
-	SocketMunge();
-	void clear();
-
-	QBuffer buffer;
-	uint message_size;
-	bool in_message;
-};
 
 class Child;
 class SpawnReply;
@@ -61,7 +51,6 @@ private:
 	QList<QProcess*> processes_;
 	QMap<Child*, QLocalSocket*> children_;
 	QMap<quint64, Child*> pages_;
-	QMap<QLocalSocket*, SocketMunge*> socket_munges_;
 	QQueue<Child*> children_waiting_for_socket_;
 	
 	quint64 next_child_id_;

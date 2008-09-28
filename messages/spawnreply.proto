@@ -1,17 +1,10 @@
 package Spawn;
 
-message Image {
-	required int32 w = 1;
-	required int32 h = 2;
-	required bytes data = 3;
-}
-
 message RepaintRequested {
 	optional int32 x = 1;
 	optional int32 y = 2;
 	optional int32 w = 3;
 	optional int32 h = 4;
-	required Image image = 5;
 }
 
 message ScrollRequested {

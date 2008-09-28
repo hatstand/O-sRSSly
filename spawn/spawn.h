@@ -27,6 +27,7 @@ private slots:
 
 private:
 	void processEvent(const SpawnEvent& m);
+	void sharedMemoryChanged(quint64 id, const QString& key);
 	
 	QLocalSocket* socket_;
 	google::protobuf::io::CopyingInputStreamAdaptor* input_stream_;

@@ -4,6 +4,7 @@
 
 #include <QWebPage>
 #include <QRect>
+#include <QSharedMemory>
 #include <QPainter>
 #include <QWebFrame>
 #include <QtDebug>
@@ -16,6 +17,7 @@ Page::Page(quint64 id)
 	: QObject(),
 	  id_(id),
 	  page_(new QWebPage(this)),
+	  memory_(NULL),
 	  no_recursion_please_(false)
 {
 	connect(page_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));
@@ -34,10 +36,16 @@ Page::~Page() {
 	qDebug() << __PRETTY_FUNCTION__;
 }
 
-void Page::resize(int width, int height) {
-	image_ = QImage(width, height, QImage::Format_RGB32);
-	page_->setViewportSize(QSize(width, height));
-	repaintRequested();
+void Page::resize(int width, int height, const QString& memoryKey) {
+	delete memory_;
+	memory_ = new QSharedMemory(memoryKey, this);
+	if (memory_->attach()) {
+		image_ = QImage(reinterpret_cast<uchar*>(memory_->data()), width, height, QImage::Format_RGB32);
+		page_->setViewportSize(QSize(width, height));
+		repaintRequested();
+	} else {
+		image_ = QImage();
+	}
 }
 
 void Page::repaintRequested(const QRect& region) {
@@ -51,7 +59,7 @@ void Page::repaintRequested(const QRect& region) {
 	
 	// Lock the shared memory
 	no_recursion_please_ = true;
-	//memory_->lock();
+	memory_->lock();
 	
 	// Render the page
 	QPainter p(&image_);
@@ -63,9 +71,9 @@ void Page::repaintRequested(const QRect& region) {
 	p.end();
 	
 	// Unlock the shared memory
-	//memory_->unlock();
+	memory_->unlock();
 	no_recursion_please_ = false;
-
+	
 	// Now construct a message to the GUI process to tell it
 	// to redraw
 	RepaintRequested r;
@@ -75,11 +83,6 @@ void Page::repaintRequested(const QRect& region) {
 		r.set_w(region.width());
 		r.set_h(region.height());
 	}
-
-	Image& i = *(r.mutable_image());
-	i.set_w(image_.width());
-	i.set_h(image_.height());
-	i.set_data(image_.bits(), image_.numBytes());
 	
 	SpawnReply m;
 	m.set_type(SpawnReply_Type_REPAINT_REQUESTED);
@@ -220,6 +223,7 @@ void Page::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
 	
 	// Lock the shared memory
 	no_recursion_please_ = true;
+	memory_->lock();
 	
 	// Open a painter on the image
 	QPainter p(&image_);
@@ -243,6 +247,7 @@ void Page::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
 	p.end();
 	
 	// Unlock the shared memory
+	memory_->unlock();
 	no_recursion_please_ = false;
 	
 	// Now tell the GUI to do the same

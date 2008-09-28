@@ -6,13 +6,14 @@
 #include <QObject>
 #include <QQueue>
 #include <QBuffer>
-#include <QPixmap>
+#include <QImage>
 #include <QWebPage>
 #include <QUrl>
 
 #include <google/protobuf/message.h>
 
 class QProcess;
+class QSharedMemory;
 class QPainter;
 class QMouseEvent;
 class QKeyEvent;
@@ -21,7 +22,6 @@ class QWheelEvent;
 namespace Spawn {
 
 class Manager;
-class Image;
 
 class Child : public QObject {
 	Q_OBJECT
@@ -62,9 +62,6 @@ signals:
 	void urlChanged(const QUrl& url);
 	void linkClicked(const QUrl& url);
 
-private slots:
-	void repaintRequested(const Image& image, const QRect& rect);
-
 private:
 	// To be used by Manager
 	Child(Manager* manager, quint64 id);
@@ -77,12 +74,14 @@ private:
 	QBuffer message_queue_;
 	
 	// For internal use
+	bool resizeSharedMemory(int width, int height);
 	void setLastHtml(const QString& url);
 	
 	Manager* manager_;
 	quint64 id_;
 	State state_;
-	QPixmap pixmap_;
+	QSharedMemory* memory_;
+	QImage image_;
 	QUrl last_url_;
 	QString last_html_;
 };

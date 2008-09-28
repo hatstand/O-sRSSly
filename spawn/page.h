@@ -7,6 +7,7 @@
 #include <QImage>
 
 class QWebPage;
+class QSharedMemory;
 class QRect;
 class QUrl;
 
@@ -22,7 +23,7 @@ public:
 	
 	quint64 id() const { return id_; }
 	
-	void resize(int width, int height);
+	void resize(int width, int height, const QString& memoryKey);
 	void mouseEvent(SpawnEvent_Type type, const MouseEvent& e);
 	void keyEvent(SpawnEvent_Type type, const KeyEvent& e);
 	void wheelEvent(const MouseEvent& e);
@@ -47,6 +48,7 @@ private slots:
 
 private:
 	quint64 id_;
+	QSharedMemory* memory_;
 	QWebPage* page_;
 	QImage image_;
 	bool no_recursion_please_;
