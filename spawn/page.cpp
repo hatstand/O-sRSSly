@@ -1,7 +1,6 @@
 #include "page.h"
 #include "qthelpers.h"
 #include "spawnreply.pb.h"
-#include "image.pb.h"
 
 #include <QWebPage>
 #include <QRect>
