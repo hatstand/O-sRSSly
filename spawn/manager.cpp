@@ -78,7 +78,7 @@ Manager::~Manager() {
 	// Now wait for all child processes to shutdown
 	// Kill them if we need to
 	foreach (QProcess* process, processes_) {
-		process->waitForFinished(-1);
+		process->waitForFinished(1000);
 		if (process->state() != QProcess::Running) continue;
 		
 		qDebug() << "Process" << process << "still running - sending SIGTERM";
