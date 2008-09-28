@@ -3,6 +3,9 @@
 
 #include <QString>
 #include <QTemporaryFile>
+#include <boost/scoped_ptr.hpp>
+
+using boost::scoped_ptr;
 
 class QSharedMemory;
 
@@ -20,10 +23,9 @@ public:
 
 private:
 #ifdef Q_OS_UNIX
-	void init(int fd);
+	void init();
 
-	QTemporaryFile tmp_file_;
-	QString key_;
+	scoped_ptr<QFile> file_;
 	char* data_;
 	quint64 length_;
 #else

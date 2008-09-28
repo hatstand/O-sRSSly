@@ -155,10 +155,8 @@ void View::managerDestroyed() {
 }
 
 void View::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
-	// Scroll the existing area
-	scroll(dx, dy, rectToScroll);
-	
-	// Qt will repaint the exposed areas automatically
+	// Using scroll() gets some syncronisation issues
+	update();
 }
 
 

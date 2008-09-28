@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <sys/mman.h>
+#include <sys/file.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -10,29 +11,26 @@
 #include <QtDebug>
 
 MappedMemory::MappedMemory()
-	: tmp_file_(QDir::tempPath())
+	: file_(new QTemporaryFile(QDir::tempPath()))
 {
-	tmp_file_.open();
-	key_ = tmp_file_.fileName();
-
-	init(tmp_file_.handle());
+	init();
 }
 
 MappedMemory::MappedMemory(const QString& key)
-	: key_(key) {
-	QFile file(key);
-	file.open(QIODevice::ReadWrite);
-
-	init(file.handle());
+	: file_(new QFile(key))
+{
+	init();
 }
 
-void MappedMemory::init(int fd) {
+void MappedMemory::init() {
+	file_->open(QIODevice::ReadWrite);
+
 	length_ = 8*1024*1024;
-	if (ftruncate(fd, length_) != 0) {
+	if (ftruncate(file_->handle(), length_) != 0) {
 		qFatal(strerror(errno));
 	}
 
-	void* data = mmap(NULL, length_, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	void* data = mmap(NULL, length_, PROT_READ | PROT_WRITE, MAP_SHARED, file_->handle(), 0);
 	if ((qint64)data == -1) {
 		qFatal(strerror(errno));
 	}
@@ -46,11 +44,17 @@ MappedMemory::~MappedMemory() {
 }
 
 bool MappedMemory::lock() {
-	// TODO
+	if (flock(file_->handle(), LOCK_EX) != 0) {
+		qFatal(strerror(errno));
+	}
+	return true;
 }
 
 bool MappedMemory::unlock() {
-	// TODO
+	if (flock(file_->handle(), LOCK_UN) != 0) {
+		qFatal(strerror(errno));
+	}
+	return true;
 }
 
 char* MappedMemory::data() {
@@ -62,7 +66,7 @@ const char* MappedMemory::data() const {
 }
 
 QString MappedMemory::key() const {
-	return key_;
+	return file_->fileName();
 }
 
 void MappedMemory::resize(quint64 size) {

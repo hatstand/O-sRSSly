@@ -228,6 +228,7 @@ void Page::scrollRequested(int dx, int dy, const QRect& rectToScroll) {
 	p.setClipRect(image_.rect());
 	
 	// Copy the bit that has been scrolled
+	// TODO: make a backwards drawImage()
 	QImage copy(image_.copy(rectToScroll));
 	p.drawImage(rectToScroll.translated(dx, dy), copy, rectToScroll);
 	
