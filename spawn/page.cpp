@@ -16,8 +16,8 @@ namespace Spawn {
 Page::Page(quint64 id)
 	: QObject(),
 	  id_(id),
-	  page_(new QWebPage(this)),
 	  memory_(NULL),
+	  page_(new QWebPage(this)),
 	  no_recursion_please_(false)
 {
 	connect(page_, SIGNAL(repaintRequested(const QRect&)), SLOT(repaintRequested(const QRect&)));

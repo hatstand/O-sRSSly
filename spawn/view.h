@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QUrl>
+#include <QIcon>
 
 class QWebView;
 
@@ -21,6 +22,8 @@ public:
 	void setUrl(const QUrl& url);
 	void setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy policy);
 	void setHtml(const QString& html);
+
+	QIcon icon() const { return QIcon(); }
 	
 	QSize sizeHint() const;
 

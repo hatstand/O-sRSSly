@@ -55,14 +55,6 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="page" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>31</width>
-          <height>30</height>
-         </rect>
-        </property>
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
           <horstretch>0</horstretch>
@@ -90,14 +82,6 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_2" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>31</width>
-          <height>30</height>
-         </rect>
-        </property>
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
           <horstretch>0</horstretch>
@@ -132,100 +116,20 @@
     </layout>
    </item>
    <item>
-    <widget class="QWebView" name="webView_" >
-     <property name="url" >
-      <url>
-       <string>about:blank</string>
-      </url>
-     </property>
-    </widget>
+    <widget class="QWidget" native="1" name="view_container_" />
    </item>
   </layout>
  </widget>
  <layoutdefault spacing="0" margin="0" />
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>address_</tabstop>
-  <tabstop>webView_</tabstop>
   <tabstop>back_</tabstop>
   <tabstop>forward_</tabstop>
   <tabstop>reload_</tabstop>
   <tabstop>stop_</tabstop>
  </tabstops>
- <includes/>
  <resources>
   <include location="../data/data.qrc" />
  </resources>
- <connections>
-  <connection>
-   <sender>back_</sender>
-   <signal>clicked()</signal>
-   <receiver>webView_</receiver>
-   <slot>back()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>25</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>24</x>
-     <y>44</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>forward_</sender>
-   <signal>clicked()</signal>
-   <receiver>webView_</receiver>
-   <slot>forward()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>50</x>
-     <y>14</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>55</x>
-     <y>56</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>reload_</sender>
-   <signal>clicked()</signal>
-   <receiver>webView_</receiver>
-   <slot>reload()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>81</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>87</x>
-     <y>65</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>stop_</sender>
-   <signal>clicked()</signal>
-   <receiver>webView_</receiver>
-   <slot>stop()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>78</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>88</x>
-     <y>54</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

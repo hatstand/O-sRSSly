@@ -3,10 +3,15 @@
 
 #include "ui_browser.h"
 
+namespace Spawn {
+	class Manager;
+	class View;
+}
+
 class Browser : public QWidget {
 	Q_OBJECT
 public:
-	Browser(QWidget* parent = 0);
+	Browser(Spawn::Manager* manager, QWidget* parent = 0);
 	virtual ~Browser() {}
 	
 	QIcon icon() const;
@@ -28,6 +33,7 @@ private slots:
 	void returnPressed();
 	
 private:
+	Spawn::View* contents_;
 	Ui_Browser ui_;
 };
 

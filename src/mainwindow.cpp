@@ -239,7 +239,7 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 void MainWindow::externalLinkClicked(const QUrl& url) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
-	Browser* browser = new Browser(this);
+	Browser* browser = new Browser(spawn_manager_, this);
 	connect(browser, SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(browser, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
 	connect(browser, SIGNAL(iconChanged()), SLOT(iconChanged()));
