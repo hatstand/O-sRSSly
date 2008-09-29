@@ -11,7 +11,7 @@
 #include <QtDebug>
 
 MappedMemory::MappedMemory()
-	: file_(new QTemporaryFile(QDir::tempPath()))
+	: file_(new QTemporaryFile(QDir::tempPath() + QDir::separator() + "XXXXXX"))
 {
 	init();
 }
@@ -72,4 +72,3 @@ QString MappedMemory::key() const {
 void MappedMemory::resize(quint64 size) {
 	// TODO
 }
-
