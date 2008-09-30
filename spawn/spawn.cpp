@@ -24,6 +24,7 @@ Spawn::Spawn(const QString& server, QObject* parent)
 	qDebug() << "Connecting to" << server;
 	
 	connect(socket_, SIGNAL(readyRead()), SLOT(socketReadyRead()));
+	connect(socket_, SIGNAL(disconnected()), SLOT(socketDisconnected()));
 	
 	socket_->connectToServer(server);
 }
@@ -121,6 +122,10 @@ void Spawn::sendReply(const SpawnReply& m) {
 	google::protobuf::io::CodedOutputStream codedStream(&zeroCopyStream);
 	codedStream.WriteVarint32(messageSize);
 	m.SerializeWithCachedSizes(&codedStream);
+}
+
+void Spawn::socketDisconnected() {
+	QCoreApplication::quit();
 }
 
 }

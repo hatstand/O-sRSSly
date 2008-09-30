@@ -23,6 +23,7 @@ public:
 
 private slots:
 	void socketReadyRead();
+	void socketDisconnected();
 	void sendReply(const SpawnReply& m);
 
 private:
