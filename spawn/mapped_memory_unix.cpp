@@ -36,7 +36,7 @@ void MappedMemory::init() {
 	}
 
 	data_ = static_cast<char*>(data);
-	qDebug() << int(data_);
+	qDebug() << (quintptr)data_;
 }
 
 MappedMemory::~MappedMemory() {
