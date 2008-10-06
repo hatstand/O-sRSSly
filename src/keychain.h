@@ -21,9 +21,7 @@ private:
 	static const GnomeKeyringPasswordSchema sOurSchema;
 #endif
 
-#ifdef NO_KEYRING
 	static QString password_;
-#endif
 };
 
 #endif

@@ -13,9 +13,7 @@ const GnomeKeyringPasswordSchema Keychain::sOurSchema = {
 };
 #endif
 
-#ifdef NO_KEYRING
 QString Keychain::password_;
-#endif
 
 #include <QDebug>
 
@@ -43,20 +41,24 @@ QString Keychain::getPassword(QString account) {
 		return pass;
 	}
 #elif !defined(NO_KEYRING) && defined (Q_OS_UNIX)
-	GnomeKeyringResult result = gnome_keyring_find_password_sync(
-		&sOurSchema,
-		&password,
-		"username", account.toStdString().c_str(),
-		"service", kServiceName.toStdString().c_str(),
-		NULL);
-	
-	if (result != GNOME_KEYRING_RESULT_OK) {
-		return QString::null;
-	}
-	else {
-		QString pass(password);
-		gnome_keyring_free_password(password);
-		return pass;
+	if (!gnome_keyring_is_available()) {
+		return password_;
+	} else {
+		GnomeKeyringResult result = gnome_keyring_find_password_sync(
+			&sOurSchema,
+			&password,
+			"username", account.toStdString().c_str(),
+			"service", kServiceName.toStdString().c_str(),
+			NULL);
+		
+		if (result != GNOME_KEYRING_RESULT_OK) {
+			return QString::null;
+		}
+		else {
+			QString pass(password);
+			gnome_keyring_free_password(password);
+			return pass;
+		}
 	}
 #else
 	return password_;
@@ -78,17 +80,21 @@ void Keychain::setPassword(QString account, QString password) {
 	if (ret != 0)
 		qWarning() << "Error setting password in keychain";
 #elif !defined(NO_KEYRING) && defined (Q_OS_UNIX)
-    QString displayName=("Feeder Google Reader account for ");
-    displayName.append(account);
-	GnomeKeyringResult result = gnome_keyring_store_password_sync(
-		&sOurSchema, NULL,
-		displayName.toStdString().c_str(),
-		password.toStdString().c_str(),
-		"username", account.toStdString().c_str(),
-		"service", kServiceName.toStdString().c_str(),
-		NULL);
-	if (result != GNOME_KEYRING_RESULT_OK) {
-		qWarning() << "Error setting password in keychain";
+	if (!gnome_keyring_is_available()) {
+		password_ = password;
+	} else {
+		QString displayName=("Feeder Google Reader account for ");
+		displayName.append(account);
+		GnomeKeyringResult result = gnome_keyring_store_password_sync(
+			&sOurSchema, NULL,
+			displayName.toStdString().c_str(),
+			password.toStdString().c_str(),
+			"username", account.toStdString().c_str(),
+			"service", kServiceName.toStdString().c_str(),
+			NULL);
+		if (result != GNOME_KEYRING_RESULT_OK) {
+			qWarning() << "Error setting password in keychain";
+		}
 	}
 #else
 	password_ = password;
