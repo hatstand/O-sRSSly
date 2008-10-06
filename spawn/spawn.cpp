@@ -9,6 +9,8 @@
 #include <QtDebug>
 #include <QCoreApplication>
 #include <QUrl>
+#include <QApplication>
+#include <QPalette>
 
 namespace Spawn {
 
@@ -27,6 +29,12 @@ Spawn::Spawn(const QString& server, QObject* parent)
 	connect(socket_, SIGNAL(disconnected()), SLOT(socketDisconnected()));
 	
 	socket_->connectToServer(server);
+	
+	// Mess with the application palette to make sure QWebPage always
+	// paints its background white
+	QPalette palette(QApplication::palette());
+	palette.setColor(QPalette::Window, Qt::white);
+	QApplication::setPalette(palette);
 }
 
 Spawn::~Spawn() {
