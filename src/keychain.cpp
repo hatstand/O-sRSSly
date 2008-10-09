@@ -18,7 +18,7 @@ QString Keychain::password_;
 
 #include <QDebug>
 
-const QString Keychain::kServiceName = "Purplehatstands-Feeder" TITLE;
+const QString Keychain::kServiceName = "Purplehatstands-" TITLE;
 
 QString Keychain::getPassword(QString account) {
 	char* password;
