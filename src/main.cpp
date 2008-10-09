@@ -12,6 +12,8 @@
 #include "spawn/manager.h"
 #include "mainwindow.h"
 
+#include "../config.h"
+
 int main(int argc, char** argv) {
 	QApplication app(argc, argv);
 	
@@ -25,11 +27,11 @@ int main(int argc, char** argv) {
 
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");
-	app.setApplicationName("Feeder");
+	app.setApplicationName(TITLE);
 	
 #if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// For gnome keyring
-	g_set_application_name("Feeder");
+	g_set_application_name(TITLE);
 #endif
 
 #ifdef Q_OS_DARWIN

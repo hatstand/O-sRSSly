@@ -3,3 +3,4 @@ Don't delete and re-add everything all the time
 Add webclippy stuff instead of displaying whole webpage?
 Only sync read articles to db? Avoids de-syncing when using another client.
 ksqueezedlabel is confused by rich text :-(
+port to QX11Embed for Q_WS_X11

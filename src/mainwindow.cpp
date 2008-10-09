@@ -1,3 +1,4 @@
+#include "config.h"
 #include "configuredialog.h"
 #include "feedsmodel.h"
 #include "mainwindow.h"
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	tray_icon_->setIcon(windowIcon());
 	tray_icon_->setContextMenu(tray_menu_);
-	tray_icon_->setToolTip("Feeder -- \"Imma in ur dock aggregating ur feedz\"");
+	tray_icon_->setToolTip(TITLE " -- \"Imma in ur dock aggregating ur feedz\"");
 	tray_icon_->show();
 	connect(feeds_model_, SIGNAL(newUnreadItems(int)), SLOT(newUnreadItems(int)));
 	
@@ -55,7 +56,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	QFont bold_font;
 	bold_font.setBold(true);
 	ui_.title_->setFont(bold_font);
-	ui_.title_->setText("Welcome to Feeder");
+	ui_.title_->setText("Welcome to " TITLE);
 	
 	contents_ = new Spawn::View(spawn_manager_, ui_.contents_tab_);
 	ui_.contents_tab_->layout()->removeWidget(ui_.view_container_);
@@ -366,7 +367,7 @@ void MainWindow::newUnreadItems(int count) {
 	current_unread_ = count;
 	bool p = count != 1;
 	if (count != 0)
-		tray_icon_->showMessage("Feeder", "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");
+		tray_icon_->showMessage(TITLE, "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)

@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Feeder</string>
+   <string>@TITLE@</string>
   </property>
   <property name="windowIcon" >
    <iconset resource="../data/data.qrc" >
@@ -501,7 +501,7 @@
      <normaloff>:/configure.png</normaloff>:/configure.png</iconset>
    </property>
    <property name="text" >
-    <string>Configure Feeder...</string>
+    <string>Configure @TITLE@...</string>
    </property>
   </action>
   <action name="actionQuit" >

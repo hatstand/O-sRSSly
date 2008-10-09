@@ -1,3 +1,4 @@
+#include "config.h"
 #include "keychain.h"
 
 #ifdef Q_OS_DARWIN
@@ -17,7 +18,7 @@ QString Keychain::password_;
 
 #include <QDebug>
 
-const QString Keychain::kServiceName = "Purplehatstands-Feeder";
+const QString Keychain::kServiceName = "Purplehatstands-Feeder" TITLE;
 
 QString Keychain::getPassword(QString account) {
 	char* password;

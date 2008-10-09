@@ -1,3 +1,4 @@
+#include "config.h"
 #include "jsonutils.h"
 #include "readerapi.h"
 #include "subscriptionlist.h"
@@ -14,7 +15,7 @@
 #include <QStringList>
 
 // For Google ClientLogin service
-const char* ReaderApi::kApplicationSource = "PurpleHatstands-Feeder-1";
+const char* ReaderApi::kApplicationSource = "PurpleHatstands-" TITLE "-1";
 const char* ReaderApi::kServiceName = "reader";
 const char* ReaderApi::kAccountType = "HOSTED_OR_GOOGLE";
 
