@@ -136,6 +136,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	QFont italic_font;
 	italic_font.setItalic(true);
 	//ui_.author_->setFont(italic_font);
+	
+	feeds_model_->googleAccountChanged();
+	feeds_model_->load();
 }
 
 MainWindow::~MainWindow() {

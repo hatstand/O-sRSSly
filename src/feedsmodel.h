@@ -65,13 +65,13 @@ private slots:
 	void loggedIn();
 	void subscriptionListArrived(SubscriptionList list);
 	void dataDestroyed(QObject*);
-	void googleAccountChanged();
 	void categoryFeedArrived(const AtomFeed&);
 	void freshFeedArrived(const AtomFeed&);
 
 public slots:
 	void fetchMore();
 	void unreadCountChanged(const QModelIndex& index);
+	void googleAccountChanged();
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);

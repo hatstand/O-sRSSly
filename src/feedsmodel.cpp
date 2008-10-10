@@ -20,8 +20,6 @@ FeedsModel::FeedsModel(QObject* parent)
 {
 	connect(Settings::instance(), SIGNAL(googleAccountChanged()), SLOT(googleAccountChanged()));
 	connect(&refresh_timer_, SIGNAL(timeout()), SLOT(fetchMore()));
-	googleAccountChanged();
-	load();
 }
 
 FeedsModel::~FeedsModel() {
