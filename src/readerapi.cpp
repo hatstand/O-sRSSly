@@ -361,7 +361,7 @@ void ReaderApi::actionFailed() {
 void ReaderApi::getFresh() {
 	QUrl url(kAtomUrl.toString() + kReadingList);
 	url.addQueryItem("client", kApplicationSource);
-	url.addQueryItem("n", "100");
+	url.addQueryItem("n", "1000");
 	url.addQueryItem("xt", kReadTag);
 
 	if (!checkThrottle(url))
