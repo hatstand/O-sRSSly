@@ -342,7 +342,7 @@ void ReaderApi::getSubscriptionComplete() {
 	if (!feed.hasError())
 		emit subscriptionArrived(feed);
 	else {
-		qWarning() << "Error parsing feed:" << reply->url();
+		qWarning("Error parsing feed: %s", reply->url().toString().toStdString().c_str());
 	}
 
 	reply->deleteLater();
