@@ -1,11 +1,11 @@
+#ifdef __APPLE__
+#include <Carbon/Carbon.h>
+#endif
+
 #include <QApplication>
 
 #if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 #include <glib.h>
-#endif
-
-#ifdef Q_OS_DARWIN
-#include <Carbon/Carbon.h>
 #endif
 
 #include "spawn/spawn.h"
