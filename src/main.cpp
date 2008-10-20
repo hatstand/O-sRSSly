@@ -8,6 +8,8 @@
 #include <glib.h>
 #endif
 
+#include "atomfeed.h"
+#include "feedsmodel.h"
 #include "spawn/spawn.h"
 #include "spawn/manager.h"
 #include "mainwindow.h"
@@ -38,6 +40,9 @@ int main(int argc, char** argv) {
 	ProcessSerialNumber psn = { 0, kCurrentProcess };
 	TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 #endif
+
+	qRegisterMetaType<VoidFunction>("VoidFunction");
+	qRegisterMetaType<AtomFeed>("AtomFeed");
 	
 	MainWindow win;
 	win.showMaximized();

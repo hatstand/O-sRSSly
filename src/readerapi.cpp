@@ -51,9 +51,9 @@ const QUrl ReaderApi::kIdConvertUrl("http://www.google.com/reader/api/0/stream/i
 const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscription/quickadd");
 
 
-ReaderApi::ReaderApi(const QString& username, const QString& password, QObject* parent) 
+ReaderApi::ReaderApi(const QString& username, const QString& password, Database* db, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
-		username_(username), password_(password), getting_token_(false) {
+		username_(username), password_(password), getting_token_(false), db_(db) {
 
 	// Catch SSL errors
 	connect(network_, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
@@ -141,8 +141,8 @@ void ReaderApi::getSubscriptionListComplete() {
 
 	QXmlStreamReader s(xml);
 	SubscriptionList list(s);
-	foreach (const Subscription& sub, list.subscriptions()) {
-		qDebug() << sub;
+	foreach (Subscription* sub, list.subscriptions()) {
+		qDebug() << *sub;
 	}
 
 	reply->deleteLater();
@@ -337,7 +337,7 @@ void ReaderApi::getSubscription(const QUrl& url) {
 
 void ReaderApi::getSubscriptionComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
-	AtomFeed feed(reply->url(), reply);
+	AtomFeed feed(reply->url(), reply, db_);
 
 	if (!feed.hasError())
 		emit subscriptionArrived(feed);
@@ -378,7 +378,7 @@ void ReaderApi::getFresh() {
 void ReaderApi::getFreshComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 
-	AtomFeed feed(reply->url(), reply);
+	AtomFeed feed(reply->url(), reply, db_);
 	continuation_ = feed.continuation();
 	emit freshArrived(feed);
 
@@ -405,7 +405,7 @@ void ReaderApi::getCategoryComplete() {
 	qDebug() << __PRETTY_FUNCTION__;
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 
-	AtomFeed feed(reply->url(), reply);
+	AtomFeed feed(reply->url(), reply, db_);
 	emit categoryArrived(feed);
 
 	qDebug() << reply->readAll();

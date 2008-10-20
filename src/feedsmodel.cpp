@@ -5,36 +5,57 @@
 #include "allitems.h"
 #include "folderitem.h"
 
+#include <QApplication>
 #include <QMimeData>
+#include <QMutexLocker>
 #include <QRegExp>
 #include <QStringList>
+
+#include <boost/bind.hpp>
+
+using boost::bind;
 
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent),
 	  root_(this),
 	  all_items_(NULL),
 	  api_(NULL),
-	  database_(new Database),
+	  database_(this),
 	  deleting_(false),
 	  refresh_timer_(this)
 {
 	connect(Settings::instance(), SIGNAL(googleAccountChanged()), SLOT(googleAccountChanged()));
 	connect(&refresh_timer_, SIGNAL(timeout()), SLOT(fetchMore()));
+
+	connect(this, SIGNAL(doLater(VoidFunction)), this, SLOT(doNow(VoidFunction)), Qt::QueuedConnection);
+
+	database_.start();
 }
 
 FeedsModel::~FeedsModel() {
 	deleting_ = true;
+	// Try & stop the db thread.
+	// Wait 30s. This can take a long time as the db won't quit until it's written
+	// everything in the queue.
+	database_.stop();
+	database_.wait(30000);
 }
 
 void FeedsModel::googleAccountChanged() {
 	// Clear any existing items in the model
 	root_.clear();
-	folder_mappings_.clear();
-	id_mappings_.clear();
+	{
+		QMutexLocker locker(&mutex_);
+		folder_mappings_.clear();
+		id_mappings_.clear();
+	}
 	
 	// Make a new API instance
 	delete api_;
-	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), this);
+	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), &database_, this);
+	// Load stuff from db.
+	// This has to happen after we create the ReaderApi.
+	load();
 	connect(api_, SIGNAL(progressChanged(int, int)), SIGNAL(progressChanged(int, int)));
 
 	// Add an "all items" node.
@@ -145,17 +166,20 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 	api_->getFresh();
 
-	foreach (const Subscription& s, list.subscriptions()) {
-		qDebug() << "Adding..." << s.title();
+	foreach (Subscription* s, list.subscriptions()) {
+		qDebug() << "Adding..." << s->title();
 		
-		if (id_mappings_.contains(s.id()))
 		{
-			shared_ptr<FeedItemData> d(id_mappings_[s.id()]);
-			d.get()->update();
-			continue;
+			QMutexLocker locker(&mutex_);
+			if (id_mappings_.contains(s->id()))
+			{
+				shared_ptr<FeedItemData> d(id_mappings_[s->id()]);
+				d.get()->update();
+				continue;
+			}
 		}
 
-		addFeed(new FeedItemData(s, api_));
+		addFeed(new FeedItemData(s, api_, &database_));
 	}
 
 	// Notify the view that the model has changed.
@@ -166,10 +190,18 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 
 void FeedsModel::addFeed(FeedItemData* data, bool update)
 {
+	// TODO: make this more fine-grained?
+	QMutexLocker locker(&mutex_);
+	if (id_mappings_.contains(data->subscription().id())) {
+		delete data;
+		return;
+	}
 	shared_ptr<FeedItemData> d(data);
 
 	id_mappings_.insert(d.get()->subscription().id(), d);
 	connect(d.get(), SIGNAL(destroyed(QObject*)), SLOT(dataDestroyed(QObject*)));
+
+	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), d.get(), SLOT(update(const AtomFeed&)));
 	
 	if (update)
 		d->update();
@@ -189,7 +221,7 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 		if (folder_mappings_.contains(c.first)) {
 			parent = folder_mappings_[c.first];
 		} else {
-			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_);
+			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_, &database_);
 			f->save();
 			folder_mappings_.insert(c.first, f);
 			parent = f;
@@ -362,18 +394,63 @@ void FeedsModel::dataDestroyed(QObject* object) {
 }
 
 void FeedsModel::load() {
-	// Load tags
-	QSqlQuery query("SELECT id, title FROM Tag");
-	while (query.next())
-	{
-		FolderItem* f = new FolderItem(&root_, query, api_);
+	// Load tags & feeds.
+	// Callback will be called from different thread. CAREFUL :-)
+	database_.pushQuery("SELECT id, title FROM Tag", bind(&FeedsModel::folderItemsLoaded, this, _1));
+	database_.pushQuery("SELECT id, title, sortId FROM Feed", bind(&FeedsModel::feedItemsLoaded, this, _1));
+}
+
+void FeedsModel::folderItemsLoaded(const QSqlQuery& query) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QSqlQuery mutable_query(query);
+	while (mutable_query.next()) {
+		QString id = mutable_query.value(0).toString();
+		QString name = mutable_query.value(1).toString();
+		// We have to do it in the gui thread :-(
+		emit doLater(bind(&FeedsModel::createFolderItem, this, id, name));
+	}
+}
+
+void FeedsModel::doNow(VoidFunction func) {
+	func();
+}
+
+void FeedsModel::createFolderItem(const QString& id, const QString& name) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QMutexLocker locker(&mutex_);
+	if (!folder_mappings_.contains(id)) {
+		FolderItem* f = new FolderItem(&root_, id, name, api_, &database_);
 		folder_mappings_.insert(f->id(), f);
 	}
-	
-	// Load feeds
-	query = QSqlQuery("SELECT id, title, sortId FROM Feed");
-	while (query.next())
-		addFeed(new FeedItemData(query, api_), false);
+}
+
+void FeedsModel::feedItemsLoaded(const QSqlQuery& query) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QSqlQuery mutable_query(query);
+	while (mutable_query.next()) {
+		FeedItemData* data = new FeedItemData(mutable_query, api_, &database_);
+		database_.pushQuery(
+			"SELECT Tag.id, Tag.title FROM Tag "
+			"INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId "
+			"WHERE FeedTagMap.feedId=?",
+			QList<QVariant>() << data->subscription().id(),
+			bind(&FeedsModel::categoriesLoaded, this, _1, data));
+	}
+}
+
+void FeedsModel::categoriesLoaded(const QSqlQuery& query, FeedItemData* data) {
+	QSqlQuery mutable_query(query);
+	while (mutable_query.next()) {
+		Category category(mutable_query.value(0).toString(), mutable_query.value(1).toString());
+		data->addCategory(category, false);
+	}
+
+	data->moveToThread(QApplication::instance()->thread());
+
+	emit doLater(bind(&FeedsModel::addFeed, this, data, false));
 }
 
 void FeedsModel::save() {
@@ -388,7 +465,6 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 
 	it.value()->setContinuation(feed.continuation());
 
-	QSqlDatabase::database().transaction();
 	for (AtomFeed::AtomList::const_iterator kt = feed.entries().begin(); kt != feed.entries().end(); ++kt) {
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(kt->id);
 		if (jt == id_mappings_.end())
@@ -398,14 +474,12 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		data->update(*kt);
 	}
-	QSqlDatabase::database().commit();
 }
 
 void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 	qDebug() << __PRETTY_FUNCTION__ << "Size:" << feed.entries().size();
 
 	int new_unread = 0;
-        QSqlDatabase::database().transaction();
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
 		qDebug() << it->source;
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
@@ -414,8 +488,8 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 			if (it->source.startsWith("user")) {
 				// Must be a shared item
 				qDebug() << "Adding shared items for:" << it->shared_by;
-				Subscription sub(it->source, it->shared_by);
-				FeedItemData* data = new FeedItemData(sub, api_);
+				Subscription* sub = new Subscription(it->source, it->shared_by);
+				FeedItemData* data = new FeedItemData(sub, api_, &database_);
 				new_unread += data->update(*it);
 				addFeed(data, false);
 			}
@@ -426,7 +500,6 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 		shared_ptr<FeedItemData> data(jt.value());
 		new_unread += data->update(*it);
 	}
-        QSqlDatabase::database().commit();
 	
 	emit newUnreadItems(new_unread);
 }

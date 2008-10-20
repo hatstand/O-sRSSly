@@ -1,16 +1,19 @@
 #ifndef FEEDS_MODEL_H
 #define FEEDS_MODEL_H
 
+#include "database.h"
 #include "feeditem.h"
 #include "rootitem.h"
 #include "subscriptionlist.h"
 
+#include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include <QAbstractItemModel>
 #include <QMap>
+#include <QMutex>
 #include <QTimer>
 #include <QUrl>
 
@@ -20,6 +23,9 @@ class TreeItem;
 class Database;
 class AllItems;
 class FolderItem;
+
+using boost::function;
+typedef function<void ()> VoidFunction;
 
 using boost::shared_ptr;
 using boost::scoped_ptr;
@@ -60,6 +66,7 @@ public:
 signals:
 	void progressChanged(int, int);
 	void newUnreadItems(int);
+	void doLater(VoidFunction);
 
 private slots:
 	void loggedIn();
@@ -67,6 +74,7 @@ private slots:
 	void dataDestroyed(QObject*);
 	void categoryFeedArrived(const AtomFeed&);
 	void freshFeedArrived(const AtomFeed&);
+	void doNow(VoidFunction);
 
 public slots:
 	void fetchMore();
@@ -75,13 +83,20 @@ public slots:
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);
+
+	// DB callbacks
+	void folderItemsLoaded(const QSqlQuery& query);
+	void createFolderItem(const QString& id, const QString& name);
+	void feedItemsLoaded(const QSqlQuery& query);
+	void categoriesLoaded(const QSqlQuery& query, FeedItemData* data);
 	
 	RootItem root_;
 	AllItems* all_items_;
 	ReaderApi* api_;
 	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
-	scoped_ptr<Database> database_;
+	Database database_;
+	QMutex mutex_;
 
 	bool deleting_;
 

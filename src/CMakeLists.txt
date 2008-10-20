@@ -30,13 +30,13 @@ SET(FEEDER-SOURCES
 SET(FEEDER-MOC-HEADERS
 	apiaction.h
 	configuredialog.h
+	database.h
 	feeditem.h
 	feedsmodel.h
 	feedview.h
 	folderitem.h
 	mainwindow.h
 	readerapi.h
-	subscriptionlist.h
 	treeitem.h
 	settings.h
 	entryview.h

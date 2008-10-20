@@ -16,7 +16,7 @@ typedef QPair<QString, QString> Category;
 class Subscription {
 public:
 	Subscription(QXmlStreamReader& s);
-	Subscription(const QSqlQuery& query);
+	Subscription(const QSqlQuery& query, Database* db);
 	Subscription(const QString& id, const QString& title);
 	
 	const QString& id() const { return id_; }
@@ -31,7 +31,9 @@ public:
 private:
 	void parseCategories(QXmlStreamReader& s);
 	void parseCategory(QXmlStreamReader& s);
+	void categoriesLoaded(const QSqlQuery& query);
 
+private:
 	QString id_;
 	QString title_;
 	QString sortid_;
@@ -40,14 +42,13 @@ private:
 	QList<Category> categories_;
 };
 
-class SubscriptionList : public QObject {
-	Q_OBJECT
+class SubscriptionList {
 public:
 	SubscriptionList(const SubscriptionList& other);
 	SubscriptionList(QXmlStreamReader& s);
-	const QList<Subscription>& subscriptions() const { return subscriptions_; }  
+	const QList<Subscription*>& subscriptions() const { return subscriptions_; }  
 private:
-	QList<Subscription> subscriptions_;
+	QList<Subscription*> subscriptions_;
 
 };
 

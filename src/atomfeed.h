@@ -12,6 +12,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/random_access_index.hpp>
 
+class Database;
 class QIODevice;
 class QSqlQuery;
 
@@ -87,9 +88,10 @@ public:
 	typedef AtomEntryList::index<hash>::type AtomEntries;
 	typedef AtomEntryList::index<random>::type AtomList;
 
-	AtomFeed(const QString& id);
-	AtomFeed(const QUrl& url, QIODevice* data);
-	AtomFeed(const QSqlQuery& query);
+	AtomFeed() {}
+	AtomFeed(const QString& id, Database* db);
+	AtomFeed(const QUrl& url, QIODevice* data, Database* db);
+	AtomFeed(const QSqlQuery& query, Database* db);
 	~AtomFeed();
 	
 	bool hasError() const { return m_error; }
@@ -120,10 +122,13 @@ public:
 	void saveEntries();
 	void updateEntry(const AtomEntry& entry);
 
+	AtomFeed* createAtomFeed(const QSqlQuery& q);
+
 	static const char* kReaderXmlNamespace;
 private:
 	void parse(QIODevice* device);
 	void parseFeed(QXmlStreamReader& s);
+	void addEntries(const QSqlQuery& query);
 	
 	bool m_error;
 	
@@ -134,7 +139,7 @@ private:
 	QString m_continuation;
 	AtomEntryList m_entries;
 
-	AtomFeed();
+	Database* db_;
 };
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f);

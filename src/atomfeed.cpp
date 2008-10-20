@@ -8,6 +8,9 @@
 #include <QSqlQuery>
 #include <QVariant>
 
+#include <boost/bind.hpp>
+using boost::bind;
+
 const char* AtomFeed::kReaderXmlNamespace = "http://www.google.com/schemas/reader/atom/";
 
 using namespace XmlUtils;
@@ -23,31 +26,39 @@ QDebug operator <<(QDebug dbg, const AtomEntry& e)
 	return dbg.space();
 }
 
-AtomFeed::AtomFeed(const QString& id)
+AtomFeed::AtomFeed(const QString& id, Database* db)
 	: m_error(false),
-	  m_id(id)
+	  m_id(id),
+	  db_(db)
 {
 }
 
-AtomFeed::AtomFeed(const QUrl& url, QIODevice* device)
+AtomFeed::AtomFeed(const QUrl& url, QIODevice* device, Database* db)
 	: m_error(false),
-	  m_url(url)
+	  m_url(url),
+	  db_(db)
 {
 	parse(device);
 }
 
-AtomFeed::AtomFeed(const QSqlQuery& query)
+AtomFeed::AtomFeed(const QSqlQuery& query, Database* db)
 	: m_error(false),
-	  m_id(query.value(0).toString())
+	  m_id(query.value(0).toString()),
+	  db_(db)
 {
-	QSqlQuery entryQuery;
-	entryQuery.prepare("SELECT title, id, summary, content, date, link, read, starred, author, shared_by FROM Entry WHERE feedId=:feedId");
-	entryQuery.bindValue(":feedId", m_id);
-	if (!entryQuery.exec())
-		Database::handleError(entryQuery.lastError());
-	
-	while (entryQuery.next())
-		m_entries.insert(AtomEntry(entryQuery));
+	db_->pushQuery(
+		"SELECT title, id, summary, content, date, link, read, starred, author, shared_by "
+		"FROM Entry WHERE feedId=?",
+		QList<QVariant>() << m_id,
+		bind(&AtomFeed::addEntries, this, _1));
+}
+
+void AtomFeed::addEntries(const QSqlQuery& query) {
+	QSqlQuery mutable_query(query);
+	if (query.boundValue(":feedId") == m_id) {
+		while (mutable_query.next())
+			m_entries.insert(AtomEntry(mutable_query));
+	}
 }
 
 AtomFeed::~AtomFeed()
@@ -167,25 +178,25 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 }
 
 void AtomFeed::saveEntries() {
-	QSqlQuery query;
-	query.prepare("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (:feedId, :title, :id, :summary, :content, :date, :link, :read, :starred, :author, :shared_by)");
-	query.bindValue(":feedId", m_id);
+	QString query("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
 		const AtomEntry& entry(*it);
+		QList<QVariant> bind_values;
+		bind_values << m_id;
 		
-		query.bindValue(":title", entry.title);
-		query.bindValue(":id", entry.id);
-		query.bindValue(":summary", entry.summary);
-		query.bindValue(":content", entry.content);
-		query.bindValue(":date", entry.date.toString());
-		query.bindValue(":link", entry.link.toString());
-		query.bindValue(":read", QVariant(entry.read).toString());
-		query.bindValue(":starred", QVariant(entry.starred).toString());
-		query.bindValue(":author", entry.author);
-		query.bindValue(":shared_by", entry.shared_by);
-		if (!query.exec())
-			Database::handleError(query.lastError());
+		bind_values << entry.title;
+		bind_values << entry.id;
+		bind_values << entry.summary;
+		bind_values << entry.content;
+		bind_values << entry.date.toString();
+		bind_values << entry.link.toString();
+		bind_values << QVariant(entry.read);
+		bind_values << QVariant(entry.starred);
+		bind_values << entry.author;
+		bind_values << entry.shared_by;
+
+		db_->pushQuery(query, bind_values);
 	}
 }
 

@@ -1,10 +1,13 @@
+#include "database.h"
 #include "settings.h"
 #include "subscriptionlist.h"
 #include "xmlutils.h"
-#include "database.h"
 
 #include <QSqlQuery>
 #include <QVariant>
+
+#include <boost/bind.hpp>
+using boost::bind;
 
 using namespace XmlUtils;
 
@@ -43,21 +46,28 @@ Subscription::Subscription(QXmlStreamReader& s) {
 	}
 }
 
-Subscription::Subscription(const QSqlQuery& query) {
+Subscription::Subscription(const QSqlQuery& query, Database* db) {
 	// Load data about the subscription itself
 	id_ = query.value(0).toString();
 	title_ = query.value(1).toString();
 	sortid_ = query.value(2).toString();
 	
 	// Now load the list of categories
-	QSqlQuery categoryQuery;
-	categoryQuery.prepare("SELECT Tag.id, Tag.title FROM Tag INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId WHERE FeedTagMap.feedId=:feedId");
-	categoryQuery.bindValue(":feedId", id_);
-	if (!categoryQuery.exec())
-		Database::handleError(categoryQuery.lastError());
-	
-	while (categoryQuery.next())
-		addCategory(Category(categoryQuery.value(0).toString(), categoryQuery.value(1).toString()));
+	// Now done by FeedsModel
+	/*db->pushQuery(
+		"SELECT Tag.id, Tag.title FROM Tag "
+		"INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId "
+		"WHERE FeedTagMap.feedId=:feedId",
+		QList<QVariant>() << id_,
+		bind(&Subscription::categoriesLoaded, this, _1));*/
+}
+
+void Subscription::categoriesLoaded(const QSqlQuery& query) {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QSqlQuery mutable_query(query);
+	while (mutable_query.next())
+		addCategory(Category(mutable_query.value(0).toString(), mutable_query.value(1).toString()));
 }
 
 Subscription::Subscription(const QString& id, const QString& title)
@@ -154,7 +164,7 @@ SubscriptionList::SubscriptionList(QXmlStreamReader& s) {
 				if (s.name() == "list")
 					inside_list = true;
 				else if (inside_list && s.name() == "object")
-					subscriptions_ << Subscription(s);
+					subscriptions_ << new Subscription(s);
 				else if (s.name() != "object")
 					ignoreElement(s);
 

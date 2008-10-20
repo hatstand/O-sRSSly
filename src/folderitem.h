@@ -11,8 +11,7 @@ class ReaderApi;
 class FolderItem : public TreeItem {
 	Q_OBJECT
 public:
-	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api);
-	FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api);
+	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api, Database* db);
 
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
@@ -41,6 +40,7 @@ private:
 	QModelIndex getItem(const QModelIndex& index) const;
 
 	ReaderApi* api_;
+	Database* db_;
 	QString continuation_;
 	
 	static QIcon sIcon;

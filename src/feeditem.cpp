@@ -26,33 +26,35 @@ QVariant FeedItem::data(int column, int role) const {
 	}
 }
 
-FeedItemData::FeedItemData(const Subscription& s, ReaderApi* api)
+FeedItemData::FeedItemData(Subscription* s, ReaderApi* api, Database* db)
 	: subscription_(s),
-	  feed_(s.id()),
-	  api_(api)
+	  feed_(s->id(), db),
+	  api_(api),
+	  db_(db)
 {
 	save();
 	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
-FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api)
-	: subscription_(query),
-	  feed_(query),
-	  api_(api)
+FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api, Database* db)
+	: subscription_(new Subscription(query, db)),
+	  feed_(query, db),
+	  api_(api),
+	  db_(db)
 {
-	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
+	//connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
 FeedItemData::~FeedItemData() {
 }
 
 void FeedItemData::update() {
-	api_->getSubscription(subscription_, feed_.continuation());
+	api_->getSubscription(*subscription_, feed_.continuation());
 }
 
 int FeedItemData::update(const AtomFeed& feed) {
-	if (feed.id() == subscription_.id()) {
-		qDebug() << "Update arrived for..." << subscription_.id() << feed.continuation();
+	if (feed.id() == subscription_->id()) {
+		qDebug() << "Update arrived for..." << subscription_->id() << feed.continuation();
 		
 		int beforeCount = feed_.entries().size();
 		feed_.merge(feed);
@@ -60,9 +62,7 @@ int FeedItemData::update(const AtomFeed& feed) {
 
 		if (beforeCount != afterCount) {
 			emit rowsInserted(beforeCount, afterCount-1);
-			QSqlDatabase::database().transaction();
 			save();
-			QSqlDatabase::database().commit();
 			return afterCount - beforeCount;
 		}
 	}
@@ -71,8 +71,8 @@ int FeedItemData::update(const AtomFeed& feed) {
 }
 
 int FeedItemData::update(const AtomEntry& e) {
-	if (e.source == subscription_.id()) {
-		qDebug() << "Single update arrived for..." << subscription_.id();
+	if (e.source == subscription_->id()) {
+		qDebug() << "Single update arrived for..." << subscription_->id();
 		int beforeCount = feed_.entries().size();
 		feed_.add(e);
 		int afterCount = feed_.entries().size();
@@ -98,48 +98,47 @@ void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
 }
 
 void FeedItemData::setXpath(const QString& xpath) {
-	subscription_.setXpath(xpath);
+	subscription_->setXpath(xpath);
 }
 
 const QString& FeedItemData::xpath() const {
-	return subscription_.xpath();
+	return subscription_->xpath();
 }
 
-void FeedItemData::addCategory(const QPair<QString,QString>& category) {
-	subscription_.addCategory(category);
-	api_->addCategory(subscription_, category.first);
+void FeedItemData::addCategory(const QPair<QString,QString>& category, bool update_account) {
+	subscription_->addCategory(category);
+	if (update_account)
+		api_->addCategory(*subscription_, category.first);
 }
 
 void FeedItemData::removeCategory(const QString& category) {
-	qDebug() << "Removing" << category << "from" << subscription_.id();
-	subscription_.removeCategory(category);
-	api_->removeCategory(subscription_, category);
+	qDebug() << "Removing" << category << "from" << subscription_->id();
+	subscription_->removeCategory(category);
+	api_->removeCategory(*subscription_, category);
 }
 
 void FeedItemData::save() {
-	QSqlQuery query;
-	
 	// Save the feed itself
-	query.prepare("REPLACE INTO Feed (id, title, sortId) VALUES (:id, :title, :sortId)");
-	query.bindValue(":id", subscription_.id());
-	query.bindValue(":title", subscription_.title());
-	query.bindValue(":sortId", subscription_.sortid());
-	if (!query.exec())
-		Database::handleError(query.lastError());
+	QList<QVariant> bind_values;
+	bind_values << subscription_->id();
+	bind_values << subscription_->title();
+	bind_values << subscription_->sortid();
+	db_->pushQuery(
+		"REPLACE INTO Feed (id, title, sortId) VALUES (:id, :title, :sortId)",
+		bind_values);
 		
 	// Clear out the old mappings
-	query.prepare("DELETE FROM FeedTagMap WHERE feedId=:id");
-	query.bindValue(":id", subscription_.id());
-	if (!query.exec())
-		Database::handleError(query.lastError());
+	bind_values.clear();
+	bind_values << subscription_->id();
+	db_->pushQuery("DELETE FROM FeedTagMap WHERE feedId=:id", bind_values);
 	
 	// Save the list of tags it has
-	query.prepare("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
-	foreach (const Category& category, subscription_.categories()) {
-		query.bindValue(":feedId", subscription_.id());
-		query.bindValue(":tagId", category.first);
-		if (!query.exec())
-			Database::handleError(query.lastError());
+	QString query("INSERT INTO FeedTagMap (feedId, tagId) VALUES (:feedId, :tagId)");
+	foreach (const Category& category, subscription_->categories()) {
+		bind_values.clear();
+		bind_values << subscription_->id();
+		bind_values << category.first;
+		db_->pushQuery(query, bind_values);
 	}
 	
 	// Save its entries

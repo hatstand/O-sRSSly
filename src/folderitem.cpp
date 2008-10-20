@@ -7,9 +7,10 @@
 
 QIcon FolderItem::sIcon;
 
-FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api)
+FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api, Database* db)
 	: TreeItem(parent, name),
-	  api_(api)
+	  api_(api),
+	  db_(db)
 {
 	id_ = id;
 	
@@ -17,25 +18,13 @@ FolderItem::FolderItem(TreeItem* parent, const QString& id, const QString& name,
 		sIcon = QIcon(":directory.png");
 }
 
-FolderItem::FolderItem(TreeItem* parent, const QSqlQuery& query, ReaderApi* api)
-	: TreeItem(parent),
-	  api_(api)
-{
-	id_ = query.value(0).toString();
-	title_ = query.value(1).toString();
-	
-	if (sIcon.isNull())
-		sIcon = QIcon(":directory.png");
-}
-
 void FolderItem::save()
 {
-	QSqlQuery query;
-	query.prepare("REPLACE INTO Tag (id, title) VALUES (:id, :title)");
-	query.bindValue(":id", id_);
-	query.bindValue(":title", title_);
-	if (!query.exec())
-		Database::handleError(query.lastError());
+	QString query("REPLACE INTO Tag (id, title) VALUES (:id, :title)");
+	QList<QVariant> bind_values;
+	bind_values << id_;
+	bind_values << title_;
+	db_->pushQuery(query, bind_values);
 }
 
 QVariant FolderItem::data(const QModelIndex& index, int role) const {

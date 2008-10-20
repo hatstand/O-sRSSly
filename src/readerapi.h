@@ -17,10 +17,12 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 
+class Database;
+
 class ReaderApi : public QObject {
 Q_OBJECT
 public:
-	ReaderApi(const QString& username, const QString& password, QObject* parent = 0);
+	ReaderApi(const QString& username, const QString& password, Database* db, QObject* parent = 0);
 	virtual ~ReaderApi();
 
 	bool isLoggedIn();
@@ -118,6 +120,8 @@ private:
 
 	QMap<QUrl, QTime> network_throttle_;
 	QTimer throttle_clear_;
+
+	Database* db_;
 
 public:
 	static const char* kApplicationSource;

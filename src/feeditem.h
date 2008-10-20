@@ -5,29 +5,32 @@
 #include "subscriptionlist.h"
 #include "treeitem.h"
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+using boost::scoped_ptr;
 using boost::shared_ptr;
 using boost::weak_ptr;
 
+class Database;
 class ReaderApi;
 
 class FeedItemData : public QObject {
 	Q_OBJECT
 public:
-	FeedItemData(const Subscription& s, ReaderApi* api);
-	FeedItemData(const QSqlQuery& query, ReaderApi* api);
+	FeedItemData(Subscription* s, ReaderApi* api, Database* db);
+	FeedItemData(const QSqlQuery& query, ReaderApi* api, Database* db);
 	~FeedItemData();
 	void setRead(const AtomEntry& e);
 
 	const AtomFeed::AtomList& entries() { return feed_.entries(); }
-	const Subscription& subscription() { return subscription_; }
+	const Subscription& subscription() { return *subscription_; }
 
 	void update();
 	int update(const AtomEntry& e);
 
-	void addCategory(const QPair<QString,QString>& category);
+	void addCategory(const QPair<QString,QString>& category, bool update_account = true);
 	void removeCategory(const QString& category);
 
 	void setStarred(const AtomEntry& e, bool starred = true);
@@ -37,7 +40,7 @@ public:
 
 	void save();
 
-private slots:
+public slots:
 	int update(const AtomFeed& feed);
 
 signals:
@@ -45,10 +48,11 @@ signals:
 
 private:
 	// The feed id & title etc.
-	Subscription subscription_;
+	scoped_ptr<Subscription> subscription_;
 	// The atom entries.
 	AtomFeed feed_;
 	ReaderApi* api_;
+	Database* db_;
 };
 
 /*
