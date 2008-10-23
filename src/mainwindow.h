@@ -14,6 +14,8 @@ namespace Spawn {
 	class Manager;
 }
 
+class QWebView;
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
@@ -71,6 +73,10 @@ private:
 
 	QModelIndex current_contents_;
 	
+#ifdef USE_SPAWN
 	Spawn::Manager* spawn_manager_;
 	Spawn::View* contents_;
+#else
+	QWebView* contents_;
+#endif
 };

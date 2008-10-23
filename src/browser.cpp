@@ -4,14 +4,23 @@
 #include <spawn/view.h>
 
 #include <QWebHistory>
+#include <QWebView>
 #include <QtDebug>
 
+#ifdef USE_SPAWN
 Browser::Browser(Spawn::Manager* manager, QWidget* parent)
+#else
+Browser::Browser(QWidget* parent)
+#endif
 	: QWidget(parent)
 {
 	ui_.setupUi(this);
 
+#ifdef USE_SPAWN
 	contents_ = new Spawn::View(manager, this);
+#else
+	contents_ = new QWebView(this);
+#endif
 	layout()->removeWidget(ui_.view_container_);
 	delete ui_.view_container_;
 	layout()->addWidget(contents_);

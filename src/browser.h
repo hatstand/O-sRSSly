@@ -8,10 +8,16 @@ namespace Spawn {
 	class View;
 }
 
+class QWebView;
+
 class Browser : public QWidget {
 	Q_OBJECT
 public:
+#ifdef USE_SPAWN
 	Browser(Spawn::Manager* manager, QWidget* parent = 0);
+#else
+	Browser(QWidget* parent = 0);
+#endif
 	virtual ~Browser() {}
 	
 	QIcon icon() const;
@@ -33,7 +39,11 @@ private slots:
 	void returnPressed();
 	
 private:
+#ifdef USE_SPAWN
 	Spawn::View* contents_;
+#else
+	QWebView* contents_;
+#endif
 	Ui_Browser ui_;
 };
 

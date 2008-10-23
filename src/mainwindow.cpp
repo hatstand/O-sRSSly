@@ -14,6 +14,7 @@
 #include <QShortcut>
 #include <QTextDocument>
 #include <QSystemTrayIcon>
+#include <QWebView>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
@@ -26,8 +27,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  web_progress_bar_(new LongCatBar(this)),
 	  configure_dialog_(new ConfigureDialog(this)),
 	  webclipping_(false),
-	  unread_only_(false),
-	  spawn_manager_(new Spawn::Manager(this))
+	  unread_only_(false)
+#ifdef USE_SPAWN
+	  ,spawn_manager_(new Spawn::Manager(this))
+#endif
 {
 	ui_.setupUi(this);
 	
@@ -58,13 +61,21 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.title_->setFont(bold_font);
 	ui_.title_->setText("Welcome to " TITLE);
 	
+#ifdef USE_SPAWN
 	contents_ = new Spawn::View(spawn_manager_, ui_.contents_tab_);
+#else
+	contents_ = new QWebView(this);
+#endif
 	ui_.contents_tab_->layout()->removeWidget(ui_.view_container_);
 	delete ui_.view_container_;
 	ui_.contents_tab_->layout()->addWidget(contents_);
 	
 	contents_->setUrl(QUrl("qrc:/welcome.html"));
+#ifdef USE_SPAWN
 	contents_->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+#else
+	contents_->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+#endif
 	
 	connect(contents_, SIGNAL(linkClicked(const QUrl&)),
 		SLOT(externalLinkClicked(const QUrl&)));
@@ -243,7 +254,11 @@ void MainWindow::entrySelected(const QModelIndex& index) {
 void MainWindow::externalLinkClicked(const QUrl& url) {
 	qDebug() << __PRETTY_FUNCTION__;
 	
+#ifdef USE_SPAWN
 	Browser* browser = new Browser(spawn_manager_, this);
+#else
+	Browser* browser = new Browser(this);
+#endif
 	connect(browser, SIGNAL(titleChanged(const QString&)), SLOT(titleChanged(const QString&)));
 	connect(browser, SIGNAL(statusBarMessage(const QString&)), SLOT(statusBarMessage(const QString&)));
 	connect(browser, SIGNAL(iconChanged()), SLOT(iconChanged()));
