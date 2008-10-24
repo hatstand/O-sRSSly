@@ -33,7 +33,7 @@ FeedItemData::FeedItemData(Subscription* s, ReaderApi* api, Database* db)
 	  db_(db)
 {
 	save();
-	connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
+	//connect(api_, SIGNAL(subscriptionArrived(const AtomFeed&)), SLOT(update(const AtomFeed&)));
 }
 
 FeedItemData::FeedItemData(const QSqlQuery& query, ReaderApi* api, Database* db)
