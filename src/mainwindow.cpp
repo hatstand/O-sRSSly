@@ -105,6 +105,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	connect(ui_.entries_, SIGNAL(canGoUpChanged(bool)), ui_.actionPrevious_, SLOT(setEnabled(bool)));
 	connect(ui_.entries_, SIGNAL(canGoDownChanged(bool)), ui_.actionNext_, SLOT(setEnabled(bool)));
+
+	// Mark as read
+	connect(ui_.actionMarkRead_, SIGNAL(triggered(bool)), this, SLOT(markAllRead()));
 	
 	// Other things on the title bar
 	connect(ui_.seeOriginal_, SIGNAL(linkActivated(const QString&)), SLOT(seeOriginal(const QString&)));
@@ -451,5 +454,13 @@ void MainWindow::toggleWindowVisibility()
 		// we send to the root window per fdo NET spec
 		XSendEvent( i.display(), i.appRootWindow(), false, SubstructureRedirectMask | SubstructureNotifyMask, &e );
 		#endif
+	}
+}
+
+void MainWindow::markAllRead() {
+	qDebug() << __PRETTY_FUNCTION__;
+	for (int row = 0; row < sorted_entries_->rowCount(QModelIndex()); ++row) {
+		QModelIndex index = sorted_entries_->index(row, TreeItem::Column_Read);
+		sorted_entries_->setData(index, QVariant(true));
 	}
 }

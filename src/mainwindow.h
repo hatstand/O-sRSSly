@@ -50,6 +50,8 @@ private slots:
 	void toggleWindowVisibility();
 
 	void xpathSet(const QString& xpath);
+
+	void markAllRead();
 	
 private:
 	void updateProgressBar();
