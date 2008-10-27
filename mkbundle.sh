@@ -14,23 +14,28 @@ fixlibs() {
 	done
 }
 
-EXEDIR="Feeder.app/Contents/MacOS"
-RESDIR="Feeder.app/Contents/Resources"
-FRMDIR="Feeder.app/Contents/Frameworks"
-PLUGDIR="Feeder.app/Contents/plugins"
+NAME="@BINARY_NAME@"
+
+EXEDIR="${NAME}.app/Contents/MacOS"
+RESDIR="${NAME}.app/Contents/Resources"
+FRMDIR="${NAME}.app/Contents/Frameworks"
+PLUGDIR="${NAME}.app/Contents/plugins"
+
+QTDIR="@QT_LIBRARY_DIR@"
+QT_PLUGINS="@QT_PLUGINS_DIR@"
 
 mkdir -p $EXEDIR
 mkdir $RESDIR
 mkdir $FRMDIR
 mkdir $PLUGDIR
-cp feeder $EXEDIR/Feeder
-cp Info.plist Feeder.app/Contents
+cp ${NAME} $EXEDIR/${NAME}
+cp Info.plist ${NAME}.app/Contents
 cp qt.conf ${RESDIR}
-cp Feeder.icns ${RESDIR}
+cp ${NAME}.icns ${RESDIR}
 
 copyqtlib()
 {
-	cp -R /Library/Frameworks/${1}.framework ${FRMDIR}
+	cp -R ${QTDIR}/${1}.framework ${FRMDIR}
 	rm -rf ${FRMDIR}/${1}.framework/Headers/
 	rm -f ${FRMDIR}/${1}.framework/Versions/4/${1}_debug
 	install_name_tool -id @executable_path/../Frameworks/${1}.framework/Versions/4.0/${1} ${FRMDIR}/${1}.framework/Versions/4/${1}
@@ -48,18 +53,18 @@ copyqtlib QtSql
 #copyqtlib phonon
 
 # Copy in plugins
-cp -R /Developer/Applications/Qt/plugins/imageformats $PLUGDIR
+cp -R ${QT_PLUGINS}/imageformats $PLUGDIR
 rm -f ${PLUGDIR}/imageformats/*_debug.dylib
 mkdir ${PLUGDIR}/sqldrivers
-cp /Developer/Applications/Qt/plugins/sqldrivers/libqsqlite.dylib ${PLUGDIR}/sqldrivers/
+cp ${QT_PLUGINS}/sqldrivers/libqsqlite.dylib ${PLUGDIR}/sqldrivers/
 
-# Fix path names to Qt in feeder
-install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore $EXEDIR/feeder
-install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui $EXEDIR/feeder
-install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4.0/QtNetwork $EXEDIR/feeder
-install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4.0/QtXml $EXEDIR/feeder
-install_name_tool -change QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4.0/QtSql $EXEDIR/feeder
-install_name_tool -change QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4.0/QtWebKit $EXEDIR/feeder
+# Fix path names to Qt in ${NAME}
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore $EXEDIR/${NAME}
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui $EXEDIR/${NAME}
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4.0/QtNetwork $EXEDIR/${NAME}
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4.0/QtXml $EXEDIR/${NAME}
+install_name_tool -change QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4.0/QtSql $EXEDIR/${NAME}
+install_name_tool -change QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4.0/QtWebKit $EXEDIR/${NAME}
 
 # Fix path names in Qt Libraries
 # QtCore
@@ -101,5 +106,5 @@ install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../F
 install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore $PLUGDIR/sqldrivers/libqsqlite.dylib
 install_name_tool -change QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4.0/QtSql $PLUGDIR/sqldrivers/libqsqlite.dylib
 # Fix other libraries
-fixlibs ${EXEDIR}/Feeder
+fixlibs ${EXEDIR}/${NAME}
 
