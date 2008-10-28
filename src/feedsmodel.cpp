@@ -472,7 +472,7 @@ void FeedsModel::categoryFeedArrived(const AtomFeed& feed) {
 
 		// Grab reference.
 		shared_ptr<FeedItemData> data(jt.value());
-		data->update(*kt);
+		data->update(*kt, true);
 	}
 }
 
@@ -490,7 +490,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 				qDebug() << "Adding shared items for:" << it->shared_by;
 				Subscription* sub = new Subscription(it->source, it->shared_by);
 				FeedItemData* data = new FeedItemData(sub, api_, &database_);
-				new_unread += data->update(*it);
+				new_unread += data->update(*it, true);
 				addFeed(data, false);
 			}
 			continue;
@@ -498,7 +498,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 
 		// Grab reference.
 		shared_ptr<FeedItemData> data(jt.value());
-		new_unread += data->update(*it);
+		new_unread += data->update(*it, true);
 	}
 	
 	emit newUnreadItems(new_unread);

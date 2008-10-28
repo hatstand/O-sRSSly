@@ -26,6 +26,7 @@ public:
 	
 	const QString& previewText() const;
 	
+	// Update struct update_entry when you add new fields.
 	QString title;
 	QString id;
 	QString summary;
@@ -109,10 +110,12 @@ public:
 	
 	// Copy all the entries from the other AtomFeed into this one.
 	// New entries with duplicate ids are ignored.
-	void merge(const AtomFeed& other);
+	// If definitive is set, then old entries that new entries are updated
+	// with the changed data.
+	void merge(const AtomFeed& other, bool definitive = false);
 
 	// Add a single entry
-	void add(const AtomEntry& e);
+	void add(const AtomEntry& e, bool definitive = false);
 
 	// Marks the entry as read (local only).
 	void setRead(const AtomEntry& e);
@@ -130,6 +133,25 @@ private:
 	void parseFeed(QXmlStreamReader& s);
 	void addEntries(const QSqlQuery& query);
 	
+	struct update_entry {
+		update_entry(const AtomEntry& new_entry) : new_entry_(new_entry) {}
+
+		void operator() (AtomEntry& old_entry) {
+			old_entry.title = new_entry_.title;
+			old_entry.summary = new_entry_.summary;
+			old_entry.content = new_entry_.content;
+			old_entry.date = new_entry_.date;
+			old_entry.link = new_entry_.link;
+			old_entry.read = new_entry_.read;
+			old_entry.starred = new_entry_.starred;
+			old_entry.source = new_entry_.source;
+			old_entry.author = new_entry_.author;
+			old_entry.shared_by = new_entry_.shared_by;
+		}
+
+		const AtomEntry& new_entry_;
+	};
+
 	bool m_error;
 	
 	QString m_id;

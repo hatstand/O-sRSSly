@@ -57,7 +57,8 @@ int FeedItemData::update(const AtomFeed& feed) {
 		qDebug() << "Update arrived for..." << subscription_->id() << feed.continuation();
 		
 		int beforeCount = feed_.entries().size();
-		feed_.merge(feed);
+		// Always definitive as it must have come from the tubes.
+		feed_.merge(feed, true);
 		int afterCount = feed_.entries().size();
 
 		if (beforeCount != afterCount) {
@@ -70,11 +71,11 @@ int FeedItemData::update(const AtomFeed& feed) {
 	return 0;
 }
 
-int FeedItemData::update(const AtomEntry& e) {
+int FeedItemData::update(const AtomEntry& e, bool definitive) {
 	if (e.source == subscription_->id()) {
 		qDebug() << "Single update arrived for..." << subscription_->id();
 		int beforeCount = feed_.entries().size();
-		feed_.add(e);
+		feed_.add(e, definitive);
 		int afterCount = feed_.entries().size();
 
 		if (beforeCount != afterCount) {

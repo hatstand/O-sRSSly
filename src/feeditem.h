@@ -28,7 +28,7 @@ public:
 	const Subscription& subscription() { return *subscription_; }
 
 	void update();
-	int update(const AtomEntry& e);
+	int update(const AtomEntry& e, bool definitive = false);
 
 	void addCategory(const QPair<QString,QString>& category, bool update_account = true);
 	void removeCategory(const QString& category);

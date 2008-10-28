@@ -125,28 +125,48 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 	}
 }
 
-void AtomFeed::merge(const AtomFeed& other) {
+void AtomFeed::merge(const AtomFeed& other, bool definitive) {
 	if (!m_id.isEmpty() && m_id != other.m_id) {
 		qWarning() << "Attempting to merge non-matching feeds";
 		qDebug() << m_id << other.m_id;
 		return;
 	}
 
-	foreach (const AtomEntry& e, other.m_entries) {
-		m_entries.insert(e);
+	if (definitive) {
+		foreach (const AtomEntry& e, other.m_entries) {
+			AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
+			if (it == m_entries.get<hash>().end()) {
+				m_entries.insert(e);
+			} else {
+				m_entries.modify(it, update_entry(e));
+			}
+		}
+	} else {
+		foreach (const AtomEntry& e, other.m_entries) {
+			m_entries.insert(e);
+		}
 	}
 
 	m_continuation = other.m_continuation;
 }
 
-void AtomFeed::add(const AtomEntry& e) {
+void AtomFeed::add(const AtomEntry& e, bool definitive) {
 	if (!m_id.isEmpty() && m_id != e.source) {
 		qWarning() << "Attempting to add non-matching entry";
 		qDebug() << m_id << e.source;
 		return;
 	}
 
-	m_entries.insert(e);
+	if (definitive) {
+		AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
+		if (it == m_entries.get<hash>().end()) {
+			m_entries.insert(e);
+		} else {
+			m_entries.modify(it, update_entry(e));
+		}
+	} else {
+		m_entries.insert(e);
+	}	
 }
 
 void AtomFeed::setRead(const AtomEntry& e) {
