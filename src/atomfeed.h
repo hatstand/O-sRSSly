@@ -152,6 +152,21 @@ private:
 		const AtomEntry& new_entry_;
 	};
 
+	struct set_read {
+		void operator() (AtomEntry& e) {
+			e.read = true;
+		}
+	};
+	
+	struct set_starred {
+		set_starred(bool starred) : starred_(starred) {}
+		void operator() (AtomEntry& e) {
+			e.starred = starred_;
+		}
+
+		bool starred_;
+	};
+
 	bool m_error;
 	
 	QString m_id;

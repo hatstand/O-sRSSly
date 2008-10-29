@@ -173,13 +173,10 @@ void AtomFeed::setRead(const AtomEntry& e) {
 	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
 
 	if (it != m_entries.get<hash>().end()) {
-		AtomEntry f(*it);
-		f.read = true;
-
-		m_entries.get<hash>().replace(it, f);
+		m_entries.modify(it, set_read());
 
 		// Sync change to sql.
-		f.update();
+		it->update();
 	}
 }
 
@@ -187,13 +184,10 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
 
 	if (it != m_entries.get<hash>().end()) {
-		AtomEntry f(*it);
-		f.starred = starred;
-
-		m_entries.get<hash>().replace(it, f);
+		m_entries.modify(it, set_starred(starred));
 
 		// Sync change to sql.
-		f.update();
+		it->update();
 	}
 }
 
