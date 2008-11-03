@@ -191,7 +191,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	}
 
 	// Notify the view that the model has changed.
-	reset();
+	//reset();
 
 	//api_->search("cheese");
 }
@@ -229,9 +229,11 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 		if (folder_mappings_.contains(c.first)) {
 			parent = folder_mappings_[c.first];
 		} else {
+			beginInsertRows(QModelIndex(), root_.childCount(), root_.childCount());
 			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_, &database_);
 			f->save();
 			folder_mappings_.insert(c.first, f);
+			endInsertRows();
 			parent = f;
 		}
 
