@@ -15,6 +15,8 @@
 
 using boost::bind;
 
+const QString FeedsModel::kSharedFolder = "OsrsslyShared";
+
 FeedsModel::FeedsModel(QObject* parent)
 	: QAbstractItemModel(parent),
 	  root_(this),
@@ -63,12 +65,17 @@ void FeedsModel::googleAccountChanged() {
 	all_items_ = new AllItems(&root_, api_);
 	root_.installChangedProxy(all_items_);
 
+	FolderItem* friends = new FolderItem(&root_, kSharedFolder, "Shared Items", api_, &database_);
+	folder_mappings_.insert(kSharedFolder, friends);
+
 	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
 	connect(api_, SIGNAL(categoryArrived(const AtomFeed&)),
 		SLOT(categoryFeedArrived(const AtomFeed&)));
 	connect(api_, SIGNAL(freshArrived(const AtomFeed&)),
+		SLOT(freshFeedArrived(const AtomFeed&)));
+	connect(api_, SIGNAL(friendsArrived(const AtomFeed&)),
 		SLOT(freshFeedArrived(const AtomFeed&)));
 	
 	api_->login();
@@ -165,6 +172,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 	qDebug() << __PRETTY_FUNCTION__;
 
 	api_->getFresh();
+	api_->getFriends();
 
 	foreach (Subscription* s, list.subscriptions()) {
 		qDebug() << "Adding..." << s->title();
@@ -489,6 +497,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 				// Must be a shared item
 				qDebug() << "Adding shared items for:" << it->shared_by;
 				Subscription* sub = new Subscription(it->source, it->shared_by);
+				sub->addCategory(Category(kSharedFolder, "Shared Items"));
 				FeedItemData* data = new FeedItemData(sub, api_, &database_);
 				new_unread += data->update(*it, true);
 				addFeed(data, false);

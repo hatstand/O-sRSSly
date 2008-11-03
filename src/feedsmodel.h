@@ -98,6 +98,8 @@ private:
 	Database database_;
 	QMutex mutex_;
 
+	static const QString kSharedFolder;
+
 	bool deleting_;
 
 	QTimer refresh_timer_;

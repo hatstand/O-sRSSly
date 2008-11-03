@@ -38,6 +38,7 @@ const QUrl ReaderApi::kEditTagUrl("http://www.google.com/reader/api/0/edit-tag")
 const char* ReaderApi::kReadTag("user/-/state/com.google/read");
 const char* ReaderApi::kStarredTag("user/-/state/com.google/starred");
 const char* ReaderApi::kFreshTag("user/-/state/com.google/fresh");
+const char* ReaderApi::kFriendsTag("user/-/state/com.google/broadcast-friends");
 const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/subscription/edit");
 
 // Atom feed url base
@@ -409,6 +410,34 @@ void ReaderApi::getCategoryComplete() {
 	emit categoryArrived(feed);
 
 	qDebug() << reply->readAll();
+
+	reply->deleteLater();
+}
+
+void ReaderApi::getFriends() {
+	qDebug() << __PRETTY_FUNCTION__;
+	QUrl url(kAtomUrl.toString() + kFriendsTag);
+	if (!friends_continuation_.isEmpty())
+		url.addQueryItem("c", friends_continuation_);
+	
+	if (!checkThrottle(url))
+		return;
+	
+	QNetworkRequest req(url);
+	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
+	connect(reply, SIGNAL(finished()), SLOT(getFriendsComplete()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::getFriendsComplete() {
+	qDebug() << __PRETTY_FUNCTION__;
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+
+	AtomFeed feed(reply->url(), reply, db_);
+	friends_continuation_ = feed.continuation();
+	emit friendsArrived(feed);
 
 	reply->deleteLater();
 }

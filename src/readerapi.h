@@ -32,6 +32,7 @@ public:
 	void getFresh();
 	void getUnread();
 	void getCategory(const QString& category, const QString& continuation = "");
+	void getFriends();
 	void setRead(const AtomEntry& e);
 	void setStarred(const AtomEntry& e, bool starred);
 	void addCategory(const Subscription& s, const QString& category);
@@ -68,6 +69,7 @@ private slots:
 	void getFreshComplete();
 	void getUnreadComplete();
 	void getCategoryComplete();
+	void getFriendsComplete();
 	void getTokenComplete();
 	void networkError(QNetworkReply::NetworkError code);
 	void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
@@ -92,6 +94,7 @@ signals:
 	void subscriptionArrived(const AtomFeed&);
 	void categoryArrived(const AtomFeed&);
 	void freshArrived(const AtomFeed&);
+	void friendsArrived(const AtomFeed&);
 	// Emitted when an auth token has been received.
 	void tokenReady();
 	
@@ -117,6 +120,8 @@ private:
 
 	// Reading list continuation.
 	QString continuation_;
+        // Shared items continuation.
+	QString friends_continuation_;
 
 	QMap<QUrl, QTime> network_throttle_;
 	QTimer throttle_clear_;
@@ -141,6 +146,7 @@ public:
 	static const char* kReadTag;
 	static const char* kStarredTag;
 	static const char* kFreshTag;
+	static const char* kFriendsTag;
 	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;
