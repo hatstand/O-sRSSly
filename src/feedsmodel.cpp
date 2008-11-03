@@ -235,7 +235,9 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 			parent = f;
 		}
 
+		beginInsertRows(createIndex(0, 0, parent), parent->childCount(), parent->childCount());
 		new FeedItem(parent, d);
+		endInsertRows();
 	}
 	
 	all_items_->invalidateFeedCache();
