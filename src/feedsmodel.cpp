@@ -444,6 +444,9 @@ void FeedsModel::feedItemsLoaded(const QSqlQuery& query) {
 	QSqlQuery mutable_query(query);
 	while (mutable_query.next()) {
 		FeedItemData* data = new FeedItemData(mutable_query, api_, &database_);
+		if (data->subscription().id().startsWith("user"))
+			data->addCategory(Category(kSharedFolder, "Shared Items"));
+		
 		database_.pushQuery(
 			"SELECT Tag.id, Tag.title FROM Tag "
 			"INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId "
