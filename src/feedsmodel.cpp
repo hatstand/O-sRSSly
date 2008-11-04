@@ -445,7 +445,7 @@ void FeedsModel::feedItemsLoaded(const QSqlQuery& query) {
 	while (mutable_query.next()) {
 		FeedItemData* data = new FeedItemData(mutable_query, api_, &database_);
 		if (data->subscription().id().startsWith("user"))
-			data->addCategory(Category(kSharedFolder, "Shared Items"));
+			data->addCategory(Category(kSharedFolder, "Shared Items"), false);
 		
 		database_.pushQuery(
 			"SELECT Tag.id, Tag.title FROM Tag "
