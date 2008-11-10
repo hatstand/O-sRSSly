@@ -110,7 +110,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionMarkRead_, SIGNAL(triggered(bool)), this, SLOT(markAllRead()));
 	
 	// Other things on the title bar
-	connect(ui_.seeOriginal_, SIGNAL(linkActivated(const QString&)), SLOT(seeOriginal(const QString&)));
+	connect(ui_.seeOriginal_, SIGNAL(linkActivated(const QString&)), SLOT(seeOriginal()));
+	connect(new QShortcut(Qt::Key_V, this), SIGNAL(activated()), SLOT(seeOriginal()));
 	
 	// Close button for tabs
 	QToolButton* closeTabButton = new QToolButton(this);
@@ -301,8 +302,9 @@ void MainWindow::iconChanged() {
 	ui_.tabs_->setTabIcon(index, browser->icon());
 }
 
-void MainWindow::seeOriginal(const QString& url) {
-	externalLinkClicked(QUrl(url));
+void MainWindow::seeOriginal() {
+	QUrl url = current_contents_.sibling(current_contents_.row(), TreeItem::Column_Link).data().toUrl();
+	externalLinkClicked(url);
 }
 
 void MainWindow::webclipClicked() {
