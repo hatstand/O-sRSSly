@@ -95,7 +95,7 @@ void FeedItemData::setRead(const AtomEntry& e) {
 void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
 	feed_.setStarred(e, starred);
 	api_->setStarred(e, starred);
-	e.update();
+	e.update(db_);
 }
 
 void FeedItemData::setXpath(const QString& xpath) {
@@ -256,7 +256,7 @@ QString FeedItem::content(const QModelIndex& index) const {
 void FeedItem::setStarred(const QModelIndex& index, bool starred) {
 	const AtomEntry& e = data_->entries().at(index.row());
 	data_->setStarred(e, starred);
-	e.update();
+	e.update(data_->database());
 
 	QModelIndex top_left = createIndex(index.row(), 4);
 	emit dataChanged(top_left, top_left);

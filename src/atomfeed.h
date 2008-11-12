@@ -39,7 +39,7 @@ public:
 	QString author;
 	QString shared_by;
 	
-	void update() const;
+	void update(Database* db) const;
 
 private:
 	void parseSource(QXmlStreamReader& s);

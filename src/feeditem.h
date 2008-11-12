@@ -38,6 +38,8 @@ public:
 	void setXpath(const QString& xpath);
 	const QString& xpath() const;
 
+	Database* database() { return db_; }
+
 	void save();
 
 public slots:

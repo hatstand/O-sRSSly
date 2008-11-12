@@ -2,11 +2,11 @@
 #include "xmlutils.h"
 #include "database.h"
 
-#include <QXmlStreamReader>
 #include <QFile>
+#include <QList>
 #include <QtDebug>
-#include <QSqlQuery>
 #include <QVariant>
+#include <QXmlStreamReader>
 
 #include <boost/bind.hpp>
 using boost::bind;
@@ -176,7 +176,7 @@ void AtomFeed::setRead(const AtomEntry& e) {
 		m_entries.modify(it, set_read());
 
 		// Sync change to sql.
-		it->update();
+		it->update(db_);
 	}
 }
 
@@ -187,7 +187,7 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 		m_entries.modify(it, set_starred(starred));
 
 		// Sync change to sql.
-		it->update();
+		it->update(db_);
 	}
 }
 
@@ -350,14 +350,13 @@ QString AtomEntry::parseAuthor(QXmlStreamReader& s) {
 	return QString::null;
 }
 
-void AtomEntry::update() const {
-	QSqlQuery query;
-	query.prepare("UPDATE Entry SET read=:read, starred=:starred WHERE id=:id");
-	query.bindValue(":id", id);
-	query.bindValue(":read", QVariant(read).toString());
-	query.bindValue(":starred", QVariant(starred).toString());
-	if (!query.exec())
-		Database::handleError(query.lastError());
+void AtomEntry::update(Database* db) const {
+	QString query = "UPDATE Entry SET read=?, starred=? WHERE id=?";
+	QList<QVariant> args;
+	args << id;
+	args << QVariant(read);
+	args << QVariant(starred);
+	db->pushQuery(query, args);
 }
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f)
@@ -370,4 +369,3 @@ QDebug operator <<(QDebug dbg, const AtomFeed& f)
 	}
 	return dbg.space();
 }
-
