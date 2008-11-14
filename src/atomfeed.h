@@ -107,6 +107,8 @@ public:
 	const AtomList& entries() const { return m_entries.get<random>(); }
 
 	const QString& continuation() const { return m_continuation; }
+
+	const QDateTime& updated() const { return m_updated; }
 	
 	// Copy all the entries from the other AtomFeed into this one.
 	// New entries with duplicate ids are ignored.
@@ -155,6 +157,7 @@ private:
 	struct set_read {
 		void operator() (AtomEntry& e) {
 			e.read = true;
+			e.date = QDateTime::currentDateTime();
 		}
 	};
 	
@@ -162,6 +165,7 @@ private:
 		set_starred(bool starred) : starred_(starred) {}
 		void operator() (AtomEntry& e) {
 			e.starred = starred_;
+			e.date = QDateTime::currentDateTime();
 		}
 
 		bool starred_;
@@ -175,6 +179,7 @@ private:
 	// Magic string which represents to Google where we got up to in downloading entries.
 	QString m_continuation;
 	AtomEntryList m_entries;
+	QDateTime m_updated;
 
 	Database* db_;
 };

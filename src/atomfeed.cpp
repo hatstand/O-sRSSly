@@ -108,6 +108,8 @@ void AtomFeed::parseFeed(QXmlStreamReader& s)
 				m_entries.insert(AtomEntry(s));
 			else if (s.namespaceUri() == kReaderXmlNamespace && s.name() == "continuation")
 				m_continuation = s.readElementText();
+			else if (s.name() == "updated")
+				m_updated = QDateTime::fromString(s.readElementText(), Qt::ISODate);
 			else
 				ignoreElement(s);
 			
@@ -137,7 +139,7 @@ void AtomFeed::merge(const AtomFeed& other, bool definitive) {
 			AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
 			if (it == m_entries.get<hash>().end()) {
 				m_entries.insert(e);
-			} else {
+			} else if (e.date > it->date) {
 				m_entries.modify(it, update_entry(e));
 			}
 		}
@@ -148,6 +150,7 @@ void AtomFeed::merge(const AtomFeed& other, bool definitive) {
 	}
 
 	m_continuation = other.m_continuation;
+	m_updated = QDateTime::currentDateTime();
 }
 
 void AtomFeed::add(const AtomEntry& e, bool definitive) {
@@ -161,12 +164,12 @@ void AtomFeed::add(const AtomEntry& e, bool definitive) {
 		AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
 		if (it == m_entries.get<hash>().end()) {
 			m_entries.insert(e);
-		} else {
+		} else if (e.date > it->date) {
 			m_entries.modify(it, update_entry(e));
 		}
 	} else {
 		m_entries.insert(e);
-	}	
+	}
 }
 
 void AtomFeed::setRead(const AtomEntry& e) {
