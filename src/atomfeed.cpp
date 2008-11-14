@@ -47,7 +47,7 @@ AtomFeed::AtomFeed(const QSqlQuery& query, Database* db)
 	  db_(db)
 {
 	db_->pushQuery(
-		"SELECT title, id, summary, content, date, link, read, starred, author, shared_by "
+		"SELECT title, id, summary, content, date, link, read, starred, author, shared_by, shared "
 		"FROM Entry WHERE feedId=?",
 		QList<QVariant>() << m_id,
 		bind(&AtomFeed::addEntries, this, _1));
@@ -195,7 +195,7 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 }
 
 void AtomFeed::saveEntries() {
-	QString query("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	QString query("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by, shared) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	
 	for (AtomList::const_iterator it = entries().begin(); it != entries().end(); ++it) {
 		const AtomEntry& entry(*it);
@@ -212,6 +212,7 @@ void AtomFeed::saveEntries() {
 		bind_values << QVariant(entry.starred);
 		bind_values << entry.author;
 		bind_values << entry.shared_by;
+		bind_values << entry.shared;
 
 		db_->pushQuery(query, bind_values);
 	}
@@ -219,7 +220,8 @@ void AtomFeed::saveEntries() {
 
 AtomEntry::AtomEntry(QXmlStreamReader& s)
 	: read(false),
-	  starred(false)
+	  starred(false),
+	  shared(false)
 {
 	while (!s.atEnd())
 	{
@@ -239,6 +241,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 				read = true;
 			else if (s.name() == "category" && s.attributes().value("label") == "starred")
 				starred = true;
+			else if (s.name() == "category" && s.attributes().value("label") == "broadcast")
+				shared = true;
 			else if (s.name() == "updated")
 				date = QDateTime::fromString(s.readElementText(), Qt::ISODate);
 			else if (s.name() == "link" && s.attributes().value("rel") == "alternate")
@@ -287,6 +291,7 @@ AtomEntry::AtomEntry(const QSqlQuery& query) {
 	starred = query.value(7).toBool();
 	author = query.value(8).toString();
 	shared_by = query.value(9).toString();
+	shared = query.value(10).toBool();
 }
 
 const QString& AtomEntry::previewText() const {

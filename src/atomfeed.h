@@ -35,6 +35,7 @@ public:
 	QUrl link;
 	bool read;
 	bool starred;
+	bool shared;
 	QString source;
 	QString author;
 	QString shared_by;

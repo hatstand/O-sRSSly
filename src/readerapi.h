@@ -35,6 +35,7 @@ public:
 	void getFriends();
 	void setRead(const AtomEntry& e);
 	void setStarred(const AtomEntry& e, bool starred);
+	void setShared(const AtomEntry& e, bool shared);
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
 
@@ -147,6 +148,7 @@ public:
 	static const char* kStarredTag;
 	static const char* kFreshTag;
 	static const char* kFriendsTag;
+	static const char* kSharedTag;
 	static const QUrl kEditSubscriptionUrl;
 
 	static const QUrl kAtomUrl;

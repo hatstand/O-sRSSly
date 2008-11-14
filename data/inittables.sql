@@ -29,5 +29,6 @@ CREATE TABLE IF NOT EXISTS Entry
 	read INTEGER,
 	starred INTEGER,
 	author TEXT,
-	shared_by TEXT
+	shared_by TEXT,
+	shared INTEGER
 )

@@ -33,7 +33,8 @@ public:
 		Column_UnreadCount = 12,
 		Column_FeedName = 13,
 		Column_Xpath = 14,
-		Column_EntryId = 15
+		Column_EntryId = 15,
+		Column_Shared = 16
 	};
 
 	TreeItem(TreeItem* parent, const QString& title = QString());
@@ -73,7 +74,7 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	// Number of atom entries within/below this node.
 	virtual int rowCount(const QModelIndex& parent) const = 0;
-	virtual int columnCount(const QModelIndex&) const { return 16; }
+	virtual int columnCount(const QModelIndex&) const { return 17; }
 	
 	virtual void save() {}
 	

@@ -31,12 +31,14 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	bool read(index.sibling(index.row(), TreeItem::Column_Read).data().toBool());
 	QString preview(index.sibling(index.row(), TreeItem::Column_Preview).data().toString());
 	bool starred(index.sibling(index.row(), TreeItem::Column_Starred).data().toBool());
+	bool shared(index.sibling(index.row(), TreeItem::Column_Shared).data().toBool());
 	
 	XmlUtils::stripTags(title);
 	
 	QRect rect(option.rect);
 	QColor headingColor(Qt::black);
 	QColor previewColor(Qt::gray);
+	QColor sharedColor(Qt::blue);
 	
 	// Draw selection background
 	if (option.state & QStyle::State_Selected)
@@ -53,7 +55,7 @@ void EntryDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 	
 	// Draw heading
 	rect.setLeft(starRect.right() + kMargin);
-	painter->setPen(headingColor);
+	painter->setPen(shared ? sharedColor : headingColor);
 	painter->setFont(read ? headingFont_ : unreadFont_);
 	painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, title);
 	

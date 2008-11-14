@@ -39,6 +39,7 @@ const char* ReaderApi::kReadTag("user/-/state/com.google/read");
 const char* ReaderApi::kStarredTag("user/-/state/com.google/starred");
 const char* ReaderApi::kFreshTag("user/-/state/com.google/fresh");
 const char* ReaderApi::kFriendsTag("user/-/state/com.google/broadcast-friends");
+const char* ReaderApi::kSharedTag("user/-/state/com.google/broadcast");
 const QUrl ReaderApi::kEditSubscriptionUrl("http://www.google.com/reader/api/0/subscription/edit");
 
 // Atom feed url base
@@ -213,6 +214,10 @@ void ReaderApi::setRead(const AtomEntry& e) {
 
 void ReaderApi::setStarred(const AtomEntry& e, bool starred) {
 	setState(e, kStarredTag, starred);
+}
+
+void ReaderApi::setShared(const AtomEntry& e, bool shared) {
+	setState(e, kSharedTag, shared);
 }
 
 void ReaderApi::setState(const AtomEntry& e, const char* state, bool set) {
