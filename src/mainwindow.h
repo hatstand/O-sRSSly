@@ -52,6 +52,7 @@ private slots:
 	void xpathSet(const QString& xpath);
 
 	void markAllRead();
+	void shareItem();
 	
 private:
 	void updateProgressBar();

@@ -25,5 +25,6 @@
 		<file>directory.png</file>
 		<file>allitems.png</file>
 		<file>behaviour.png</file>
+		<file>network-wireless.png</file>
 	</qresource>
 </RCC>

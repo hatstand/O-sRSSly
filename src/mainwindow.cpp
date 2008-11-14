@@ -98,6 +98,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionNext_, SIGNAL(triggered(bool)), ui_.entries_, SLOT(next()));
 	ui_.up_->setDefaultAction(ui_.actionPrevious_);
 	ui_.down_->setDefaultAction(ui_.actionNext_);
+
+	connect(ui_.actionShare_, SIGNAL(triggered(bool)), SLOT(shareItem()));
+	ui_.share_item_->setDefaultAction(ui_.actionShare_);
+	ui_.actionShare_->setEnabled(false);
 	
 	// Extra shortcuts for up and down
 	connect(new QShortcut(Qt::Key_J, this), SIGNAL(activated()), ui_.actionNext_, SLOT(trigger()));
@@ -185,6 +189,7 @@ void MainWindow::subscriptionSelected(const QModelIndex& index) {
 
 void MainWindow::entrySelected(const QModelIndex& index) {
 	qDebug() << __PRETTY_FUNCTION__;
+	ui_.actionShare_->setEnabled(true);
 	
 	QUrl link(index.sibling(index.row(), TreeItem::Column_Link).data().toUrl());
 	QDateTime date(index.sibling(index.row(), TreeItem::Column_Date).data().toDateTime());
@@ -465,4 +470,8 @@ void MainWindow::markAllRead() {
 		QModelIndex index = sorted_entries_->index(row, TreeItem::Column_Read);
 		sorted_entries_->setData(index, QVariant(true));
 	}
+}
+
+void MainWindow::shareItem() {
+	qDebug() << __PRETTY_FUNCTION__ << current_contents_.sibling(current_contents_.row(), TreeItem::Column_Title).data().toString();
 }

@@ -380,6 +380,9 @@
               </layout>
              </item>
              <item>
+              <widget class="QToolButton" name="share_item_"/>
+             </item>
+             <item>
               <widget class="QToolButton" name="webclip_">
                <property name="text">
                 <string/>
@@ -503,6 +506,12 @@
    </property>
    <property name="text">
     <string>Webclip</string>
+   </property>
+  </action>
+  <action name="actionShare_">
+   <property name="icon">
+    <iconset resource="../data/data.qrc">
+     <normaloff>:/network-wireless.png</normaloff>:/network-wireless.png</iconset>
    </property>
   </action>
   <action name="actionCloseTab_">
