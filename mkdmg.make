@@ -18,11 +18,11 @@
 # Customizable variables
 ################################################################################
 
-NAME=Feeder
+NAME=OsRSSly
 VERSION=0.1
 
 SOURCE_DIR=.
-SOURCE_FILES=Feeder.app
+SOURCE_FILES=osrssly.app
 
 TEMPLATE_DMG=template.dmg
 

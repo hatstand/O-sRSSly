@@ -12,6 +12,7 @@
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
 #include <QShortcut>
+#include <QSizeGrip>
 #include <QTextDocument>
 #include <QSystemTrayIcon>
 #include <QWebView>
@@ -33,6 +34,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 #endif
 {
 	ui_.setupUi(this);
+#ifdef Q_OS_DARWIN
+	new QSizeGrip(this);
+#endif
 	
 	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);

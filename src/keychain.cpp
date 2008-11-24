@@ -84,7 +84,7 @@ void Keychain::setPassword(QString account, QString password) {
 	if (!gnome_keyring_is_available()) {
 		password_ = password;
 	} else {
-		QString displayName=("Feeder Google Reader account for ");
+		QString displayName=(TITLE " Google Reader account for ");
 		displayName.append(account);
 		GnomeKeyringResult result = gnome_keyring_store_password_sync(
 			&sOurSchema, NULL,
