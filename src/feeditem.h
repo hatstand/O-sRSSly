@@ -36,6 +36,7 @@ public:
 	void setStarred(const AtomEntry& e, bool starred = true);
 
 	void setXpath(const QString& xpath);
+	void setShared(const AtomEntry& e);
 	const QString& xpath() const;
 
 	Database* database() { return db_; }

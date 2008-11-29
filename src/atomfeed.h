@@ -124,6 +124,8 @@ public:
 	void setRead(const AtomEntry& e);
 
 	void setStarred(const AtomEntry& e, bool starred);
+
+	void setShared(const AtomEntry& e);
 	
 	void saveEntries();
 	void updateEntry(const AtomEntry& entry);
@@ -170,6 +172,13 @@ private:
 		}
 
 		bool starred_;
+	};
+
+	struct set_shared {
+		void operator() (AtomEntry& e) {
+			e.shared = true;
+			e.date = QDateTime::currentDateTime();
+		}
 	};
 
 	bool m_error;

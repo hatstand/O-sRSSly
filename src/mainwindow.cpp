@@ -478,4 +478,5 @@ void MainWindow::markAllRead() {
 
 void MainWindow::shareItem() {
 	qDebug() << __PRETTY_FUNCTION__ << current_contents_.sibling(current_contents_.row(), TreeItem::Column_Title).data().toString();
+	const_cast<QAbstractItemModel*>(current_contents_.model())->setData(current_contents_.sibling(current_contents_.row(), TreeItem::Column_Shared), true);
 }

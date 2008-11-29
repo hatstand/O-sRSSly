@@ -194,6 +194,16 @@ void AtomFeed::setStarred(const AtomEntry& e, bool starred) {
 	}
 }
 
+void AtomFeed::setShared(const AtomEntry& e) {
+	AtomEntries::iterator it = m_entries.get<hash>().find(e.id);
+
+	if (it != m_entries.get<hash>().end()) {
+		m_entries.modify(it, set_shared());
+
+		it->update(db_);
+	}
+}
+
 void AtomFeed::saveEntries() {
 	QString query("REPLACE INTO Entry (feedId, title, id, summary, content, date, link, read, starred, author, shared_by, shared) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	

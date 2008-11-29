@@ -98,6 +98,11 @@ void FeedItemData::setStarred(const AtomEntry& e, bool starred) {
 	e.update(db_);
 }
 
+void FeedItemData::setShared(const AtomEntry& e) {
+	feed_.setShared(e);
+	api_->setShared(e, true);
+}
+
 void FeedItemData::setXpath(const QString& xpath) {
 	subscription_->setXpath(xpath);
 }
@@ -202,6 +207,13 @@ bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role
 			/*QModelIndex top_left = createIndex(index.row(), 1);
 			emit dataChanged(top_left, top_left);*/
 			decrementUnreadCount();
+			return true;
+		}
+		case Column_Shared: {
+			if (e.shared)
+				return true;
+
+			data_->setShared(e);
 			return true;
 		}
 		case Column_Starred:
