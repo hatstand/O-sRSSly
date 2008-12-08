@@ -10,6 +10,8 @@
 
 #include "atomfeed.h"
 #include "feedsmodel.h"
+#include "seriousapp.h"
+#include "settings.h"
 #include "spawn/spawn.h"
 #include "spawn/manager.h"
 #include "mainwindow.h"
@@ -17,7 +19,7 @@
 #include "../config.h"
 
 int main(int argc, char** argv) {
-	QApplication app(argc, argv);
+	SeriousApp app(argc, argv);
 	
 	Q_INIT_RESOURCE(spawn);
 	
@@ -43,9 +45,15 @@ int main(int argc, char** argv) {
 
 	qRegisterMetaType<VoidFunction>("VoidFunction");
 	qRegisterMetaType<AtomFeed>("AtomFeed");
-	
+
 	MainWindow win;
-	win.showMaximized();
+	QRect geometry = Settings::instance()->geometry();
+	if (geometry.isValid()) {
+		win.setGeometry(geometry);
+		win.show();
+	} else {
+		win.showMaximized();
+	}
 	
 	return app.exec();
 }

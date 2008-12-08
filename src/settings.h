@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <QRect>
 #include <QSettings>
 
 class Settings : public QObject {
@@ -44,6 +45,11 @@ public:
 	void setCheckNew(bool v);
 	void setCheckNewInterval(int v);
 	void setShowBubble(bool v);
+
+	void setGeometry(const QRect& rect);
+	QRect geometry();
+
+	void commit() { m_settings.sync(); }
 
 signals:
 	void googleAccountChanged();
