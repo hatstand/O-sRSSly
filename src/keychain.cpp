@@ -68,6 +68,31 @@ QString Keychain::getPassword(QString account) {
 
 void Keychain::setPassword(QString account, QString password) {
 #ifdef Q_OS_DARWIN
+	// If password exists, just update.
+	SecKeychainItemRef item;
+	OSStatus ret = SecKeychainFindGenericPassword(
+		NULL,
+		kServiceName.length(),
+		kServiceName.toStdString().c_str(),
+		account.length(),
+		account.toStdString().c_str(),
+		NULL, // Don't care about the actual password.
+		NULL,
+		&item);
+	if (ret == 0) {
+		OSStatus ret = SecKeychainItemModifyAttributesAndData(
+			item,
+			NULL,
+			password.length(),
+			password.toStdString().c_str());
+
+		if (ret != 0)
+			qWarning() << "Error setting password in keychain";
+
+		return;
+	}
+
+	// Password not already there. Create new one.
 	OSStatus ret = SecKeychainAddGenericPassword(
 		NULL,
 		kServiceName.length(),
