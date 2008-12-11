@@ -62,6 +62,7 @@ QString Keychain::getPassword(QString account) {
 		}
 	}
 #else
+	Q_UNUSED(password);
 	return password_;
 #endif
 }
