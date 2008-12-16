@@ -86,12 +86,12 @@ void Settings::setBehaviour(const QString& feedId, int behaviour) {
 	writeBehaviours();
 }
 
-void Settings::setGeometry(const QRect& rect) {
-	m_settings.setValue("geometry", rect);
+void Settings::setGeometry(const QByteArray& geo) {
+	m_settings.setValue("geometry", geo);
 }
 
-QRect Settings::geometry() {
-	return m_settings.value("geometry").toRect();
+QByteArray Settings::geometry() {
+	return m_settings.value("geometry").toByteArray();
 }
 
 SIMPLE_GET_SET(int, progressBarStyle, setProgressBarStyle, ProgressBar_Normal);

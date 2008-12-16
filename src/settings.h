@@ -46,8 +46,8 @@ public:
 	void setCheckNewInterval(int v);
 	void setShowBubble(bool v);
 
-	void setGeometry(const QRect& rect);
-	QRect geometry();
+	void setGeometry(const QByteArray& geometry);
+	QByteArray geometry();
 
 	void commit() { m_settings.sync(); }
 

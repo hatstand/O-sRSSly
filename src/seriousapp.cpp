@@ -13,6 +13,4 @@ void SeriousApp::commitData(QSessionManager& session) {
 }
 
 void SeriousApp::saveState(QSessionManager& session) {
-	Settings* settings = Settings::instance();
-	settings->setGeometry(topLevelWidgets()[0]->geometry());
 }

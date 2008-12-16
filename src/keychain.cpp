@@ -94,7 +94,7 @@ void Keychain::setPassword(QString account, QString password) {
 	}
 
 	// Password not already there. Create new one.
-	OSStatus ret = SecKeychainAddGenericPassword(
+	ret = SecKeychainAddGenericPassword(
 		NULL,
 		kServiceName.length(),
 		kServiceName.toStdString().c_str(),

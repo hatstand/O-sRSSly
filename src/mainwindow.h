@@ -56,6 +56,7 @@ private slots:
 	
 private:
 	void updateProgressBar();
+	void closeEvent(QCloseEvent* event);
 	
 	Ui_MainWindow ui_;
 	QSystemTrayIcon* tray_icon_;

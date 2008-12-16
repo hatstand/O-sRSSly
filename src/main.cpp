@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
 	qRegisterMetaType<AtomFeed>("AtomFeed");
 
 	MainWindow win;
-	QRect geometry = Settings::instance()->geometry();
-	if (geometry.isValid()) {
-		win.setGeometry(geometry);
+	QByteArray geometry = Settings::instance()->geometry();
+	if (!geometry.isEmpty()) {
+		win.restoreGeometry(geometry);
 		win.show();
 	} else {
 		win.showMaximized();
