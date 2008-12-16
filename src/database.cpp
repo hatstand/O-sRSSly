@@ -61,6 +61,7 @@ void Database::run() {
 	// Initial lock & check to make sure we don't miss anything on startup.
 	mutex_.lock();
 	forever {
+		db.transaction();
 		while (!queries_.empty()) {
 			// Grab one from the queue.
 			Request req = queries_.dequeue();
@@ -82,6 +83,7 @@ void Database::run() {
 			// If it's empty, then we lose the lock at the end of the loop.
 			mutex_.lock();
 		}
+		db.commit();
 
 		// Quit thread.
 		if (stopping_) {
