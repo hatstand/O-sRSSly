@@ -33,10 +33,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  ,spawn_manager_(new Spawn::Manager(this))
 #endif
 {
-	ui_.setupUi(this);
 #ifdef Q_OS_DARWIN
 	new QSizeGrip(this);
 #endif
+	ui_.setupUi(this);
 	
 	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);
@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	ui_.subtitleStack_->hide();
 	ui_.date_->hide();
 
+	connect(ui_.actionQuit, SIGNAL(activated()), SLOT(saveState()));
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
 	ui_.configure_->setDefaultAction(ui_.actionConfigure_);
@@ -481,9 +482,14 @@ void MainWindow::shareItem() {
 	const_cast<QAbstractItemModel*>(current_contents_.model())->setData(current_contents_.sibling(current_contents_.row(), TreeItem::Column_Shared), true);
 }
 
-void MainWindow::closeEvent(QCloseEvent* event) {
+void MainWindow::saveState() {
 	qDebug() << __PRETTY_FUNCTION__;
 	Settings::instance()->setGeometry(saveGeometry());
 	Settings::instance()->commit();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+	qDebug() << __PRETTY_FUNCTION__;
+	saveState();
 	QMainWindow::closeEvent(event);
 }

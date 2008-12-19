@@ -53,6 +53,7 @@ private slots:
 
 	void markAllRead();
 	void shareItem();
+	void saveState();
 	
 private:
 	void updateProgressBar();
