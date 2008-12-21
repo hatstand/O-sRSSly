@@ -41,7 +41,7 @@ private:
 	QMenu* feed_menu_;
 	QMenu* behaviour_menu_;
 	
-	QAction* behaviour_actions_[3];
+	QAction* behaviour_actions_[4];
 
 	QModelIndex clicked_index_;
 	QString clicked_id_;
