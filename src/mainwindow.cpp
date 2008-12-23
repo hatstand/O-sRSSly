@@ -15,6 +15,7 @@
 #include <QSizeGrip>
 #include <QTextDocument>
 #include <QSystemTrayIcon>
+#include <QWebSettings>
 #include <QWebView>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
@@ -37,6 +38,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	new QSizeGrip(this);
 #endif
 	ui_.setupUi(this);
+
+	QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
 	
 	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);
