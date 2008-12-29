@@ -216,7 +216,7 @@ void AtomFeed::saveEntries() {
 		bind_values << entry.id;
 		bind_values << entry.summary;
 		bind_values << entry.content;
-		bind_values << entry.date.toString();
+		bind_values << QString::number(entry.date.toTime_t());
 		bind_values << entry.link.toString();
 		bind_values << QVariant(entry.read);
 		bind_values << QVariant(entry.starred);
@@ -295,7 +295,7 @@ AtomEntry::AtomEntry(const QSqlQuery& query) {
 	id = query.value(1).toString();
 	summary = query.value(2).toString();
 	content = query.value(3).toString();
-	date = QDateTime::fromString(query.value(4).toString());
+	date = QDateTime::fromTime_t(query.value(4).toString().toUInt());
 	link = query.value(5).toString();
 	read = query.value(6).toBool();
 	starred = query.value(7).toBool();

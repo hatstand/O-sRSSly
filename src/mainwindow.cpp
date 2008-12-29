@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 #endif
 	ui_.setupUi(this);
 
-	QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+	//QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
 	
 	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);

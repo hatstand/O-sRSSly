@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS Entry
 	id TEXT PRIMARY KEY,
 	summary TEXT,
 	content TEXT,
-	date TEXT,
+	date INTEGER,
 	link TEXT,
 	read INTEGER,
 	starred INTEGER,
