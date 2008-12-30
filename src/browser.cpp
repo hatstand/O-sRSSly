@@ -20,6 +20,8 @@ Browser::Browser(QWidget* parent)
 	contents_ = new Spawn::View(manager, this);
 #else
 	contents_ = new QWebView(this);
+	ui_.back_->setDefaultAction(contents_->pageAction(QWebPage::Back));
+	ui_.forward_->setDefaultAction(contents_->pageAction(QWebPage::Forward));
 #endif
 	layout()->removeWidget(ui_.view_container_);
 	delete ui_.view_container_;
