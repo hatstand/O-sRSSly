@@ -30,6 +30,8 @@ FeedsModel::FeedsModel(QObject* parent)
 	connect(&refresh_timer_, SIGNAL(timeout()), SLOT(fetchMore()));
 
 	connect(this, SIGNAL(doLater(VoidFunction)), this, SLOT(doNow(VoidFunction)), Qt::QueuedConnection);
+	
+	connect(this, SIGNAL(newUnreadItems(int)), qApp, SLOT(setUnreadItems(int)));
 
 	database_.start();
 }

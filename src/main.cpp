@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
 	ProcessSerialNumber psn = { 0, kCurrentProcess };
 	TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 #endif
+	app.setWindowIcon(QIcon(":/logo.png"));
 
 	qRegisterMetaType<VoidFunction>("VoidFunction");
 	qRegisterMetaType<AtomFeed>("AtomFeed");
