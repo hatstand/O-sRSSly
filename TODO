@@ -4,3 +4,5 @@ Add webclippy stuff instead of displaying whole webpage?
 Only sync read articles to db? Avoids de-syncing when using another client.
 ksqueezedlabel is confused by rich text :-(
 port to QX11Embed for Q_WS_X11
+Hide properly on OS X
+Number of unread on dock icon
