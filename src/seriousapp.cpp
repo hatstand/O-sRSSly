@@ -49,6 +49,8 @@ void SeriousApp::generateImage(const QString& s) {
 }
 
 void SeriousApp::setUnreadItems(int n) {
+#ifdef Q_OS_DARWIN
 	generateImage(QString::number(n));
 	setWindowIcon(QIcon(icon_));
+#endif
 }
