@@ -412,9 +412,8 @@ void ReaderApi::getCategoryComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 
 	AtomFeed feed(reply->url(), reply, db_);
-	emit categoryArrived(feed);
-
-	qDebug() << reply->readAll();
+	if (!feed.empty())
+		emit categoryArrived(feed);
 
 	reply->deleteLater();
 }
@@ -442,7 +441,8 @@ void ReaderApi::getFriendsComplete() {
 
 	AtomFeed feed(reply->url(), reply, db_);
 	friends_continuation_ = feed.continuation();
-	emit friendsArrived(feed);
+	if (!feed.empty())
+		emit friendsArrived(feed);
 
 	reply->deleteLater();
 }

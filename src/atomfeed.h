@@ -97,6 +97,7 @@ public:
 	~AtomFeed();
 	
 	bool hasError() const { return m_error; }
+	bool empty() const { return m_entries.empty(); }
 	
 	// Subscription id.
 	QString id() const { return m_id; }
