@@ -4,6 +4,9 @@
 #include "subscriptionlist.h"
 #include "xmlutils.h"
 
+#include <boost/scoped_ptr.hpp>
+using boost::scoped_ptr;
+
 #include <string>
 
 #include <QBuffer>
@@ -687,7 +690,7 @@ void ReaderApi::subscribeFinished() {
 
 	ApiAction* action = static_cast<ApiAction*>(sender());
 
-	JsonUtils::JsonObject* object = JsonUtils::parseJson(action->reply()->readAll());
+	scoped_ptr<JsonUtils::JsonObject> object(JsonUtils::parseJson(action->reply()->readAll()));
 	qDebug() << *object;
 
 	// Get the first result
@@ -697,6 +700,4 @@ void ReaderApi::subscribeFinished() {
 		// Successfully subscribed to something. Update subscriptions.
 		getSubscriptionList();
 	}
-
-	delete object;
 }
