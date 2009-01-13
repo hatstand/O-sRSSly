@@ -8,6 +8,10 @@
 #include <glib.h>
 #endif
 
+#ifdef Q_OS_UNIX
+#include "sigsegv.h"
+#endif
+
 #include "atomfeed.h"
 #include "feedsmodel.h"
 #include "seriousapp.h"
@@ -25,6 +29,9 @@ int main(int argc, char** argv) {
 	
 	QString server(Spawn::Manager::serverName());
 	if (!server.isNull()) {
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+		setup_sigsegv();
+#endif
 		Spawn::Spawn spawn(server);
 		return app.exec();
 	}
