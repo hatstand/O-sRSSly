@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QWidget>
 
-SeriousApp::SeriousApp(int argc, char** argv)
+SeriousApp::SeriousApp(int& argc, char** argv)
 	: QApplication(argc, argv),
 	  original_image_(":/logo.png") {
 }

@@ -7,7 +7,7 @@
 class SeriousApp : public QApplication {
 	Q_OBJECT
 public:
-	SeriousApp(int argc, char** argv);
+	SeriousApp(int& argc, char** argv);
 	virtual void commitData(QSessionManager& session);
 	virtual void saveState(QSessionManager& session);
 
