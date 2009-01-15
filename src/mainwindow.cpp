@@ -5,12 +5,14 @@
 #include "settings.h"
 #include "browser.h"
 #include "xmlutils.h"
+#include "about.h"
 
 #include <spawn/view.h>
 #include <spawn/manager.h>
 
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
+#include <QMessageBox>
 #include <QShortcut>
 #include <QSizeGrip>
 #include <QTextDocument>
@@ -28,6 +30,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  feed_menu_(new QMenu(this)),
 	  web_progress_bar_(new LongCatBar(this)),
 	  configure_dialog_(new ConfigureDialog(this)),
+	  about_box_(NULL),
 	  webclipping_(false),
 	  unread_only_(false)
 #ifdef USE_SPAWN
@@ -142,6 +145,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(feeds_model_, SIGNAL(progressChanged(int, int)), SLOT(apiProgress(int, int)));
 
 	connect(ui_.actionUnreadOnly_, SIGNAL(triggered(bool)), SLOT(showUnreadOnly(bool)));
+
+	// About stuff
+	connect(ui_.action_about_, SIGNAL(triggered(bool)), SLOT(about()));
+	connect(ui_.action_about_qt_, SIGNAL(triggered(bool)), SLOT(aboutQt()));
 	
 	// Prompt the user for google account details
 	if (Settings::instance()->googleUsername().isNull() || Settings::instance()->googlePassword().isNull())
@@ -495,4 +502,15 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 	qDebug() << __PRETTY_FUNCTION__;
 	saveState();
 	QMainWindow::closeEvent(event);
+}
+
+void MainWindow::about() {
+	if (!about_box_)
+		about_box_ = new AboutBox(this);
+
+	about_box_->show();
+}
+
+void MainWindow::aboutQt() {
+	QMessageBox::aboutQt(this);
 }

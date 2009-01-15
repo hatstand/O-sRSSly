@@ -25,6 +25,7 @@ SET(FEEDER-SOURCES
 	ksqueezedtextlabel.cpp
 	jsonutils.cpp
 	seriousapp.cpp
+	about.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -48,6 +49,7 @@ SET(FEEDER-MOC-HEADERS
 	ksqueezedtextlabel.h
 	longcatbar.h
 	seriousapp.h
+	about.h
 )
 
 IF(UNIX)
@@ -59,6 +61,7 @@ SET(FEEDER-UI
 	${CMAKE_CURRENT_BINARY_DIR}/configuredialog.ui
 	${CMAKE_CURRENT_BINARY_DIR}/mainwindow.ui
 	browser.ui
+	about.ui
 )
 
 # Resource files

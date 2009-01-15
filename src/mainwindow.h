@@ -4,6 +4,7 @@
 
 #include "ui_mainwindow.h"
 
+class AboutBox;
 class ConfigureDialog;
 class FeedsModel;
 
@@ -54,6 +55,9 @@ private slots:
 	void markAllRead();
 	void shareItem();
 	void saveState();
+
+	void about();
+	void aboutQt();
 	
 private:
 	void updateProgressBar();
@@ -72,6 +76,7 @@ private:
 	QMap<QWidget*, int> web_progress_;
 
 	ConfigureDialog* configure_dialog_;
+	AboutBox* about_box_;
 
 	bool webclipping_;
 	bool unread_only_;

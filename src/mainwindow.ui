@@ -444,9 +444,17 @@
     </property>
     <addaction name="actionMarkRead_"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+   	<property name="title">
+	 <string>Help</string>
+	</property>
+	<addaction name="action_about_"/>
+	<addaction name="action_about_qt_"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionConfigure_">
@@ -552,6 +560,22 @@
   <action name="actionMarkRead_">
    <property name="text">
     <string>Mark all as read</string>
+   </property>
+  </action>
+  <action name="action_about_">
+   <property name="text">
+    <string>About...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+  <action name="action_about_qt_">
+   <property name="text">
+    <string>About Qt...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutQtRole</enum>
    </property>
   </action>
  </widget>
