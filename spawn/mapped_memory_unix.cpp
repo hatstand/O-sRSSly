@@ -70,5 +70,18 @@ QString MappedMemory::key() const {
 }
 
 void MappedMemory::resize(quint64 size) {
-	// TODO
+	lock();
+	munmap(data_, length_);
+	if (ftruncate(file_->handle(), size) != 0) {
+		qFatal(strerror(errno));
+	}
+	void* data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, file_->handle(), 0);
+	if ((qint64)data == -1) {
+		qFatal(strerror(errno));
+	}
+
+	data_ = static_cast<char*>(data);
+	length_ = size;
+	qDebug() << (quintptr)data_;
+	unlock();
 }
