@@ -4,7 +4,7 @@
  *
  * This code is in the public domain.  Use it as you see fit, some credit
  * would be appreciated, but is not a prerequisite for usage.  Feedback
- * on it's use would encourage further development and maintenance.
+ * on its use would encourage further development and maintenance.
  *
  * Author:  Jaco Kroon <jaco@kroon.co.za>
  *
