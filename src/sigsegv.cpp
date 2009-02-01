@@ -42,77 +42,54 @@ using namespace __cxxabiv1;
 static void signal_segv(int signum, siginfo_t* info, void*ptr) {
     static const char *si_codes[3] = {"", "SEGV_MAPERR", "SEGV_ACCERR"};
 
-    size_t i;
     ucontext_t *ucontext = (ucontext_t*)ptr;
-
-#if defined(SIGSEGV_STACK_X86) || defined(SIGSEGV_STACK_IA64)
-    int f = 0;
-    Dl_info dlinfo;
-    void **bp = 0;
-    void *ip = 0;
-#else
-    void *bt[20];
-    char **strings;
-    size_t sz;
-#endif
 
     fprintf(stderr, "Segmentation Fault!\n");
     fprintf(stderr, "info.si_signo = %d\n", signum);
     fprintf(stderr, "info.si_errno = %d\n", info->si_errno);
     fprintf(stderr, "info.si_code  = %d (%s)\n", info->si_code, si_codes[info->si_code]);
     fprintf(stderr, "info.si_addr  = %p\n", info->si_addr);
-    for(i = 0; i < NGREG; i++)
+    for(int i = 0; i < NGREG; i++)
         fprintf(stderr, "reg[%02d]       = 0x" REGFORMAT "\n", i, ucontext->uc_mcontext.gregs[i]);
 
-#if defined(SIGSEGV_STACK_X86) || defined(SIGSEGV_STACK_IA64)
-# if defined(SIGSEGV_STACK_IA64)
-    ip = (void*)ucontext->uc_mcontext.gregs[REG_RIP];
-    bp = (void**)ucontext->uc_mcontext.gregs[REG_RBP];
-# elif defined(SIGSEGV_STACK_X86)
-    ip = (void*)ucontext->uc_mcontext.gregs[REG_EIP];
-    bp = (void**)ucontext->uc_mcontext.gregs[REG_EBP];
-# endif
-
+	void* buffer[100];
+	int n = backtrace(buffer, 100);
+	char** symbols = backtrace_symbols(buffer, n);
     fprintf(stderr, "Stack trace:\n");
-    while(bp && ip) {
-        if(!dladdr(ip, &dlinfo))
-            break;
-
-        const char *symname = dlinfo.dli_sname;
+	for (int i = 0; i < n; ++i) {
 #ifndef NO_CPP_DEMANGLE
-        int status;
-        char *tmp = __cxa_demangle(symname, NULL, 0, &status);
+		char* func = strchr(symbols[i], '(');
+		if (func) {
+			char* func_end = strchr(func, '+');
+			ptrdiff_t func_length = func_end - func - 1;
+			char* function_string = (char*)malloc(func_length + 1);
+			// One past the '('
+			char* old_ptr = func + 1;
+			for (int j = 0; j < func_length; ++j) {
+				function_string[j] = old_ptr[j];
+			}
+			function_string[func_length] = '\0';
+			
+			int status;
+			char *tmp = __cxa_demangle(function_string, NULL, 0, &status);
 
-        if(status == 0 && tmp)
-            symname = tmp;
-#endif
+			if(status == 0 && tmp) {
+				*func = '\0';
+				char* address = strchr(func+1, '[');
+				fprintf(stderr, "%d: %s %s %s\n", i, symbols[i], tmp, address);
+			}
 
-        fprintf(stderr, "% 2d: %p <%s+%u> (%s)\n",
-                ++f,
-                ip,
-                symname,
-                (uintptr_t)ip - (uintptr_t)dlinfo.dli_saddr,
-                dlinfo.dli_fname);
-
-#ifndef NO_CPP_DEMANGLE
-        if(tmp)
-            free(tmp);
-#endif
-
-        if(dlinfo.dli_sname && !strcmp(dlinfo.dli_sname, "main"))
-            break;
-
-        ip = bp[1];
-        bp = (void**)bp[0];
-    }
+			free(function_string);
+		} else {
+			fprintf(stderr, "%d: %s\n", i, symbols[i]);
+		}
 #else
-    fprintf(stderr, "Stack trace (non-dedicated):\n");
-    sz = backtrace(bt, 20);
-    strings = backtrace_symbols(bt, sz);
-
-    for(i = 0; i < sz; ++i)
-        fprintf(stderr, "%s\n", strings[i]);
+		fprintf(stderr, "%d: %s\n", i, symbols[i]);
 #endif
+	}
+
+	free(symbols);
+
     fprintf(stderr, "End of stack trace\n");
     exit (-1);
 }
