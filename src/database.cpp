@@ -83,15 +83,18 @@ void Database::run() {
 			// If it's empty, then we lose the lock at the end of the loop.
 			mutex_.lock();
 		}
+		// Unlock for big db commit.
+		mutex_.unlock();
 		db.commit();
 
 		// Quit thread.
 		if (stopping_) {
 			qDebug() << __PRETTY_FUNCTION__ << "quitting...";
-			mutex_.unlock();
 			return;
 		}
 		
+		// Lock before wait condition.
+		mutex_.lock();
 		// Unlock mutex until something happens.
 		wait_condition_.wait(&mutex_);
 		// Mutex is now locked.
