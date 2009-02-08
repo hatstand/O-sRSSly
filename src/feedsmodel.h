@@ -7,8 +7,6 @@
 #include "subscriptionlist.h"
 
 #include <boost/function.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include <QAbstractItemModel>
@@ -24,12 +22,7 @@ class Database;
 class AllItems;
 class FolderItem;
 
-using boost::function;
-typedef function<void ()> VoidFunction;
-
-using boost::shared_ptr;
-using boost::scoped_ptr;
-using boost::weak_ptr;
+typedef boost::function<void ()> VoidFunction;
 
 // A tree model representing all the subscriptions and associated tags/folders.
 class FeedsModel : public QAbstractItemModel {
@@ -93,7 +86,7 @@ private:
 	RootItem root_;
 	AllItems* all_items_;
 	ReaderApi* api_;
-	QMap<QString, weak_ptr<FeedItemData> > id_mappings_;
+	QMap<QString, boost::weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
 	Database database_;
 	QMutex mutex_;

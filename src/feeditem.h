@@ -9,10 +9,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-using boost::scoped_ptr;
-using boost::shared_ptr;
-using boost::weak_ptr;
-
 class Database;
 class ReaderApi;
 
@@ -51,7 +47,7 @@ signals:
 
 private:
 	// The feed id & title etc.
-	scoped_ptr<Subscription> subscription_;
+	boost::scoped_ptr<Subscription> subscription_;
 	// The atom entries.
 	AtomFeed feed_;
 	ReaderApi* api_;
@@ -70,7 +66,7 @@ public:
 	 * The data only exists once (shared_ptr).
 	 */
 
-	FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data);
+	FeedItem(TreeItem* parent, boost::shared_ptr<FeedItemData> data);
 	QVariant data(int column, int role = Qt::DisplayRole) const;
 	QIcon icon() const { return sIcon; }
 	const Subscription& subscription() const { return data_->subscription(); }
@@ -92,13 +88,13 @@ public:
 	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
 	
-	const weak_ptr<FeedItemData> feedItemData() const { return data_; }
+	const boost::weak_ptr<FeedItemData> feedItemData() const { return data_; }
 
 private slots:
 	void feedRowsInserted(int from, int to);
 
 private:
-	shared_ptr<FeedItemData> data_;
+	boost::shared_ptr<FeedItemData> data_;
 	
 	static QIcon sIcon;
 };

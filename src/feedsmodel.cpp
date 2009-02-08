@@ -14,6 +14,8 @@
 #include <boost/bind.hpp>
 
 using boost::bind;
+using boost::shared_ptr;
+using boost::weak_ptr;
 
 const QString FeedsModel::kSharedFolder = "OsrsslyShared";
 

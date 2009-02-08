@@ -4,6 +4,8 @@
 
 #include <QSqlQuery>
 
+using boost::shared_ptr;
+
 QIcon FeedItem::sIcon;
 
 FeedItem::FeedItem(TreeItem* parent, shared_ptr<FeedItemData> data)

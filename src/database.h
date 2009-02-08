@@ -12,9 +12,7 @@
 
 #include <boost/function.hpp>
 
-using boost::function;
-
-typedef function<void (const QSqlQuery&)> DatabaseCallback;
+typedef boost::function<void (const QSqlQuery&)> DatabaseCallback;
 
 class Database : public QThread
 {
