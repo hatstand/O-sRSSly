@@ -30,7 +30,7 @@ mkdir $FRMDIR
 mkdir $PLUGDIR
 cp ${NAME} $EXEDIR/${NAME}
 cp Info.plist ${NAME}.app/Contents
-cp qt.conf ${RESDIR}
+cp qt.conf.BUNDLEME ${RESDIR}/qt.conf
 cp ${NAME}.icns ${RESDIR}
 
 copyqtlib()
