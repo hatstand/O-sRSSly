@@ -25,16 +25,18 @@
 int main(int argc, char** argv) {
 	SeriousApp app(argc, argv);
 	
+#ifdef USE_SPAWN
 	Q_INIT_RESOURCE(spawn);
 	
 	QString server(Spawn::Manager::serverName());
 	if (!server.isNull()) {
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 		setup_sigsegv();
-#endif
+#endif // defined(Q_OS_UNIX) && defined(QT_DEBUG)
 		Spawn::Spawn spawn(server);
 		return app.exec();
 	}
+#endif // USE_SPAWN
 
 	app.setOrganizationDomain("purplehatstands.com");
 	app.setOrganizationName("Purple Hatstands");

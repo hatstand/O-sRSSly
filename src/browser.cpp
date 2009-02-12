@@ -1,13 +1,12 @@
 #include "browser.h"
 
-#include <spawn/manager.h>
-#include <spawn/view.h>
-
 #include <QWebHistory>
 #include <QWebView>
 #include <QtDebug>
 
 #ifdef USE_SPAWN
+#include <spawn/manager.h>
+#include <spawn/view.h>
 Browser::Browser(Spawn::Manager* manager, QWidget* parent)
 #else
 Browser::Browser(QWidget* parent)

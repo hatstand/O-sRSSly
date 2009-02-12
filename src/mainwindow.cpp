@@ -7,8 +7,10 @@
 #include "xmlutils.h"
 #include "about.h"
 
+#ifdef USE_SPAWN
 #include <spawn/view.h>
 #include <spawn/manager.h>
+#endif
 
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
@@ -42,7 +44,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 #endif
 	ui_.setupUi(this);
 
-	//QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+	QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
 	
 	toggle_visiblity_action_ = tray_menu_->addAction("Hide", this, SLOT(toggleWindowVisibility()));
 	tray_menu_->addAction(ui_.actionQuit);
