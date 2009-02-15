@@ -21,6 +21,9 @@ private:
 	static const GnomeKeyringPasswordSchema sOurSchema;
 #endif
 
+	static const QString kKWalletServiceName;
+	static const QString kKWalletPath;
+
 	static QString password_;
 };
 

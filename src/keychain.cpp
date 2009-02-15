@@ -26,6 +26,8 @@ QString Keychain::password_;
 #include <QDebug>
 
 const QString Keychain::kServiceName = "Purplehatstands-" TITLE;
+const QString Keychain::kKWalletServiceName = "org.kde.kwalletd";
+const QString Keychain::kKWalletPath = "/modules/kwalletd";
 
 QString Keychain::getPassword(QString account) {
 	char* password;
@@ -51,7 +53,7 @@ QString Keychain::getPassword(QString account) {
 #elif !defined(NO_KWALLET) && defined(Q_OS_UNIX)
 	// See if KWallet is on the session bus, otherwise we can try gnome.
 	// TODO: Asynchronous?
-	org::kde::KWallet kwallet("org.kde.kwalletd", "/modules/kwalletd", QDBusConnection::sessionBus());
+	org::kde::KWallet kwallet(kKWalletServiceName, kKWalletPath, QDBusConnection::sessionBus());
 	if (kwallet.isValid()) {
 		QDBusPendingReply<bool> check = kwallet.isEnabled();
 		check.waitForFinished();
@@ -60,11 +62,11 @@ QString Keychain::getPassword(QString account) {
 		wallet_name.waitForFinished();
 		if (wallet_name.isValid()) {
 			qDebug() << "Wallet:" << wallet_name.value();
-			QDBusPendingReply<int> reply = kwallet.open(wallet_name.value(), 0, "O sRSSly");
+			QDBusPendingReply<int> reply = kwallet.open(wallet_name.value(), 0, kServiceName);
 			reply.waitForFinished();
 			qDebug() << reply.value();
 	
-			QDBusPendingReply<QString> password = kwallet.readPassword(reply.value(), "Passwords", account, "O sRSSly");
+			QDBusPendingReply<QString> password = kwallet.readPassword(reply.value(), "Passwords", account, kServiceName);
 			password.waitForFinished();
 			Q_ASSERT(password.isValid());
 	
@@ -143,17 +145,17 @@ void Keychain::setPassword(QString account, QString password) {
 #elif !defined(NO_KWALLET) && defined(Q_OS_UNIX)
 	// KWallet tried first as if the user is not running KDE, then it won't show up on DBus.
 	// Gnome keyring probably works in KDE anyway.
-	org::kde::KWallet kwallet("org.kde.kwalletd", "/modules/kwalletd", QDBusConnection::sessionBus());
+	org::kde::KWallet kwallet(kKWalletServiceName, kKWalletPath, QDBusConnection::sessionBus());
 	if (kwallet.isValid()) {
 		QDBusPendingReply<QString> wallet_name = kwallet.networkWallet();
 		wallet_name.waitForFinished();
 		Q_ASSERT(wallet_name.isValid());
-		QDBusPendingReply<int> handle = kwallet.open(wallet_name.value(), 0, "O sRSSly");
+		QDBusPendingReply<int> handle = kwallet.open(wallet_name.value(), 0, kServiceName);
 		handle.waitForFinished();
 		Q_ASSERT(handle.isValid());
 		qDebug() << handle.value();
 
-		QDBusPendingReply<int> ret = kwallet.writePassword(handle.value(), "Passwords", account, password, "O sRSSly");
+		QDBusPendingReply<int> ret = kwallet.writePassword(handle.value(), "Passwords", account, password, kServiceName);
 		ret.waitForFinished();
 		Q_ASSERT(ret.isValid());
 		// Successful :-)
