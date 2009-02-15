@@ -181,6 +181,6 @@ void Keychain::setPassword(QString account, QString password) {
 		}
 	}
 #endif
-	// Default implementation if all other's fail at runtime.
+	// Default implementation if all others fail at runtime.
 	password_ = password;
 }
