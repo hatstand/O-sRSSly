@@ -29,7 +29,7 @@ const QString Keychain::kServiceName = "Purplehatstands-" TITLE;
 const QString Keychain::kKWalletServiceName = "org.kde.kwalletd";
 const QString Keychain::kKWalletPath = "/modules/kwalletd";
 
-QString Keychain::getPassword(QString account) {
+QString Keychain::getPassword(const QString& account) {
 	char* password;
 #ifdef Q_OS_DARWIN
 	UInt32 password_length;
@@ -97,7 +97,7 @@ QString Keychain::getPassword(QString account) {
 	return password_;
 }
 
-void Keychain::setPassword(QString account, QString password) {
+void Keychain::setPassword(const QString& account, const QString& password) {
 #ifdef Q_OS_DARWIN
 	// If password exists, just update.
 	SecKeychainItemRef item;

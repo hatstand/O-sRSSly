@@ -11,8 +11,8 @@ extern "C" {
 
 class Keychain {
 public:
-	static QString getPassword(QString account);
-	static void setPassword(QString account, QString password);
+	static QString getPassword(const QString& account);
+	static void setPassword(const QString& account, const QString& password);
 
 private:
 	static const QString kServiceName;
