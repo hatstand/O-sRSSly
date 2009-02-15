@@ -34,8 +34,6 @@ FeedsModel::FeedsModel(QObject* parent)
 	connect(this, SIGNAL(doLater(VoidFunction)), this, SLOT(doNow(VoidFunction)), Qt::QueuedConnection);
 	
 	connect(this, SIGNAL(newUnreadItems(int)), qApp, SLOT(setUnreadItems(int)));
-
-	database_.start();
 }
 
 FeedsModel::~FeedsModel() {
@@ -61,7 +59,8 @@ void FeedsModel::googleAccountChanged() {
 	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), &database_, this);
 	// Load stuff from db.
 	// This has to happen after we create the ReaderApi.
-	load();
+	/*database_.start();
+	load();*/
 	connect(api_, SIGNAL(progressChanged(int, int)), SIGNAL(progressChanged(int, int)));
 
 	// Add an "all items" node.
