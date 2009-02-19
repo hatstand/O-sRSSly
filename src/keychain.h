@@ -32,7 +32,7 @@ private:
 	};
 	template<typename T>
 	struct KeychainImpl : public KeychainDefinition {
-		KeychainImpl(const QString& name) : KeychainDefinition(name) {}
+		KeychainImpl() : KeychainDefinition(T::kImplementationName) {}
 		virtual Keychain* getInstance() const {
 			return new T();
 		}

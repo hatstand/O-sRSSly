@@ -19,16 +19,16 @@ const QString Keychain::kServiceName = "Purplehatstands-" TITLE;
 
 const Keychain::KeychainDefinition* Keychain::kCompiledImplementations[] = {
 #ifdef Q_OS_DARWIN
-	new KeychainImpl<MacKeychain>(MacKeychain::kImplementationName),
+	new KeychainImpl<MacKeychain>(),
 #elif defined(Q_OS_LINUX)
 	#ifndef NO_KWALLET
-	new KeychainImpl<KWalletKeychain>(KWalletKeychain::kImplementationName),
+	new KeychainImpl<KWalletKeychain>(),
 	#endif
 	#ifndef NO_GNOME_KEYRING
-	new KeychainImpl<GnomeKeychain>(GnomeKeychain::kImplementationName),
+	new KeychainImpl<GnomeKeychain>(),
 	#endif
 #endif
-	new KeychainImpl<DefaultKeychain>(DefaultKeychain::kImplementationName),
+	new KeychainImpl<DefaultKeychain>(),
 	NULL
 };
 
