@@ -3,20 +3,32 @@
 
 #include "default_keychain.h"
 
+#ifdef Q_OS_DARWIN
+#include "mac_keychain.h"
+#endif
+
+#ifndef NO_KWALLET
+#include "kwallet_keychain.h"
+#endif
+
+#ifndef NO_GNOME_KEYRING
+#include "gnome_keychain.h"
+#endif
+
 const QString Keychain::kServiceName = "Purplehatstands-" TITLE;
 
 const Keychain::KeychainDefinition* Keychain::kCompiledImplementations[] = {
 #ifdef Q_OS_DARWIN
-	new KeychainImpl<MacKeychain>("OS X Keychain"),
+	new KeychainImpl<MacKeychain>(MacKeychain::kImplementationName),
 #elif defined(Q_OS_LINUX)
 	#ifndef NO_KWALLET
-	new KeychainImpl<KWalletKeychain>("KWallet"),
+	new KeychainImpl<KWalletKeychain>(KWalletKeychain::kImplementationName),
 	#endif
 	#ifndef NO_GNOME_KEYRING
-	new KeychainImpl<GnomeKeychain>("Gnome Keyring"),
+	new KeychainImpl<GnomeKeychain>(GnomeKeychain::kImplementationName),
 	#endif
 #endif
-	new KeychainImpl<DefaultKeychain>("Default"),
+	new KeychainImpl<DefaultKeychain>(DefaultKeychain::kImplementationName),
 	NULL
 };
 

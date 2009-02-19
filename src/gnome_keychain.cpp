@@ -1,10 +1,9 @@
+#include "config.h"
 #include "gnome_keychain.h"
 
-extern "C" {
-	#include <gnome-keyring.h>
-}
+const QString GnomeKeychain::kImplementationName = "Gnome Keyring";
 
-const GnomeKeyringPasswordSchema Keychain::kOurSchema = {
+const GnomeKeyringPasswordSchema GnomeKeychain::kOurSchema = {
 	GNOME_KEYRING_ITEM_GENERIC_SECRET,
 	{
 		{ "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
@@ -28,7 +27,7 @@ const QString GnomeKeychain::getPassword(const QString& account) {
 		NULL);
 	
 	if (result == GNOME_KEYRING_RESULT_OK) {
-		QString pass(password)
+		QString pass(password);
 		gnome_keyring_free_password(password);
 		return pass;
 	}
@@ -38,14 +37,14 @@ const QString GnomeKeychain::getPassword(const QString& account) {
 
 bool GnomeKeychain::setPassword(const QString& account, const QString& password) {
 	Q_ASSERT(isAvailable());
-	QString displayName = "%1 Google Reader account for %2");
+	QString displayName = "%1 Google Reader account for %2";
 	displayName.arg(TITLE);
 	displayName.arg(account);
 
 	GnomeKeyringResult result = gnome_keyring_store_password_sync(
 		&kOurSchema,
 		NULL,
-		displayName.toStdString.c_str(),
+		displayName.toStdString().c_str(),
 		password.toStdString().c_str(),
 		"username", account.toStdString().c_str(),
 		"service", kServiceName.toStdString().c_str(),

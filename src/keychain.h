@@ -17,20 +17,22 @@ public:
 
 	static Keychain* getDefault();
 
-private:
+protected:
 	static const QString kServiceName;
 
+private:
 	// Fun for all the family.
 	struct KeychainDefinition {
+		KeychainDefinition(const QString& name) : name_(name) {}
 		virtual ~KeychainDefinition() {}
-		const char* getName() const { return name_; }
+		const QString& getName() const { return name_; }
 		virtual Keychain* getInstance() const = 0;
 	protected:
-		const char* name_;
+		const QString& name_;
 	};
 	template<typename T>
 	struct KeychainImpl : public KeychainDefinition {
-		KeychainImpl(const char* name) { name_ = name; }
+		KeychainImpl(const QString& name) : KeychainDefinition(name) {}
 		virtual Keychain* getInstance() const {
 			return new T();
 		}

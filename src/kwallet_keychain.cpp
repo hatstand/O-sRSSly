@@ -15,13 +15,16 @@ KWalletKeychain::KWalletKeychain()
 		wallet_name.waitForFinished();
 		if (wallet_name.isValid()) {
 			wallet_name_ = wallet_name.value();
-			QDBusPendingReply<int> open_request = kwallet_.open(wallet_name_.value(), 0, kServiceName);
+			QDBusPendingReply<int> open_request = kwallet_.open(wallet_name_, 0, kServiceName);
 			open_request.waitForFinished();
 			if (open_request.isValid()) {
 				handle_ = open_request.value();
 			}
 		}
 	}
+}
+
+KWalletKeychain::~KWalletKeychain() {
 }
 
 bool KWalletKeychain::isAvailable() {

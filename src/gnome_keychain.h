@@ -3,7 +3,9 @@
 
 #include "keychain.h"
 
-struct GnomeKeyringPassowrdSchema;
+extern "C" {
+#include <gnome-keyring.h>
+}
 
 class GnomeKeychain : public Keychain {
 public:
@@ -13,9 +15,10 @@ public:
 	virtual bool setPassword(const QString& account, const QString& password);
 
 	virtual const QString& implementationName() const { return kImplementationName; }
-private:
+
 	static const QString kImplementationName;
-	static const GnomeKeyringPasswordScheme kOurSchema;
+private:
+	static const GnomeKeyringPasswordSchema kOurSchema;
 };
 
 #endif

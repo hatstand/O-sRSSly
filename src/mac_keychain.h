@@ -11,7 +11,6 @@ public:
 
 	virtual const QString& implementationName() const { return kImplementationName; }
 
-private:
 	static const QString kImplementationName;
 };
 

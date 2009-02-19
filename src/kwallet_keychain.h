@@ -11,17 +11,18 @@ public:
 	virtual ~KWalletKeychain();
 
 	virtual const QString getPassword(const QString& account);
-	virtual bool getPassword(const QString& account, const QString& password);
+	virtual bool setPassword(const QString& account, const QString& password);
 
 	virtual bool isAvailable();
 
 	virtual const QString& implementationName() const { return kImplementationName; }
 
+	static const QString kImplementationName;
 private:
 	org::kde::KWallet kwallet_;
+	QString wallet_name_;
 	int handle_;
 
-	static const QString kImplementationName;
 	static const QString kKWalletServiceName;
 	static const QString kKWalletPath;
 	static const QString kKWalletFolder;
