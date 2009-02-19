@@ -97,6 +97,7 @@ QVariant FeedsModel::data(const QModelIndex& index, int role) const {
 }
 
 int FeedsModel::columnCount(const QModelIndex& parent) const {
+	Q_UNUSED(parent);
 	return 17;
 }
 
@@ -287,6 +288,8 @@ QMimeData* FeedsModel::mimeData(const QModelIndexList& indices) const {
 
 bool FeedsModel::dropMimeData(const QMimeData* data,
 	Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+	Q_UNUSED(row);
+	Q_UNUSED(column);
 	qDebug() << __PRETTY_FUNCTION__ << action;
 
 	if (action == Qt::IgnoreAction)

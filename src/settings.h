@@ -4,6 +4,10 @@
 #include <QRect>
 #include <QSettings>
 
+#include <boost/scoped_ptr.hpp>
+
+#include "keychain.h"
+
 class Settings : public QObject {
 	Q_OBJECT
 
@@ -74,6 +78,8 @@ private:
 	
 	QMap<QString, FeedBehaviour> behaviour_;
 	bool dirtyBehaviour_; // hehe
+
+	boost::scoped_ptr<Keychain> keychain_;
 };
 
 #endif

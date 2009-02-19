@@ -85,7 +85,7 @@ public:
 	virtual bool setData(const QModelIndex& index, const QVariant& value, int role);
 	virtual int rowCount(const QModelIndex& parent) const;
 
-	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
+	virtual bool canFetchMore(const QModelIndex&) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
 	
 	const boost::weak_ptr<FeedItemData> feedItemData() const { return data_; }

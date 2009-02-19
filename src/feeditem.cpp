@@ -198,6 +198,7 @@ QVariant FeedItem::data(const QModelIndex& index, int role) const {
 }
 
 bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role) {
+	Q_UNUSED(role);
 	const AtomEntry& e = data_->entries().at(index.row());
 	switch (index.column()) {
 		case Column_Read: {
@@ -232,6 +233,7 @@ bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role
 }
 
 int FeedItem::rowCount(const QModelIndex& parent) const {
+	Q_UNUSED(parent);
 	return data_->entries().size();
 }
 
@@ -259,6 +261,7 @@ void FeedItem::addCategory(const QPair<QString,QString>& category) {
 }
 
 QString FeedItem::real_id(const QModelIndex& index) const {
+	Q_UNUSED(index);
 	return id_;
 }
 

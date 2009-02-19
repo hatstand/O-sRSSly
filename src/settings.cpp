@@ -1,5 +1,8 @@
-#include "keychain.h"
 #include "settings.h"
+
+#include <QDebug>
+
+using boost::scoped_ptr;
 
 #define SIMPLE_GET_SET(T, getter, setter, default) \
 	T Settings::getter() const { return m_settings.value(#getter, default).value<T>(); } \
@@ -15,8 +18,13 @@ Settings* Settings::instance() {
 }
 
 Settings::Settings()
-	: dirtyBehaviour_(true)
+	: dirtyBehaviour_(true),
+	  keychain_(Keychain::getDefault())
 {
+	Q_ASSERT(keychain_.get());
+	Q_ASSERT(keychain_->isAvailable());
+
+	qDebug() << "Using keychain implementation:" << keychain_->implementationName();
 }
 
 QString Settings::googleUsername() const {
@@ -25,7 +33,7 @@ QString Settings::googleUsername() const {
 
 QString Settings::googlePassword() const {
 	QString user = m_settings.value("google/username").toString();
-	QString password = Keychain::getPassword(user);
+	QString password = keychain_->getPassword(user);
 	
 	return password;
 }
@@ -36,7 +44,7 @@ void Settings::setGoogleAccount(const QString& username, const QString& password
 	
 	m_settings.setValue("google/username", username);
 
-	Keychain::setPassword(username, password);
+	keychain_->setPassword(username, password);
 	
 	if (username != oldUsername || password != oldPassword)
 		emit googleAccountChanged();

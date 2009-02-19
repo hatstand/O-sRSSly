@@ -1,30 +1,42 @@
 #ifndef KEYCHAIN_H
 #define KEYCHAIN_H
 
+#include <boost/utility.hpp>
+
 #include <QString>
 
-#if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
-extern "C" {
-#include <gnome-keyring.h>
-}
-#endif
-
-class Keychain {
+class Keychain : boost::noncopyable {
 public:
-	static QString getPassword(const QString& account);
-	static void setPassword(const QString& account, const QString& password);
+	virtual ~Keychain() {}
+	virtual bool isAvailable() = 0;
+
+	virtual const QString getPassword(const QString& account) = 0;
+	virtual bool setPassword(const QString& account, const QString& password) = 0;
+
+	virtual const QString& implementationName() const = 0;
+
+	static Keychain* getDefault();
 
 private:
 	static const QString kServiceName;
-	
-#if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
-	static const GnomeKeyringPasswordSchema sOurSchema;
-#endif
 
-	static const QString kKWalletServiceName;
-	static const QString kKWalletPath;
+	// Fun for all the family.
+	struct KeychainDefinition {
+		virtual ~KeychainDefinition() {}
+		const char* getName() const { return name_; }
+		virtual Keychain* getInstance() const = 0;
+	protected:
+		const char* name_;
+	};
+	template<typename T>
+	struct KeychainImpl : public KeychainDefinition {
+		KeychainImpl(const char* name) { name_ = name; }
+		virtual Keychain* getInstance() const {
+			return new T();
+		}
+	};
 
-	static QString password_;
+	static const KeychainDefinition* kCompiledImplementations[];
 };
 
 #endif

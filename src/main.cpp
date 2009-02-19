@@ -3,6 +3,7 @@
 #endif
 
 #include <QApplication>
+#include <QDebug>
 
 #if !defined(NO_KEYRING) && defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 #include <glib.h>
@@ -14,6 +15,7 @@
 
 #include "atomfeed.h"
 #include "feedsmodel.h"
+#include "keychain.h"
 #include "seriousapp.h"
 #include "settings.h"
 #include "spawn/spawn.h"
@@ -24,7 +26,7 @@
 
 int main(int argc, char** argv) {
 	SeriousApp app(argc, argv);
-	
+
 #ifdef USE_SPAWN
 	Q_INIT_RESOURCE(spawn);
 	

@@ -411,8 +411,8 @@ void MainWindow::newUnreadItems(int count) {
 	
 	current_unread_ = count;
 	bool p = count != 1;
-	if (count != 0)
-		tray_icon_->showMessage(TITLE, "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");
+	//if (count != 0)
+	//	tray_icon_->showMessage(TITLE, "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");
 }
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)

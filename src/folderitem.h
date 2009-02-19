@@ -23,7 +23,7 @@ public:
 	virtual QIcon icon() const { return sIcon; }
 	// The total number of rows from all the children.
 	virtual int rowCount(const QModelIndex& parent) const;
-	virtual bool canFetchMore(const QModelIndex& parent) const { return true; }
+	virtual bool canFetchMore(const QModelIndex&) const { return true; }
 	virtual void fetchMore(const QModelIndex& parent);
 
 	const AtomEntry& entry(const QModelIndex& index) const;
