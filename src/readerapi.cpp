@@ -180,7 +180,7 @@ void ReaderApi::networkError(QNetworkReply::NetworkError code) {
 	qDebug() << __PRETTY_FUNCTION__ << code;
 }
 
-void ReaderApi::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors) {
+void ReaderApi::sslErrors(QNetworkReply*, const QList<QSslError>&) {
 	qDebug() << __PRETTY_FUNCTION__;
 }
 

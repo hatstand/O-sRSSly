@@ -60,6 +60,7 @@ int FolderItem::rowCount(const QModelIndex& parent) const {
 }
 
 void FolderItem::fetchMore(const QModelIndex& parent) {
+	Q_UNUSED(parent);
 	api_->getCategory(id_, continuation_);
 }
 

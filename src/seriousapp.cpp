@@ -12,10 +12,11 @@ SeriousApp::SeriousApp(int& argc, char** argv)
 }
 
 void SeriousApp::commitData(QSessionManager& session) {
+	Q_UNUSED(session);
 	Settings::instance()->commit();
 }
 
-void SeriousApp::saveState(QSessionManager& session) {
+void SeriousApp::saveState(QSessionManager&) {
 }
 
 void SeriousApp::generateImage(const QString& s) {
@@ -52,5 +53,7 @@ void SeriousApp::setUnreadItems(int n) {
 #ifdef Q_OS_DARWIN
 	generateImage(QString::number(n));
 	setWindowIcon(QIcon(icon_));
+#else
+	Q_UNUSED(n);
 #endif
 }

@@ -45,6 +45,7 @@ bool AllItems::setData(const QModelIndex& index, const QVariant& value, int role
 }
 
 int AllItems::rowCount(const QModelIndex& parent) const {
+	Q_UNUSED(parent);
 	if (row_count_ == -1)
 	{
 		int& rowCountRef = const_cast<AllItems*>(this)->row_count_;
@@ -58,6 +59,7 @@ int AllItems::rowCount(const QModelIndex& parent) const {
 }
 
 void AllItems::fetchMore(const QModelIndex& parent) {
+	Q_UNUSED(parent);
 	api_->getFresh();
 }
 
@@ -91,6 +93,7 @@ const AtomEntry& AllItems::entry(const QModelIndex& index) const {
 }
 
 void AllItems::childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent);
 	row_count_ = -1; // Make it dirty
 	
 	int rows = 0;

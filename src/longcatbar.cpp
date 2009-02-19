@@ -27,6 +27,7 @@ LongCatBar::LongCatBar(QWidget* parent)
 }
 
 void LongCatBar::resizeEvent(QResizeEvent* event) {
+	Q_UNUSED(event);
 	head_scaled_ = sHead->scaledToHeight(height(), kTransformationMode);
 	tail_scaled_ = sTail->scaledToHeight(height(), kTransformationMode);
 	middle_scaled_ = sMiddle->scaledToHeight(height(), kTransformationMode);
@@ -45,11 +46,11 @@ void LongCatBar::paintEvent(QPaintEvent* e) {
 	
 	QPainter p(this);
 	
-	int barWidth = width() - head_scaled_length_ - tail_scaled_length_;
-	barWidth *= float(value() - minimum()) / maximum();
+	int barWidth = width() - int(head_scaled_length_ - tail_scaled_length_);
+	barWidth *= int(float(value() - minimum()) / maximum());
 	
 	// Keep drawing middle bits until we've filled up the entire bar width
-	for (int widthLeft = barWidth, x = tail_scaled_length_ ; widthLeft > 0 ; widthLeft -= middle_scaled_.width()) {
+	for (int widthLeft = barWidth, x = int(tail_scaled_length_) ; widthLeft > 0 ; widthLeft -= middle_scaled_.width()) {
 		int widthToDraw = qMin(widthLeft, middle_scaled_.width());
 		p.drawPixmap(QRect(x, 0, widthToDraw, height()), middle_scaled_, QRect(0, 0, widthToDraw, height()));
 		x += widthToDraw;
@@ -57,5 +58,5 @@ void LongCatBar::paintEvent(QPaintEvent* e) {
 	
 	// Draw the tail and head
 	p.drawPixmap(0, 0, tail_scaled_);
-	p.drawPixmap(tail_scaled_length_ + barWidth - (head_scaled_.width() - head_scaled_length_), 0, head_scaled_);
+	p.drawPixmap(int(tail_scaled_length_ + barWidth - (head_scaled_.width() - head_scaled_length_)), 0, head_scaled_);
 }

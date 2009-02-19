@@ -55,6 +55,8 @@ void FeedDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, 
 }
 
 QSize FeedDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
+	Q_UNUSED(option);
+	Q_UNUSED(index);
 	return QSize(100, item_height_);
 }
 
@@ -132,6 +134,7 @@ void FeedView::behaviourChanged(int behaviour) {
 }
 
 void FeedView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
+	Q_UNUSED(deselected);
 	if (selected.indexes().count() > 0)
 		emit activated(selected.indexes()[0]);
 }

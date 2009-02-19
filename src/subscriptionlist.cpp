@@ -47,6 +47,7 @@ Subscription::Subscription(QXmlStreamReader& s) {
 }
 
 Subscription::Subscription(const QSqlQuery& query, Database* db) {
+	Q_UNUSED(db);
 	// Load data about the subscription itself
 	id_ = query.value(0).toString();
 	title_ = query.value(1).toString();
