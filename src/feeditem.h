@@ -39,6 +39,8 @@ public:
 
 	void save();
 
+        int unread() const;
+
 public slots:
 	int update(const AtomFeed& feed);
 

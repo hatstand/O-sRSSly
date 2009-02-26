@@ -153,6 +153,15 @@ void FeedItemData::save() {
 	feed_.saveEntries();
 }
 
+int FeedItemData::unread() const {
+	int unread = 0;
+	for (AtomFeed::AtomList::const_iterator it = feed_.entries().begin(); it != feed_.entries().end(); ++it) {
+		unread += it->read ? 0 : 1;
+	}
+
+	return unread;
+}
+
 QVariant FeedItem::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
@@ -207,7 +216,7 @@ bool FeedItem::setData(const QModelIndex& index, const QVariant& value, int role
 
 			data_->setRead(e);
 			// Shhhhh... Don't tell anyone. We might disappear.
-			/*QModelIndex top_left = createIndex(index.row(), 1);
+			/*QModelIndex top_left = createIndex(index.row(), Column_Read);
 			emit dataChanged(top_left, top_left);*/
 			decrementUnreadCount();
 			return true;
@@ -275,7 +284,6 @@ void FeedItem::setStarred(const QModelIndex& index, bool starred) {
 	data_->setStarred(e, starred);
 	e.update(data_->database());
 
-	QModelIndex top_left = createIndex(index.row(), 4);
+	QModelIndex top_left = createIndex(index.row(), Column_Starred);
 	emit dataChanged(top_left, top_left);
 }
-

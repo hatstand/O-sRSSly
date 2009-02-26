@@ -533,3 +533,12 @@ void FeedsModel::fetchMore() {
 void FeedsModel::unreadCountChanged(const QModelIndex& index) {
 	emit dataChanged(index, index.sibling(index.row(), 3));
 }
+
+int FeedsModel::unread() const {
+	int unread = 0;
+	for (QMap<QString,weak_ptr<FeedItemData> >::const_iterator it = id_mappings_.begin(); it != id_mappings_.end(); ++it) {
+		unread += it.value().lock()->unread();
+	}
+
+	return unread;
+}

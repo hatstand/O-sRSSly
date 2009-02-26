@@ -82,6 +82,8 @@ private:
 	bool unread_only_;
 
 	QModelIndex current_contents_;
+
+	static const QString kTrayToolTip;
 	
 #ifdef USE_SPAWN
 	Spawn::Manager* spawn_manager_;

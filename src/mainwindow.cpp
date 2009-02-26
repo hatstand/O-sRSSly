@@ -22,6 +22,8 @@
 #include <QWebSettings>
 #include <QWebView>
 
+const QString MainWindow::kTrayToolTip = TITLE " -- \"Imma in ur dock aggregating ur feedz\"";
+
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags),
 	  tray_icon_(new QSystemTrayIcon(this)),
@@ -52,7 +54,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	
 	tray_icon_->setIcon(windowIcon());
 	tray_icon_->setContextMenu(tray_menu_);
-	tray_icon_->setToolTip(TITLE " -- \"Imma in ur dock aggregating ur feedz\"");
+	tray_icon_->setToolTip(kTrayToolTip);
 	tray_icon_->show();
 	connect(feeds_model_, SIGNAL(newUnreadItems(int)), SLOT(newUnreadItems(int)));
 	
@@ -411,6 +413,9 @@ void MainWindow::newUnreadItems(int count) {
 		return;
 	
 	current_unread_ = count;
+
+	tray_icon_->setToolTip(kTrayToolTip + QString("\n%1 new items").arg(feeds_model_->unread()));
+
 	bool p = count != 1;
 	if (count != 0)
 		tray_icon_->showMessage(TITLE, "There " + QString(p ? "are" : "is") + " " + QString::number(count) + " new unread item" + QString(p ? "s" : "") + ".");

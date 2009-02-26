@@ -56,6 +56,8 @@ public:
 	void load();
 	void save();
 
+	int unread() const;
+
 signals:
 	void progressChanged(int, int);
 	void newUnreadItems(int);
