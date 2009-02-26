@@ -7,6 +7,7 @@
 class AboutBox;
 class ConfigureDialog;
 class FeedsModel;
+class ReaderApi;
 
 class QSortFilterProxyModel;
 
@@ -58,6 +59,8 @@ private slots:
 
 	void about();
 	void aboutQt();
+
+	void configureDone(int);
 	
 private:
 	void updateProgressBar();
@@ -84,6 +87,8 @@ private:
 	QModelIndex current_contents_;
 
 	static const QString kTrayToolTip;
+
+	ReaderApi* api_;
 	
 #ifdef USE_SPAWN
 	Spawn::Manager* spawn_manager_;

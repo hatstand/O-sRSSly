@@ -1,14 +1,22 @@
 #include "configuredialog.h"
+#include "readerapi.h"
 #include "settings.h"
 
-ConfigureDialog::ConfigureDialog(QWidget* parent)
+ConfigureDialog::ConfigureDialog(ReaderApi* api, QWidget* parent)
 	: QDialog(parent),
-	  settings_(Settings::instance())
+	  settings_(Settings::instance()),
+	  api_(api)
 {
 	ui_.setupUi(this);
 	
 	connect(ui_.pageList_, SIGNAL(currentTextChanged(const QString&)), SLOT(pageChanged(const QString&)));
 	ui_.pageList_->setCurrentRow(0);
+
+	connect(ui_.user_, SIGNAL(textChanged(const QString&)), SLOT(textChanged()));
+	connect(ui_.password_, SIGNAL(textChanged(const QString&)), SLOT(textChanged()));
+
+	timer_.setSingleShot(true);
+	connect(&timer_, SIGNAL(timeout()), SLOT(accountUpdated()));
 }
 
 ConfigureDialog::~ConfigureDialog()
@@ -20,10 +28,11 @@ void ConfigureDialog::accept()
 	Settings::ProgressBarStyle progressBarStyle = Settings::ProgressBar_Normal;
 	if (ui_.progressBarLongcat->isChecked())  progressBarStyle = Settings::ProgressBar_Longcat;
 	if (ui_.progressBarTacgnol->isChecked())  progressBarStyle = Settings::ProgressBar_Tacgnol;
-	
+
 	settings_->setGoogleAccount(ui_.user_->text(), ui_.password_->text());
+
 	settings_->setProgressBarStyle(progressBarStyle);
-	
+
 	settings_->setShowTrayIcon(ui_.show_tray_icon_->isChecked());
 	settings_->setStartMinimized(ui_.start_minimized_->isChecked());
 	settings_->setCheckNew(ui_.check_new_->isChecked());
@@ -39,10 +48,10 @@ void ConfigureDialog::show()
 	QDialog::show();
 }
 
-int ConfigureDialog::exec()
+void ConfigureDialog::open()
 {
 	populateData();
-	return QDialog::exec();
+	QDialog::open();
 }
 
 void ConfigureDialog::populateData()
@@ -66,4 +75,23 @@ void ConfigureDialog::populateData()
 void ConfigureDialog::pageChanged(const QString& text)
 {
 	ui_.pageTitle_->setText("<b>" + text + "</b>");
+}
+
+void ConfigureDialog::loggedIn(bool success)
+{
+	qDebug() << __PRETTY_FUNCTION__ << success;
+}
+
+void ConfigureDialog::textChanged() {
+	timer_.start(1000);
+}
+
+void ConfigureDialog::accountUpdated() {
+	// User changed account details. Let's try logging in.
+	QString username = ui_.user_->text();
+	QString password = ui_.password_->text();
+
+	if (!username.isEmpty() && !password.isEmpty()) {
+		api_->login(username, password);
+	}
 }

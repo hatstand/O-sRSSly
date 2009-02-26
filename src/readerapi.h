@@ -17,16 +17,18 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 
+#include <boost/utility.hpp>
+
 class Database;
 
-class ReaderApi : public QObject {
+class ReaderApi : public QObject, boost::noncopyable {
 Q_OBJECT
 public:
-	ReaderApi(const QString& username, const QString& password, Database* db, QObject* parent = 0);
+	ReaderApi(Database* db, QObject* parent = 0);
 	virtual ~ReaderApi();
 
 	bool isLoggedIn();
-	void login();
+	void login(const QString& username, const QString& password);
 	void getSubscriptionList();
 	void getSubscription(const Subscription& s, const QString& continuation = "");
 	void getFresh();
@@ -65,6 +67,7 @@ private:
 
 private slots:
 	void loginComplete();
+	void loginFailed(QNetworkReply::NetworkError);
 	void getSubscriptionListComplete();
 	void getSubscriptionComplete();
 	void getFreshComplete();
@@ -90,7 +93,7 @@ private slots:
 	void subscribeFinished();
 
 signals:
-	void loggedIn();
+	void loggedIn(bool success);
 	void subscriptionListArrived(const SubscriptionList&);
 	void subscriptionArrived(const AtomFeed&);
 	void categoryArrived(const AtomFeed&);
@@ -105,9 +108,6 @@ private:
 	QMap<QNetworkReply*, int> reply_progress_;
 	
 	QNetworkAccessManager* network_;
-
-	QString username_;
-	QString password_;
 
 	// Needed for editing things on Reader
 	QString auth_;
@@ -128,6 +128,8 @@ private:
 	QTimer throttle_clear_;
 
 	Database* db_;
+
+	bool logging_in_;
 
 public:
 	static const char* kApplicationSource;

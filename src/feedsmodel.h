@@ -1,7 +1,6 @@
 #ifndef FEEDS_MODEL_H
 #define FEEDS_MODEL_H
 
-#include "database.h"
 #include "feeditem.h"
 #include "rootitem.h"
 #include "subscriptionlist.h"
@@ -28,7 +27,7 @@ typedef boost::function<void ()> VoidFunction;
 class FeedsModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
-	FeedsModel(QObject* parent = 0);
+	FeedsModel(Database* database, ReaderApi* api, QObject* parent = 0);
 	~FeedsModel();
 
 	// Whether there is more data we can get from Google.
@@ -58,13 +57,15 @@ public:
 
 	int unread() const;
 
+	void forceReset();
+
 signals:
 	void progressChanged(int, int);
 	void newUnreadItems(int);
 	void doLater(VoidFunction);
 
 private slots:
-	void loggedIn();
+	void loggedIn(bool success);
 	void subscriptionListArrived(SubscriptionList list);
 	void dataDestroyed(QObject*);
 	void categoryFeedArrived(const AtomFeed&);
@@ -78,6 +79,7 @@ public slots:
 
 private:
 	void addFeed(FeedItemData* data, bool update = true);
+	void initialiseModel();
 
 	// DB callbacks
 	void folderItemsLoaded(const QSqlQuery& query);
@@ -90,7 +92,7 @@ private:
 	ReaderApi* api_;
 	QMap<QString, boost::weak_ptr<FeedItemData> > id_mappings_;
 	QMap<QString, FolderItem*> folder_mappings_;
-	Database database_;
+	Database* database_;
 	QMutex mutex_;
 
 	static const QString kSharedFolder;

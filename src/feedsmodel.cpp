@@ -19,12 +19,12 @@ using boost::weak_ptr;
 
 const QString FeedsModel::kSharedFolder = "OsrsslyShared";
 
-FeedsModel::FeedsModel(QObject* parent)
+FeedsModel::FeedsModel(Database* database, ReaderApi* api, QObject* parent)
 	: QAbstractItemModel(parent),
 	  root_(this),
 	  all_items_(NULL),
-	  api_(NULL),
-	  database_(this),
+	  api_(api),
+	  database_(database),
 	  deleting_(false),
 	  refresh_timer_(this)
 {
@@ -34,44 +34,9 @@ FeedsModel::FeedsModel(QObject* parent)
 	connect(this, SIGNAL(doLater(VoidFunction)), this, SLOT(doNow(VoidFunction)), Qt::QueuedConnection);
 	
 	connect(this, SIGNAL(newUnreadItems(int)), qApp, SLOT(setUnreadItems(int)));
-}
 
-FeedsModel::~FeedsModel() {
-	deleting_ = true;
-	// Try & stop the db thread.
-	// Wait 30s. This can take a long time as the db won't quit until it's written
-	// everything in the queue.
-	database_.stop();
-	database_.wait(30000);
-}
-
-void FeedsModel::googleAccountChanged() {
-	// Clear any existing items in the model
-	root_.clear();
-	{
-		QMutexLocker locker(&mutex_);
-		folder_mappings_.clear();
-		id_mappings_.clear();
-	}
-	
-	// Make a new API instance
-	delete api_;
-	api_ = new ReaderApi(Settings::instance()->googleUsername(), Settings::instance()->googlePassword(), &database_, this);
-	// Load stuff from db.
-	// This has to happen after we create the ReaderApi.
-	/*database_.start();
-	load();*/
 	connect(api_, SIGNAL(progressChanged(int, int)), SIGNAL(progressChanged(int, int)));
-
-	// Add an "all items" node.
-	// This gets deleted by root_.clear()
-	all_items_ = new AllItems(&root_, api_);
-	root_.installChangedProxy(all_items_);
-
-	FolderItem* friends = new FolderItem(&root_, kSharedFolder, "Shared Items", api_, &database_);
-	folder_mappings_.insert(kSharedFolder, friends);
-
-	connect(api_, SIGNAL(loggedIn()), SLOT(loggedIn()));
+	connect(api_, SIGNAL(loggedIn(bool)), SLOT(loggedIn(bool)));
 	connect(api_, SIGNAL(subscriptionListArrived(SubscriptionList)),
 		SLOT(subscriptionListArrived(SubscriptionList)));
 	connect(api_, SIGNAL(categoryArrived(const AtomFeed&)),
@@ -80,11 +45,53 @@ void FeedsModel::googleAccountChanged() {
 		SLOT(freshFeedArrived(const AtomFeed&)));
 	connect(api_, SIGNAL(friendsArrived(const AtomFeed&)),
 		SLOT(freshFeedArrived(const AtomFeed&)));
-	
-	api_->login();
-	
-	// Notify any views that everything's disappeared
+
+	initialiseModel();
+}
+
+FeedsModel::~FeedsModel() {
+	deleting_ = true;
+	// Try & stop the db thread.
+	// Wait 30s. This can take a long time as the db won't quit until it's written
+	// everything in the queue.
+	database_->stop();
+	database_->wait(30000);
+}
+
+void FeedsModel::initialiseModel() {
+	all_items_ = new AllItems(&root_, api_);
+	root_.installChangedProxy(all_items_);
+
+	FolderItem* friends = new FolderItem(&root_, kSharedFolder, "Shared Items", api_, database_);
+	folder_mappings_.insert(kSharedFolder, friends);
+
+	// Notify views.
 	reset();
+}
+
+void FeedsModel::googleAccountChanged() {
+	// Clear any existing items in the model
+
+	if (!api_->isLoggedIn()) {
+		qDebug() << __PRETTY_FUNCTION__ << "not logged in yet, doing it now";
+		api_->login(Settings::instance()->googleUsername(), Settings::instance()->googlePassword());
+
+		root_.clear();
+		{
+			QMutexLocker locker(&mutex_);
+			folder_mappings_.clear();
+			id_mappings_.clear();
+		}
+
+		// Load stuff from db.
+		// This has to happen after we create the ReaderApi.
+		/*database_->start();
+		load();*/
+
+		// Add smart folders to root again.
+		// These get deleted by root_.clear()
+		initialiseModel();
+	}
 }
 
 QVariant FeedsModel::data(const QModelIndex& index, int role) const {
@@ -165,11 +172,15 @@ TreeItem* FeedsModel::root() {
 	return &root_;
 }
 
-void FeedsModel::loggedIn() {
-	api_->getSubscriptionList();
+void FeedsModel::loggedIn(bool success) {
+	if (success) {
+		api_->getSubscriptionList();
 
-	// Refresh feeds every 5 minutes.
-	refresh_timer_.start(5*60*1000);
+		// Refresh feeds every 5 minutes.
+		refresh_timer_.start(5*60*1000);
+	} else {
+		qWarning() << __PRETTY_FUNCTION__ << "Login failed";
+	}
 }
 
 void FeedsModel::subscriptionListArrived(SubscriptionList list) {
@@ -191,7 +202,7 @@ void FeedsModel::subscriptionListArrived(SubscriptionList list) {
 			}
 		}
 
-		addFeed(new FeedItemData(s, api_, &database_));
+		addFeed(new FeedItemData(s, api_, database_));
 	}
 
 	// Notify the view that the model has changed.
@@ -234,7 +245,7 @@ void FeedsModel::addFeed(FeedItemData* data, bool update)
 			parent = folder_mappings_[c.first];
 		} else {
 			beginInsertRows(QModelIndex(), root_.childCount(), root_.childCount());
-			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_, &database_);
+			FolderItem* f = new FolderItem(&root_, c.first, c.second, api_, database_);
 			f->save();
 			folder_mappings_.insert(c.first, f);
 			endInsertRows();
@@ -414,8 +425,8 @@ void FeedsModel::dataDestroyed(QObject* object) {
 void FeedsModel::load() {
 	// Load tags & feeds.
 	// Callback will be called from different thread. CAREFUL :-)
-	database_.pushQuery("SELECT id, title FROM Tag", bind(&FeedsModel::folderItemsLoaded, this, _1));
-	database_.pushQuery("SELECT id, title, sortId FROM Feed", bind(&FeedsModel::feedItemsLoaded, this, _1));
+	database_->pushQuery("SELECT id, title FROM Tag", bind(&FeedsModel::folderItemsLoaded, this, _1));
+	database_->pushQuery("SELECT id, title, sortId FROM Feed", bind(&FeedsModel::feedItemsLoaded, this, _1));
 }
 
 void FeedsModel::folderItemsLoaded(const QSqlQuery& query) {
@@ -439,7 +450,7 @@ void FeedsModel::createFolderItem(const QString& id, const QString& name) {
 
 	QMutexLocker locker(&mutex_);
 	if (!folder_mappings_.contains(id)) {
-		FolderItem* f = new FolderItem(&root_, id, name, api_, &database_);
+		FolderItem* f = new FolderItem(&root_, id, name, api_, database_);
 		folder_mappings_.insert(f->id(), f);
 	}
 }
@@ -449,11 +460,11 @@ void FeedsModel::feedItemsLoaded(const QSqlQuery& query) {
 
 	QSqlQuery mutable_query(query);
 	while (mutable_query.next()) {
-		FeedItemData* data = new FeedItemData(mutable_query, api_, &database_);
+		FeedItemData* data = new FeedItemData(mutable_query, api_, database_);
 		if (data->subscription().id().startsWith("user"))
 			data->addCategory(Category(kSharedFolder, "Shared Items"), false);
 		
-		database_.pushQuery(
+		database_->pushQuery(
 			"SELECT Tag.id, Tag.title FROM Tag "
 			"INNER JOIN FeedTagMap ON Tag.id=FeedTagMap.tagId "
 			"WHERE FeedTagMap.feedId=?",
@@ -502,7 +513,6 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 
 	int new_unread = 0;
 	for (AtomFeed::AtomList::const_iterator it = feed.entries().begin(); it != feed.entries().end(); ++it) {
-		qDebug() << it->source;
 		QMap<QString, weak_ptr<FeedItemData> >::const_iterator jt = id_mappings_.find(it->source);
 		if (jt == id_mappings_.end()) {
 			// Either a stray entry or a `Shared Item'
@@ -511,7 +521,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 				qDebug() << "Adding shared items for:" << it->shared_by;
 				Subscription* sub = new Subscription(it->source, it->shared_by);
 				sub->addCategory(Category(kSharedFolder, "Shared Items"));
-				FeedItemData* data = new FeedItemData(sub, api_, &database_);
+				FeedItemData* data = new FeedItemData(sub, api_, database_);
 				new_unread += data->update(*it, true);
 				addFeed(data, false);
 			}
@@ -541,4 +551,9 @@ int FeedsModel::unread() const {
 	}
 
 	return unread;
+}
+
+// Hack.
+void FeedsModel::forceReset() {
+	reset();
 }

@@ -1,7 +1,9 @@
 #include "config.h"
 #include "configuredialog.h"
+#include "database.h"
 #include "feedsmodel.h"
 #include "mainwindow.h"
+#include "readerapi.h"
 #include "settings.h"
 #include "browser.h"
 #include "xmlutils.h"
@@ -29,14 +31,15 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	  tray_icon_(new QSystemTrayIcon(this)),
 	  tray_menu_(new QMenu(this)),
 	  current_unread_(0),
-	  feeds_model_(new FeedsModel(this)),
+	  feeds_model_(NULL),
 	  sorted_entries_(0),
 	  feed_menu_(new QMenu(this)),
 	  web_progress_bar_(new LongCatBar(this)),
-	  configure_dialog_(new ConfigureDialog(this)),
+	  configure_dialog_(NULL),
 	  about_box_(NULL),
 	  webclipping_(false),
-	  unread_only_(false)
+	  unread_only_(false),
+	  api_(NULL)
 #ifdef USE_SPAWN
 	  ,spawn_manager_(new Spawn::Manager(this))
 #endif
@@ -45,6 +48,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	new QSizeGrip(this);
 #endif
 	ui_.setupUi(this);
+
+	Database* database = new Database(this);
+	api_ = new ReaderApi(database, this);
+	feeds_model_ = new FeedsModel(database, api_, this);
 
 	QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
 	
@@ -153,11 +160,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	// About stuff
 	connect(ui_.action_about_, SIGNAL(triggered(bool)), SLOT(about()));
 	connect(ui_.action_about_qt_, SIGNAL(triggered(bool)), SLOT(aboutQt()));
-	
-	// Prompt the user for google account details
-	if (Settings::instance()->googleUsername().isNull() || Settings::instance()->googlePassword().isNull())
-		if (configure_dialog_->exec() == QDialog::Rejected)
-			exit(0);
 
 	unread_only_ = Settings::instance()->unreadOnly();
 	ui_.actionUnreadOnly_->setChecked(unread_only_);
@@ -175,7 +177,19 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	italic_font.setItalic(true);
 	//ui_.author_->setFont(italic_font);
 	
-	feeds_model_->googleAccountChanged();
+	// Prompt the user for google account details
+	configure_dialog_ = new ConfigureDialog(api_, this);
+	if (Settings::instance()->googleUsername().isNull() || Settings::instance()->googlePassword().isNull()) {
+		connect(configure_dialog_, SIGNAL(finished(int)), SLOT(configureDone(int)));
+		configure_dialog_->show();
+		configure_dialog_->raise();
+		configure_dialog_->activateWindow();
+		qDebug() << __PRETTY_FUNCTION__ << "Modal:" << configure_dialog_->isModal();
+		qDebug() << QApplication::quitOnLastWindowClosed();
+	} else {
+		api_->login(Settings::instance()->googleUsername(), Settings::instance()->googlePassword());
+	}
+
 	feeds_model_->load();
 }
 
@@ -184,6 +198,13 @@ MainWindow::~MainWindow() {
 
 void MainWindow::showConfigure() {
 	configure_dialog_->show();
+}
+
+void MainWindow::configureDone(int result) {
+	qDebug() << __PRETTY_FUNCTION__ << configure_dialog_;
+	if (result == QDialog::Accepted && !api_->isLoggedIn()) {
+		api_->login(Settings::instance()->googleUsername(), Settings::instance()->googlePassword());
+	}
 }
 
 void MainWindow::subscriptionSelected(const QModelIndex& index) {

@@ -56,9 +56,10 @@ const QUrl ReaderApi::kIdConvertUrl("http://www.google.com/reader/api/0/stream/i
 const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscription/quickadd");
 
 
-ReaderApi::ReaderApi(const QString& username, const QString& password, Database* db, QObject* parent) 
+ReaderApi::ReaderApi(Database* db, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
-		username_(username), password_(password), getting_token_(false), db_(db) {
+		getting_token_(false), db_(db), logging_in_(false) {
+	qDebug() << __PRETTY_FUNCTION__;
 
 	// Catch SSL errors
 	connect(network_, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
@@ -72,19 +73,23 @@ ReaderApi::~ReaderApi() {
 	
 }
 
-void ReaderApi::login() {
+void ReaderApi::login(const QString& username, const QString& password) {
+	qDebug() << "Logging in";
+	logging_in_ = true;
+
 	QString content;
 	content.sprintf("Email=%s&Passwd=%s&source=%s&service=%s&accountType=%s",
-		username_.toStdString().c_str(), password_.toStdString().c_str(),
+		username.toStdString().c_str(), password.toStdString().c_str(),
 		kApplicationSource, kServiceName, kAccountType);
 
-	qDebug() << "Logging in";
 	QNetworkRequest login_request(kLoginUrl);
 	login_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 	QNetworkReply* login = network_->post(login_request, content.toUtf8());
 	watchReply(login);
 
 	connect(login, SIGNAL(finished()), SLOT(loginComplete()));
+	connect(login, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(loginFailed(QNetworkReply::NetworkError)));
 	connect(login, SIGNAL(error(QNetworkReply::NetworkError)),
 		SLOT(networkError(QNetworkReply::NetworkError)));
 }
@@ -93,6 +98,8 @@ void ReaderApi::loginComplete() {
 	qDebug() << __PRETTY_FUNCTION__;
 	QNetworkReply* login = static_cast<QNetworkReply*>(sender());
 	QString data(login->readAll());
+
+	login->deleteLater();
 
 	QStringList list = data.split('\n');
 	QMap<QString, QString> auth;
@@ -107,18 +114,28 @@ void ReaderApi::loginComplete() {
 	auth_ = auth["Auth"];
 	sid_ = auth["SID"];
 
+	if (auth_.isEmpty() || sid_.isEmpty()) {
+		logging_in_ = false;
+		emit loggedIn(false);
+		return;
+	}
+
 	// Set the session id cookie
 	QList<QNetworkCookie> cookies;
 	cookies << QNetworkCookie(QByteArray("SID"), sid_.toUtf8());
 	network_->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.google.com/"));
 	qDebug() << network_->cookieJar()->cookiesForUrl(QUrl("http://www.google.com/"));
 
-	login->deleteLater();
-
 	connect(&throttle_clear_, SIGNAL(timeout()), SLOT(clearThrottle()));
 	throttle_clear_.start(5*60*1000);
 
-	emit loggedIn();
+	logging_in_ = false;
+	emit loggedIn(true);
+}
+
+void ReaderApi::loginFailed(QNetworkReply::NetworkError error) {
+	sender()->deleteLater();
+	emit loggedIn(false);
 }
 
 bool ReaderApi::isLoggedIn() {
@@ -177,7 +194,7 @@ void ReaderApi::getUnreadComplete() {
 }
 
 void ReaderApi::networkError(QNetworkReply::NetworkError code) {
-	qDebug() << __PRETTY_FUNCTION__ << code;
+	qDebug() << __PRETTY_FUNCTION__ << code << static_cast<QNetworkReply*>(sender())->url();
 }
 
 void ReaderApi::sslErrors(QNetworkReply*, const QList<QSslError>&) {
