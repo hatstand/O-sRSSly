@@ -19,6 +19,7 @@
 
 #include <boost/mpl/list.hpp>
 #include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/state.hpp>
 #include <boost/statechart/state_machine.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/utility.hpp>
@@ -151,20 +152,13 @@ private:
 		State(ReaderApi* parent) : parent_(parent) {}
 
 		ReaderApi* parent_;
-
-		void loginAction(const LoginSuccess& event) {
-			qDebug() << __PRETTY_FUNCTION__;
-			emit(parent_->loggedIn(true));
-		}
-
-		void loginAction(const LoginFail& event) {
-			qDebug() << __PRETTY_FUNCTION__;
-			emit(parent_->loggedIn(false));
-		}
 	};
 
-	struct NotLoggedIn : sc::simple_state<NotLoggedIn, State> {
-		NotLoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+	struct NotLoggedIn : sc::state<NotLoggedIn, State> {
+		NotLoggedIn(my_context ctx) : sc::state<NotLoggedIn, State>(ctx) {
+			qDebug() << __PRETTY_FUNCTION__;
+			emit(outermost_context().parent_->loggedIn(false));
+		}
 		~NotLoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
 
 		typedef sc::transition<StartLogin, LoggingIn> reactions;
@@ -175,13 +169,16 @@ private:
 		~LoggingIn() { qDebug() << __PRETTY_FUNCTION__; }
 
 		typedef mpl::list<
-			sc::transition<LoginSuccess, LoggedIn, State, &State::loginAction>,
-			sc::transition<LoginFail, NotLoggedIn, State, &State::loginAction>
+			sc::transition<LoginSuccess, LoggedIn>,
+			sc::transition<LoginFail, NotLoggedIn>
 		> reactions;
 	};
 
-	struct LoggedIn : sc::simple_state<LoggedIn, State> {
-		LoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+	struct LoggedIn : sc::state<LoggedIn, State> {
+		LoggedIn(my_context ctx) : sc::state<LoggedIn, State>(ctx) {
+			qDebug() << __PRETTY_FUNCTION__;
+			emit(outermost_context().parent_->loggedIn(true));
+		}
 		~LoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
 	};
 
