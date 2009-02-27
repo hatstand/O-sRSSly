@@ -138,24 +138,37 @@ private:
 	Database* db_;
 
 	// States:
+	struct Active;
+	
 	struct NotLoggedIn;
 	struct LoggingIn;
 	struct LoggedIn;
+
+	struct NoToken;
+	struct GettingToken;
+	struct GotToken;
 
 	// Events:
 	struct StartLogin : sc::event<StartLogin> {};
 	struct LoginSuccess : sc::event<LoginSuccess> {};
 	struct LoginFail : sc::event<LoginFail> {};
 
+	struct GetToken : sc::event<GetToken> {};
+	struct GetTokenSuccess : sc::event<GetTokenSuccess> {};
+	struct GetTokenFail : sc::event<GetTokenFail> {};
+	struct TokenExpired : sc::event<TokenExpired> {};
+
 	// State machine:
-	struct State : sc::state_machine<State, NotLoggedIn> {
+	struct State : sc::state_machine<State, Active> {
 		State(ReaderApi* parent) : parent_(parent) {}
 
 		ReaderApi* parent_;
 	};
 
-	struct NotLoggedIn : sc::state<NotLoggedIn, State> {
-		NotLoggedIn(my_context ctx) : sc::state<NotLoggedIn, State>(ctx) {
+	struct Active : sc::simple_state<Active, State, mpl::list<NotLoggedIn, NoToken> > {};
+
+	struct NotLoggedIn : sc::state<NotLoggedIn, Active::orthogonal<0> > {
+		NotLoggedIn(my_context ctx) : sc::state<NotLoggedIn, Active::orthogonal<0> >(ctx) {
 			qDebug() << __PRETTY_FUNCTION__;
 			emit(outermost_context().parent_->loggedIn(false));
 		}
@@ -164,7 +177,7 @@ private:
 		typedef sc::transition<StartLogin, LoggingIn> reactions;
 	};
 
-	struct LoggingIn : sc::simple_state<LoggingIn, State> {
+	struct LoggingIn : sc::simple_state<LoggingIn, Active::orthogonal<0> > {
 		LoggingIn() { qDebug() << __PRETTY_FUNCTION__; }
 		~LoggingIn() { qDebug() << __PRETTY_FUNCTION__; }
 
@@ -174,12 +187,33 @@ private:
 		> reactions;
 	};
 
-	struct LoggedIn : sc::state<LoggedIn, State> {
-		LoggedIn(my_context ctx) : sc::state<LoggedIn, State>(ctx) {
+	struct LoggedIn : sc::state<LoggedIn, Active::orthogonal<0> > {
+		LoggedIn(my_context ctx) : sc::state<LoggedIn, Active::orthogonal<0> >(ctx) {
 			qDebug() << __PRETTY_FUNCTION__;
 			emit(outermost_context().parent_->loggedIn(true));
 		}
 		~LoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+	};
+
+	struct NoToken : sc::simple_state<NoToken, Active::orthogonal<1> > {
+		NoToken() { qDebug() << __PRETTY_FUNCTION__; }
+
+		typedef sc::transition<GetToken, GettingToken> reactions;
+	};
+
+	struct GettingToken : sc::simple_state<GettingToken, Active::orthogonal<1> > {
+		GettingToken() { qDebug() << __PRETTY_FUNCTION__; }
+
+		typedef mpl::list<
+			sc::transition<GetTokenSuccess, GotToken>,
+			sc::transition<GetTokenFail, NoToken>
+		> reactions;
+	};
+
+	struct GotToken : sc::simple_state<GotToken, Active::orthogonal<1> > {
+		GotToken() { qDebug() << __PRETTY_FUNCTION__; }
+
+		typedef sc::transition<TokenExpired, NoToken> reactions;
 	};
 
 	State state_;

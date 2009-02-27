@@ -203,6 +203,7 @@ void ReaderApi::sslErrors(QNetworkReply*, const QList<QSslError>&) {
 
 void ReaderApi::getToken() {
 	qDebug() << __PRETTY_FUNCTION__;
+	state_.process_event(GetToken());
 
 	getting_token_ = true;
 
@@ -220,6 +221,7 @@ void ReaderApi::getTokenComplete() {
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 	token_ = reply->readAll();
 
+	state_.process_event(GetTokenSuccess());
 	getting_token_ = false;
 
 	processActionQueue();
@@ -376,6 +378,8 @@ void ReaderApi::getSubscriptionComplete() {
 
 void ReaderApi::actionFailed() {
 	// Token probably expired.
+	state_.process_event(TokenExpired());
+	state_.process_event(GetToken());
 	if (!getting_token_) {
 		token_.clear();
 		getToken();
