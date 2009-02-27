@@ -58,7 +58,7 @@ const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscrip
 
 ReaderApi::ReaderApi(Database* db, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
-		getting_token_(false), db_(db), state_(this) {
+		db_(db), state_(this) {
 	qDebug() << __PRETTY_FUNCTION__;
 
 	state_.initiate();
@@ -139,7 +139,7 @@ void ReaderApi::loginFailed(QNetworkReply::NetworkError error) {
 }
 
 bool ReaderApi::isLoggedIn() {
-	return state_.state_downcast<const LoggedIn*>();
+	return isCurrentState<LoggedIn>();
 }
 
 void ReaderApi::getSubscriptionList() {
@@ -205,8 +205,6 @@ void ReaderApi::getToken() {
 	qDebug() << __PRETTY_FUNCTION__;
 	state_.process_event(GetToken());
 
-	getting_token_ = true;
-
 	QNetworkRequest req(kTokenUrl);
 	QNetworkReply* reply = network_->get(req);
 	watchReply(reply);
@@ -222,7 +220,6 @@ void ReaderApi::getTokenComplete() {
 	token_ = reply->readAll();
 
 	state_.process_event(GetTokenSuccess());
-	getting_token_ = false;
 
 	processActionQueue();
 	emit tokenReady();
@@ -292,14 +289,14 @@ void ReaderApi::editCategory(const Subscription& s, const QString& category, boo
 
 void ReaderApi::processActionQueue() {
 	qDebug() << __PRETTY_FUNCTION__;
-	if (!token_.isEmpty() && !getting_token_) {
+	if (isCurrentState<GotToken>()) {
 		while (!queued_actions_.isEmpty()) {
 			ApiAction* a = queued_actions_.dequeue();
 			a->addToken(token_.toUtf8());
 			connect(a, SIGNAL(failed()), SLOT(actionFailed()));
 			a->start(network_);
 		}
-	} else if (token_.isEmpty() && !getting_token_) {
+	} else if (isCurrentState<NoToken>()) {
 		getToken();
 	}
 }
@@ -378,9 +375,8 @@ void ReaderApi::getSubscriptionComplete() {
 
 void ReaderApi::actionFailed() {
 	// Token probably expired.
-	state_.process_event(TokenExpired());
-	state_.process_event(GetToken());
-	if (!getting_token_) {
+	if (!isCurrentState<GettingToken>()) {
+		state_.process_event(TokenExpired());
 		token_.clear();
 		getToken();
 	}

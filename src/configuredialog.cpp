@@ -45,6 +45,9 @@ void ConfigureDialog::accept()
 void ConfigureDialog::show()
 {
 	populateData();
+	if (ui_.password_->text().isEmpty() && !ui_.user_->text().isEmpty()) {
+		ui_.password_->setFocus(Qt::OtherFocusReason);
+	}
 	QDialog::show();
 }
 

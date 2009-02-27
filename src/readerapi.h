@@ -124,7 +124,6 @@ private:
 
 	// Temporary authentication token.
 	QString token_;
-	bool getting_token_;
 	QQueue<ApiAction*> queued_actions_;
 
 	// Reading list continuation.
@@ -217,6 +216,11 @@ private:
 	};
 
 	State state_;
+
+	template <typename T>
+	bool isCurrentState() {
+		return state_.state_downcast<const T*>();
+	}
 
 public:
 	static const char* kApplicationSource;
