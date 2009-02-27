@@ -17,9 +17,16 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 
+#include <boost/mpl/list.hpp>
+#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/transition.hpp>
 #include <boost/utility.hpp>
 
 class Database;
+namespace sc = boost::statechart;
+namespace mpl = boost::mpl;
+
 
 class ReaderApi : public QObject, boost::noncopyable {
 Q_OBJECT
@@ -129,7 +136,56 @@ private:
 
 	Database* db_;
 
-	bool logging_in_;
+	// States:
+	struct NotLoggedIn;
+	struct LoggingIn;
+	struct LoggedIn;
+
+	// Events:
+	struct StartLogin : sc::event<StartLogin> {};
+	struct LoginSuccess : sc::event<LoginSuccess> {};
+	struct LoginFail : sc::event<LoginFail> {};
+
+	// State machine:
+	struct State : sc::state_machine<State, NotLoggedIn> {
+		State(ReaderApi* parent) : parent_(parent) {}
+
+		ReaderApi* parent_;
+
+		void loginAction(const LoginSuccess& event) {
+			qDebug() << __PRETTY_FUNCTION__;
+			emit(parent_->loggedIn(true));
+		}
+
+		void loginAction(const LoginFail& event) {
+			qDebug() << __PRETTY_FUNCTION__;
+			emit(parent_->loggedIn(false));
+		}
+	};
+
+	struct NotLoggedIn : sc::simple_state<NotLoggedIn, State> {
+		NotLoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+		~NotLoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+
+		typedef sc::transition<StartLogin, LoggingIn> reactions;
+	};
+
+	struct LoggingIn : sc::simple_state<LoggingIn, State> {
+		LoggingIn() { qDebug() << __PRETTY_FUNCTION__; }
+		~LoggingIn() { qDebug() << __PRETTY_FUNCTION__; }
+
+		typedef mpl::list<
+			sc::transition<LoginSuccess, LoggedIn, State, &State::loginAction>,
+			sc::transition<LoginFail, NotLoggedIn, State, &State::loginAction>
+		> reactions;
+	};
+
+	struct LoggedIn : sc::simple_state<LoggedIn, State> {
+		LoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+		~LoggedIn() { qDebug() << __PRETTY_FUNCTION__; }
+	};
+
+	State state_;
 
 public:
 	static const char* kApplicationSource;

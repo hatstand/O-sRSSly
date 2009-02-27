@@ -58,8 +58,10 @@ const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscrip
 
 ReaderApi::ReaderApi(Database* db, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),
-		getting_token_(false), db_(db), logging_in_(false) {
+		getting_token_(false), db_(db), state_(this) {
 	qDebug() << __PRETTY_FUNCTION__;
+
+	state_.initiate();
 
 	// Catch SSL errors
 	connect(network_, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
@@ -75,7 +77,7 @@ ReaderApi::~ReaderApi() {
 
 void ReaderApi::login(const QString& username, const QString& password) {
 	qDebug() << "Logging in";
-	logging_in_ = true;
+	state_.process_event(StartLogin());
 
 	QString content;
 	content.sprintf("Email=%s&Passwd=%s&source=%s&service=%s&accountType=%s",
@@ -115,8 +117,7 @@ void ReaderApi::loginComplete() {
 	sid_ = auth["SID"];
 
 	if (auth_.isEmpty() || sid_.isEmpty()) {
-		logging_in_ = false;
-		emit loggedIn(false);
+		state_.process_event(LoginFail());
 		return;
 	}
 
@@ -129,17 +130,16 @@ void ReaderApi::loginComplete() {
 	connect(&throttle_clear_, SIGNAL(timeout()), SLOT(clearThrottle()));
 	throttle_clear_.start(5*60*1000);
 
-	logging_in_ = false;
-	emit loggedIn(true);
+	state_.process_event(LoginSuccess());
 }
 
 void ReaderApi::loginFailed(QNetworkReply::NetworkError error) {
 	sender()->deleteLater();
-	emit loggedIn(false);
+	state_.process_event(LoginFail());
 }
 
 bool ReaderApi::isLoggedIn() {
-	return !auth_.isEmpty();
+	return state_.state_downcast<const LoggedIn*>();
 }
 
 void ReaderApi::getSubscriptionList() {
