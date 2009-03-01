@@ -36,6 +36,7 @@ void Database::handleError(const QSqlError& error) {
 }
 
 void Database::stop() {
+	return;
 	{
 		QMutexLocker locker(&mutex_);
 		stopping_ = true;
@@ -112,6 +113,7 @@ void Database::pushQuery(const QString& query, const QList<QVariant>& bind_value
 }
 
 void Database::pushQuery(const Request& request) {
+	return;
 	{
 		// Lock and add to queue.
 		QMutexLocker locker(&mutex_);

@@ -55,7 +55,7 @@ FeedsModel::~FeedsModel() {
 	// Wait 30s. This can take a long time as the db won't quit until it's written
 	// everything in the queue.
 	database_->stop();
-	database_->wait(30000);
+	//database_->wait(30000);
 }
 
 void FeedsModel::initialiseModel() {
