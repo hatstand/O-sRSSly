@@ -55,6 +55,33 @@ const QUrl ReaderApi::kIdConvertUrl("http://www.google.com/reader/api/0/stream/i
 // Subscribe url
 const QUrl ReaderApi::kSubscribeUrl("http://www.google.com/reader/api/0/subscription/quickadd");
 
+// Comment url
+const QUrl ReaderApi::kCommentUrl("http://www.google.com/reader/api/0/edit");
+const QUrl ReaderApi::kSetPreferenceUrl("http://www.google.com/reader/api/0/set");
+/*
+ * POST to kCommentUrl
+ * Params: client=blah
+ * Postdata:
+ * T:token
+ * action:addcomment/editcomment/deletecomment
+ * ci:if we're doing an edit/delete, I guess this is the id of the comment? tag:google.com,2005:reader/item/5901b72108fef941
+ * comment:actual comment
+ * i:which item the comment is on
+ * output:xml/json
+ * s:user/09719243906357438261/state/com.google/broadcast (the tag we're editing? ie. my shared items)
+ *
+ * This is also followed by a POST to kSetPreferencesUrl. Maybe unnecessary?
+ * Probably just sets the view to return to this page next time.
+ * Params: client=blah
+ * Postdata:
+ * T:token
+ * k:last-allcomments-view
+ * v:1236876382829000 timestamp I guess?
+ *
+ * The GET kSharedTag response includes comments:[] in JSON
+ * Try XML later or write a more useful JSON parser.
+ */
+
 
 ReaderApi::ReaderApi(Database* db, QObject* parent) 
 	:	QObject(parent), network_(new QNetworkAccessManager(this)),

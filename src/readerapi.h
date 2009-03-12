@@ -252,6 +252,8 @@ public:
 	static const QUrl kIdConvertUrl;
 
 	static const QUrl kSubscribeUrl;
+	static const QUrl kCommentUrl;
+	static const QUrl kSetPreferenceUrl;
 };
 
 #endif
