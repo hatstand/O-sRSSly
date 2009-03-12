@@ -12,6 +12,7 @@ class FolderItem : public TreeItem {
 	Q_OBJECT
 public:
 	FolderItem(TreeItem* parent, const QString& id, const QString& name, ReaderApi* api, Database* db);
+	virtual ~FolderItem() {}
 
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
@@ -35,7 +36,7 @@ public:
 public slots:
 	//virtual void childChanged(TreeItem* sender, const QModelIndex& top_left, const QModelIndex& bottom_right);
 
-private:
+protected:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
 

@@ -161,6 +161,7 @@ void ReaderApi::loginComplete() {
 }
 
 void ReaderApi::loginFailed(QNetworkReply::NetworkError error) {
+	Q_UNUSED(error);
 	sender()->deleteLater();
 	state_.process_event(LoginFail());
 }
@@ -222,6 +223,7 @@ void ReaderApi::getUnreadComplete() {
 
 void ReaderApi::networkError(QNetworkReply::NetworkError code) {
 	qDebug() << __PRETTY_FUNCTION__ << code << static_cast<QNetworkReply*>(sender())->url();
+	qDebug() << static_cast<QNetworkReply*>(sender())->readAll();
 }
 
 void ReaderApi::sslErrors(QNetworkReply*, const QList<QSslError>&) {
@@ -490,6 +492,8 @@ void ReaderApi::getFriendsComplete() {
 	friends_continuation_ = feed.continuation();
 	if (!feed.empty())
 		emit friendsArrived(feed);
+	else
+		qDebug() << __PRETTY_FUNCTION__ << "Feed empty!";
 
 	reply->deleteLater();
 }

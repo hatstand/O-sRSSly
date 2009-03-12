@@ -25,6 +25,7 @@ SET(FEEDER-SOURCES
 	jsonutils.cpp
 	seriousapp.cpp
 	about.cpp
+	shareditem.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -49,6 +50,7 @@ SET(FEEDER-MOC-HEADERS
 	longcatbar.h
 	seriousapp.h
 	about.h
+	shareditem.h
 )
 
 IF(UNIX)

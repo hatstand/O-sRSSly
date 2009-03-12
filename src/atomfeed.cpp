@@ -228,6 +228,44 @@ void AtomFeed::saveEntries() {
 	}
 }
 
+AtomEntry::Comment::Comment(QXmlStreamReader& s)
+{
+	while (!s.atEnd())
+	{
+		QXmlStreamReader::TokenType type = s.readNext();
+		switch (type)
+		{
+		case QXmlStreamReader::StartElement:
+			if (s.name() == "content") {
+				content = s.readElementText();
+			} else if (s.name() == "id") {
+				id = s.readElementText();
+			} else if (s.name() == "author") {
+				QString timestamp = s.attributes().value(
+					AtomFeed::kReaderXmlNamespace, "modified-timestamp-msec").toString();
+				if (!timestamp.isEmpty()) {
+					quint64 millis = timestamp.toULongLong();
+					date = QDateTime::fromTime_t(millis / 1000);
+				}
+				author = AtomEntry::parseAuthor(s);
+			} else if (s.name() == "venueStreamId") {
+				venue = s.readElementText();
+			} else {
+				ignoreElement(s);
+			}
+			break;
+
+		case QXmlStreamReader::EndElement:
+			if (s.namespaceUri() == AtomFeed::kReaderXmlNamespace && s.name() == "comment")
+				return;
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
 AtomEntry::AtomEntry(QXmlStreamReader& s)
 	: read(false),
 	  starred(false),
@@ -272,6 +310,8 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 			else if (s.name() == "author" && s.attributes().value(
 				AtomFeed::kReaderXmlNamespace, "unknown-author") != "true") {
 				author = parseAuthor(s);
+			} else if (s.namespaceUri() == AtomFeed::kReaderXmlNamespace && s.name() == "comment") {
+				comments << Comment(s);
 			}
 			else {
 				ignoreElement(s);
@@ -280,8 +320,11 @@ AtomEntry::AtomEntry(QXmlStreamReader& s)
 			break;
 			
 		case QXmlStreamReader::EndElement:
-			if (s.name() == "entry")
+			if (s.name() == "entry") {
+				if (!comments.isEmpty())
+					qDebug() << comments;
 				return;
+			}
 			break;
 		
 		default:
@@ -385,5 +428,16 @@ QDebug operator <<(QDebug dbg, const AtomFeed& f)
 		dbg.nospace() << "  " << *it;
 		dbg.nospace() << "\n";
 	}
+	return dbg.space();
+}
+
+QDebug operator <<(QDebug dbg, const AtomEntry::Comment& c)
+{
+	dbg.nospace() << "AtomEntry::Comment(" << c.author << ",\n";
+	dbg.nospace() << c.id << ",\n";
+	dbg.nospace() << c.date << ",\n";
+	dbg.nospace() << c.venue << ",\n";
+	dbg.nospace() << c.content << ")\n";
+	
 	return dbg.space();
 }

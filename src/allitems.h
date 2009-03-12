@@ -13,7 +13,8 @@ class AllItems : public TreeItem {
 	Q_OBJECT
 public:
 	AllItems(TreeItem* parent, ReaderApi* api);
-	
+	virtual ~AllItems() {}
+
 	// QAbstractTableModel
 	// Returns the appropriate data from its children.
 	// ie. a row index of 0 will return the first row from the first child.

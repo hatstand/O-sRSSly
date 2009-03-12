@@ -27,6 +27,17 @@ class QSqlQuery;
 class AtomEntry
 {
 public:
+	class Comment
+	{
+	public:
+		Comment(QXmlStreamReader& s);
+		QString content;
+		QString id;
+		QString author; // Maybe we should be using gr:user-id instead?
+		QDateTime date;
+		QString venue; // Seems important.
+	};
+
 	AtomEntry() {}
 	AtomEntry(QXmlStreamReader& s);
 	AtomEntry(const QSqlQuery& query);
@@ -46,12 +57,13 @@ public:
 	QString source;
 	QString author;
 	QString shared_by;
-	
+	QList<Comment> comments;
+
 	void update(Database* db) const;
 
+	static QString parseAuthor(QXmlStreamReader& s);
 private:
 	void parseSource(QXmlStreamReader& s);
-	QString parseAuthor(QXmlStreamReader& s);
 	QString previewText_;
 };
 
@@ -203,5 +215,6 @@ private:
 };
 
 QDebug operator <<(QDebug dbg, const AtomFeed& f);
+QDebug operator <<(QDebug dbg, const AtomEntry::Comment& c);
 
 #endif

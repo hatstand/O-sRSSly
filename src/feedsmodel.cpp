@@ -4,6 +4,7 @@
 #include "database.h"
 #include "allitems.h"
 #include "folderitem.h"
+#include "shareditem.h"
 
 #include <QApplication>
 #include <QMimeData>
@@ -16,8 +17,6 @@
 using boost::bind;
 using boost::shared_ptr;
 using boost::weak_ptr;
-
-const QString FeedsModel::kSharedFolder = "OsrsslyShared";
 
 FeedsModel::FeedsModel(Database* database, ReaderApi* api, QObject* parent)
 	: QAbstractItemModel(parent),
@@ -62,8 +61,8 @@ void FeedsModel::initialiseModel() {
 	all_items_ = new AllItems(&root_, api_);
 	root_.installChangedProxy(all_items_);
 
-	FolderItem* friends = new FolderItem(&root_, kSharedFolder, "Shared Items", api_, database_);
-	folder_mappings_.insert(kSharedFolder, friends);
+	FolderItem* friends = new SharedItem(&root_, api_, database_);
+	folder_mappings_.insert(SharedItem::kId, friends);
 
 	// Notify views.
 	reset();
@@ -462,7 +461,7 @@ void FeedsModel::feedItemsLoaded(const QSqlQuery& query) {
 	while (mutable_query.next()) {
 		FeedItemData* data = new FeedItemData(mutable_query, api_, database_);
 		if (data->subscription().id().startsWith("user"))
-			data->addCategory(Category(kSharedFolder, "Shared Items"), false);
+			data->addCategory(SharedItem::kCategory, false);
 		
 		database_->pushQuery(
 			"SELECT Tag.id, Tag.title FROM Tag "
@@ -520,7 +519,7 @@ void FeedsModel::freshFeedArrived(const AtomFeed& feed) {
 				// Must be a shared item
 				qDebug() << "Adding shared items for:" << it->shared_by;
 				Subscription* sub = new Subscription(it->source, it->shared_by);
-				sub->addCategory(Category(kSharedFolder, "Shared Items"));
+				sub->addCategory(SharedItem::kCategory);
 				FeedItemData* data = new FeedItemData(sub, api_, database_);
 				new_unread += data->update(*it, true);
 				addFeed(data, false);
