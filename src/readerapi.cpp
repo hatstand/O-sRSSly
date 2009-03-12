@@ -71,12 +71,13 @@ const QUrl ReaderApi::kSetPreferenceUrl("http://www.google.com/reader/api/0/set"
  * s:user/09719243906357438261/state/com.google/broadcast (the tag we're editing? ie. my shared items)
  *
  * This is also followed by a POST to kSetPreferencesUrl. Maybe unnecessary?
- * Probably just sets the view to return to this page next time.
+ * Records when all comments were last viewed.
  * Params: client=blah
  * Postdata:
  * T:token
- * k:last-allcomments-view
- * v:1236876382829000 timestamp I guess?
+ * k:last-allcomments-view The preference to set. Custom ones might be useful...
+ * v:1236876382829000 timestamp in millis.
+ * See: http://www.google.com/reader/api/0/preference/list
  *
  * The GET kSharedTag response includes comments:[] in JSON
  * Try XML later or write a more useful JSON parser.
