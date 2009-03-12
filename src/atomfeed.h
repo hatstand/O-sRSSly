@@ -12,6 +12,13 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/random_access_index.hpp>
 
+/*
+ * Comments look like this inside an <entry>
+ * <gr:comment><content type="html">Loving the interview</content><id>tag:google.com,2005:reader/item/7a52c8db8ecc55ed</id><author gr:user-id="03974524791755826681" gr:profile-id="118082884749626985470" gr:created-timestamp-msec="1236877185000" gr:modified-timestamp-msec="1236877185000"><name>CScutcher</name></author><venueStreamId>user/03974524791755826681/state/com.google/broadcast</venueStreamId></gr:comment>
+ *
+ * <venueStreamId> could be the commenter's shared feed or the feed the comment references?
+ */
+
 class Database;
 class QIODevice;
 class QSqlQuery;
