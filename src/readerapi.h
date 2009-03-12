@@ -48,6 +48,7 @@ public:
 	void setShared(const AtomEntry& e, bool shared);
 	void addCategory(const Subscription& s, const QString& category);
 	void removeCategory(const Subscription& s, const QString& category);
+	void setPreference(const QString& key, const QString& value);
 
 	void search(const QString& query);
 	void subscribe(const QString& feed);
@@ -72,6 +73,8 @@ private:
 
         // Parses the intermediate search results into individual ids.
 	QStringList parseIntermediateSearch(QIODevice* data);
+
+	void getPreferences();
 
 private slots:
 	void loginComplete();
@@ -99,6 +102,7 @@ private slots:
 	void clearThrottle();
 
 	void subscribeFinished();
+	void getPreferencesComplete();
 
 signals:
 	void loggedIn(bool success);
@@ -128,13 +132,15 @@ private:
 
 	// Reading list continuation.
 	QString continuation_;
-        // Shared items continuation.
+	// Shared items continuation.
 	QString friends_continuation_;
 
 	QMap<QUrl, QTime> network_throttle_;
 	QTimer throttle_clear_;
 
 	Database* db_;
+
+	QMap<QString, QString> preferences_;
 
 	// States:
 	struct Active;

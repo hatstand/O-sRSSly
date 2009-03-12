@@ -1,5 +1,6 @@
 #include "config.h"
 #include "jsonutils.h"
+#include "preferences_parser.h"
 #include "readerapi.h"
 #include "subscriptionlist.h"
 #include "xmlutils.h"
@@ -75,7 +76,7 @@ const QUrl ReaderApi::kSetPreferenceUrl("http://www.google.com/reader/api/0/set"
  * Params: client=blah
  * Postdata:
  * T:token
- * k:last-allcomments-view The preference to set. Custom ones might be useful...
+  k:last-allcomments-view The preference to set. Seems we might be able to dump stuff in lhn-prefs.
  * v:1236876382829000 timestamp in millis.
  * See: http://www.google.com/reader/api/0/preference/list
  *
@@ -159,6 +160,7 @@ void ReaderApi::loginComplete() {
 	throttle_clear_.start(5*60*1000);
 
 	state_.process_event(LoginSuccess());
+	getPreferences();
 }
 
 void ReaderApi::loginFailed(QNetworkReply::NetworkError error) {
@@ -248,6 +250,7 @@ void ReaderApi::getTokenComplete() {
 
 	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
 	token_ = reply->readAll();
+	qDebug() << token_;
 
 	state_.process_event(GetTokenSuccess());
 
@@ -749,4 +752,32 @@ void ReaderApi::subscribeFinished() {
 		// Successfully subscribed to something. Update subscriptions.
 		getSubscriptionList();
 	}
+}
+
+void ReaderApi::getPreferences() {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QUrl url(kPrefsUrl);
+	url.addQueryItem("client", kApplicationSource);
+	if (!checkThrottle(url))
+		return;
+
+	QNetworkRequest req(url);
+	QNetworkReply* reply = network_->get(req);
+	watchReply(reply);
+	connect(reply, SIGNAL(finished()), SLOT(getPreferencesComplete()));
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void ReaderApi::getPreferencesComplete() {
+	qDebug() << __PRETTY_FUNCTION__;
+
+	QNetworkReply* reply = static_cast<QNetworkReply*>(sender());
+	QXmlStreamReader reader(reply);
+	PreferencesParser parser(reader);
+	preferences_ = parser.getPreferences();
+	qDebug() << preferences_;
+
+	reply->deleteLater();
 }

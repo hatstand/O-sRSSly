@@ -26,6 +26,7 @@ SET(FEEDER-SOURCES
 	seriousapp.cpp
 	about.cpp
 	shareditem.cpp
+	preferences_parser.cpp
 )
 
 # Header files that have Q_OBJECT in
