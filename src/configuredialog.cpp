@@ -89,6 +89,7 @@ void ConfigureDialog::pageChanged(const QString& text)
 
 void ConfigureDialog::loggedIn(bool success)
 {
+	qDebug() << __PRETTY_FUNCTION__ << success;
 	if (success) {
 		ui_.login_status_image_->setPixmap(QPixmap(":/login_ok.png"));
 		ui_.login_status_label_->setText("Login ok!");
@@ -104,16 +105,18 @@ void ConfigureDialog::textChanged() {
 }
 
 void ConfigureDialog::accountUpdated() {
-	// User changed account details. Let's try logging in.
-	QString username = ui_.user_->text();
-	QString password = ui_.password_->text();
+	if (!api_->isLoggedIn()) {
+		// User changed account details. Let's try logging in.
+		QString username = ui_.user_->text();
+		QString password = ui_.password_->text();
 
-	if (!username.isEmpty() && !password.isEmpty()) {
-		api_->login(username, password);
+		if (!username.isEmpty() && !password.isEmpty()) {
+			api_->login(username, password);
 
-		ui_.login_status_image_->setMovie(spinner_);
-		ui_.login_status_label_->setText("Logging in...");
-		ui_.login_status_->show();
-		spinner_->start();
+			ui_.login_status_image_->setMovie(spinner_);
+			ui_.login_status_label_->setText("Logging in...");
+			ui_.login_status_->show();
+			spinner_->start();
+		}
 	}
 }
