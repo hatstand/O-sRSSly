@@ -2,10 +2,13 @@
 #include "readerapi.h"
 #include "settings.h"
 
+#include <QMovie>
+
 ConfigureDialog::ConfigureDialog(ReaderApi* api, QWidget* parent)
 	: QDialog(parent),
 	  settings_(Settings::instance()),
-	  api_(api)
+	  api_(api),
+	  spinner_(new QMovie(":/spinner.gif", QByteArray(), this))
 {
 	ui_.setupUi(this);
 	
@@ -17,6 +20,10 @@ ConfigureDialog::ConfigureDialog(ReaderApi* api, QWidget* parent)
 
 	timer_.setSingleShot(true);
 	connect(&timer_, SIGNAL(timeout()), SLOT(accountUpdated()));
+
+	connect(api_, SIGNAL(loggedIn(bool)), SLOT(loggedIn(bool)));
+
+	ui_.login_status_->hide();
 }
 
 ConfigureDialog::~ConfigureDialog()
@@ -82,7 +89,14 @@ void ConfigureDialog::pageChanged(const QString& text)
 
 void ConfigureDialog::loggedIn(bool success)
 {
-	qDebug() << __PRETTY_FUNCTION__ << success;
+	if (success) {
+		ui_.login_status_image_->setPixmap(QPixmap(":/login_ok.png"));
+		ui_.login_status_label_->setText("Login ok!");
+	}
+	else {
+		ui_.login_status_image_->setPixmap(QPixmap(":/login_bad.png"));
+		ui_.login_status_label_->setText("Login failed");
+	}
 }
 
 void ConfigureDialog::textChanged() {
@@ -96,5 +110,10 @@ void ConfigureDialog::accountUpdated() {
 
 	if (!username.isEmpty() && !password.isEmpty()) {
 		api_->login(username, password);
+
+		ui_.login_status_image_->setMovie(spinner_);
+		ui_.login_status_label_->setText("Logging in...");
+		ui_.login_status_->show();
+		spinner_->start();
 	}
 }

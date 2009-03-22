@@ -48,7 +48,6 @@ void Database::run() {
 	qDebug() << __PRETTY_FUNCTION__;
 	// TODO: Put this in a better place
 	QString path(QDir::homePath() + "/.feeder.sqlite");
-	
 
 	// This is all done here to put it in the right thread.
 	QSqlDatabase db(QSqlDatabase::addDatabase("QSQLITE"));

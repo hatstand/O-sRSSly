@@ -9,6 +9,8 @@
 class ReaderApi;
 class Settings;
 
+class QMovie;
+
 class ConfigureDialog : public QDialog
 {
 	Q_OBJECT
@@ -35,6 +37,8 @@ private:
 	ReaderApi* api_;
 
 	QTimer timer_;
+
+	QMovie* spinner_;
 };
 
 #endif
