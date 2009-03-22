@@ -11,6 +11,7 @@ AboutBox::AboutBox(QWidget* parent)
 {
 	ui_.setupUi(this);
 	ui_.shoop_->setMovie(shoop_da_woop_);
+	shoop_da_woop_->start();
 
 	connect(ui_.fullscreen_, SIGNAL(clicked()), SLOT(enterFullscreen()));
 }
@@ -22,16 +23,14 @@ AboutBox::~AboutBox() {
 void AboutBox::enterFullscreen() {
 	if (!fullscreen_) {
 		fullscreen_ = new ShoopDaWoop();
+		connect(fullscreen_, SIGNAL(hidden()), SLOT(exitFullscreen()));
 	}
 
+	shoop_da_woop_->stop();
 	fullscreen_->show();
-	hide();
 }
 
-void AboutBox::showEvent(QShowEvent*) {
+void AboutBox::exitFullscreen() {
 	shoop_da_woop_->start();
 }
 
-void AboutBox::hideEvent(QHideEvent*) {
-	shoop_da_woop_->stop();
-}

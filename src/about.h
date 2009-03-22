@@ -5,8 +5,6 @@
 
 #include <QDialog>
 
-class QShowEvent;
-class QHideEvent;
 class ShoopDaWoop;
 
 class AboutBox : public QDialog {
@@ -15,12 +13,9 @@ public:
 	AboutBox(QWidget* parent);
 	~AboutBox();
 
-protected:
-	void showEvent(QShowEvent*);
-	void hideEvent(QHideEvent*);
-
 private slots:
 	void enterFullscreen();
+	void exitFullscreen();
 
 private:
 	Ui::About ui_;

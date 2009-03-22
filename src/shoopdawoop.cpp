@@ -11,6 +11,7 @@ ShoopDaWoop::ShoopDaWoop()
 	  movie_(new QMovie(":/shoopdawoop.gif"))
 {
 	setWindowTitle("SHOOP DA WOOP");
+	setWindowFlags(Qt::WindowStaysOnTopHint | Qt::WindowStaysOnTopHint);
 	connect(movie_, SIGNAL(updated(const QRect&)), SLOT(update()));
 }
 
