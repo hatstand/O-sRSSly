@@ -27,6 +27,7 @@ SET(FEEDER-SOURCES
 	about.cpp
 	shareditem.cpp
 	preferences_parser.cpp
+    shoopdawoop.cpp
 )
 
 # Header files that have Q_OBJECT in
@@ -52,6 +53,7 @@ SET(FEEDER-MOC-HEADERS
 	seriousapp.h
 	about.h
 	shareditem.h
+    shoopdawoop.h
 )
 
 IF(LINUX)
