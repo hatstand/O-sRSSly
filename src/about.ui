@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>About</class>
- <widget class="QDialog" name="About" >
-  <property name="geometry" >
+ <widget class="QDialog" name="About">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,35 +10,41 @@
     <height>276</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>About...</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QWebView" name="webview_" >
-     <property name="url" >
-      <url>
-       <string>http://www.purplehatstands.com/images/shoopdawoop.gif</string>
-      </url>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QPushButton" name="ok_">
+     <property name="text">
+      <string>OK</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QPushButton" name="ok_" >
-     <property name="text" >
-      <string>OK</string>
+   <item row="0" column="0">
+    <widget class="QLabel" name="shoop_">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>270</width>
+       <height>220</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>270</width>
+       <height>220</height>
+      </size>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -46,11 +53,11 @@
    <receiver>About</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>317</x>
      <y>264</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>199</x>
      <y>149</y>
     </hint>

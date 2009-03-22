@@ -5,6 +5,8 @@
 
 #include <QDialog>
 
+class QMovie;
+
 class AboutBox : public QDialog {
 	Q_OBJECT
 public:
@@ -13,6 +15,7 @@ public:
 
 private:
 	Ui::About ui_;
+	QMovie* shoop_da_woop_;
 };
 
 #endif
