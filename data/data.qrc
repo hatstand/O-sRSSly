@@ -29,5 +29,6 @@
         <file>spinner.gif</file>
         <file>login_bad.png</file>
         <file>login_ok.png</file>
+		<file>shoopdawoop.gif</file>
     </qresource>
 </RCC>
