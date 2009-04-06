@@ -1,9 +1,10 @@
-#include "feedsmodel.h"
-#include "readerapi.h"
-#include "settings.h"
-#include "database.h"
 #include "allitems.h"
+#include "database.h"
+#include "feedsmodel.h"
 #include "folderitem.h"
+#include "readerapi.h"
+#include "rootitem.h"
+#include "settings.h"
 #include "shareditem.h"
 
 #include <QApplication>
@@ -287,7 +288,7 @@ QMimeData* FeedsModel::mimeData(const QModelIndexList& indices) const {
 				continue;
 
 			QString category = item->parent()->id();
-			
+
 			stream << text << category;
 		}
 	}
@@ -342,21 +343,20 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 					beginInsertRows(index, item->childCount(), item->childCount());
 					FeedItem* new_feed = new FeedItem(item, shared_ptr<FeedItemData>(*jt));
 					new_feed->addCategory(qMakePair(item->id(), item->title()));
-					endInsertRows();	
+					endInsertRows();
 				}
 
 				// Remove from root.
-				if (it.value() == "Root-Id") {
+				if (it.value() == RootItem::kRootId) {
 					// This was dropped from the root. We should remove the root FeedItem.
 					for (int i = 0; i < root_.childCount(); ++i) {
 						if (root_.child(i)->id() == it.key()) {
 							// Remove FeedItem
-							QModelIndex index = createIndex(root_.row(), 0, &root_);
-							//beginRemoveRows(index, i, i);
+							QModelIndex index;
+							beginRemoveRows(index, i, i);
 							delete root_.child(i);
-							//endRemoveRows();
-							reset();
-
+							endRemoveRows();
+							all_items_->invalidateFeedCache();
 							break;
 						}
 					}
@@ -385,13 +385,13 @@ bool FeedsModel::dropMimeData(const QMimeData* data,
 				}
 
 				QModelIndex index = createIndex(folder->row(), 0, folder);
-				//beginRemoveRows(index, i, i);
+				beginRemoveRows(index, i, i);
 				// Temporarily grab a reference to the FeedItemData
 				shared_ptr<FeedItemData> data(jt.value());
 				data->removeCategory(it.value());
 				delete child;
-				//endRemoveRows();
-				reset();
+				endRemoveRows();
+				all_items_->invalidateFeedCache();
 
 				// If we have the last reference, then we should add the Feed to the root of the tree.
 				if (data.unique()) {

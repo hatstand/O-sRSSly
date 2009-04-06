@@ -17,7 +17,7 @@ class FeedItemData : public QObject {
 public:
 	FeedItemData(Subscription* s, ReaderApi* api, Database* db);
 	FeedItemData(const QSqlQuery& query, ReaderApi* api, Database* db);
-	~FeedItemData();
+	virtual ~FeedItemData();
 	void setRead(const AtomEntry& e);
 
 	const AtomFeed::AtomList& entries() { return feed_.entries(); }
@@ -39,7 +39,7 @@ public:
 
 	void save();
 
-        int unread() const;
+	int unread() const;
 
 public slots:
 	int update(const AtomFeed& feed);
@@ -69,6 +69,7 @@ public:
 	 */
 
 	FeedItem(TreeItem* parent, boost::shared_ptr<FeedItemData> data);
+	virtual ~FeedItem() {};
 	QVariant data(int column, int role = Qt::DisplayRole) const;
 	QIcon icon() const { return sIcon; }
 	const Subscription& subscription() const { return data_->subscription(); }

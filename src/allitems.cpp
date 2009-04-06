@@ -109,6 +109,7 @@ void AllItems::childRowsInserted(TreeItem* sender, const QModelIndex& parent, in
 }
 
 void AllItems::invalidateFeedCache() {
+	qDebug() << __PRETTY_FUNCTION__ << "Cache invalidated";
 	unique_feeds_dirty_ = true;
 }
 
@@ -128,4 +129,3 @@ void AllItems::regenerateFeedCache() {
 	
 	unique_feeds_dirty_ = false;
 }
-

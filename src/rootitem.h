@@ -6,7 +6,8 @@
 class RootItem : public TreeItem {
 	Q_OBJECT
 public:
-	RootItem(FeedsModel* model) : TreeItem(model, "/") {}
+	RootItem(FeedsModel* model);
+	virtual ~RootItem() {}
 	
 	virtual QString summary(const QModelIndex&) const { return QString::null; }
 	QString real_id(const QModelIndex&) const { return QString::null; }
@@ -21,6 +22,8 @@ public:
 	virtual QVariant data(const QModelIndex&, int) const { return QVariant(); }
 	virtual int rowCount(const QModelIndex&) const { return 0; }
 	virtual int columnCount(const QModelIndex&) const { return 0; }
+
+	static const QString kRootId;
 
 private:
 	static AtomEntry sDummy;

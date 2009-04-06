@@ -186,8 +186,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 		configure_dialog_->show();
 		configure_dialog_->raise();
 		configure_dialog_->activateWindow();
-		qDebug() << __PRETTY_FUNCTION__ << "Modal:" << configure_dialog_->isModal();
-		qDebug() << QApplication::quitOnLastWindowClosed();
 	} else {
 		api_->login(Settings::instance()->googleUsername(), Settings::instance()->googlePassword());
 	}

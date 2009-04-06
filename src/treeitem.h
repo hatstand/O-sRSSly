@@ -87,13 +87,13 @@ public slots:
 	// Called when rows are inserted into a child
 	virtual void childRowsInserted(TreeItem* sender, const QModelIndex& parent, int start, int end);
 
-private slots:
+protected slots:
 	// Called when a child item is reset.
-	void childReset();
+	virtual void childReset();
 	// Called when rows are inserted into a child
-	void childRowsInserted(const QModelIndex& parent, int start, int end);
+	virtual void childRowsInserted(const QModelIndex& parent, int start, int end);
 	// Called when a child is destroyed.
-	void childDestroyed(QObject* object);
+	virtual void childDestroyed(QObject* object);
 
 private:
 	void init(TreeItem* parent, const QString& title, FeedsModel* model);
