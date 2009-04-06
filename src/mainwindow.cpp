@@ -14,13 +14,14 @@
 #include <spawn/manager.h>
 #endif
 
-#include <QSortFilterProxyModel>
+#include <QInputDialog>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QShortcut>
 #include <QSizeGrip>
-#include <QTextDocument>
+#include <QSortFilterProxyModel>
 #include <QSystemTrayIcon>
+#include <QTextDocument>
 #include <QWebSettings>
 #include <QWebView>
 
@@ -74,6 +75,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	connect(ui_.actionQuit, SIGNAL(activated()), qApp, SLOT(quit()));
 	connect(ui_.actionConfigure_, SIGNAL(activated()), SLOT(showConfigure()));
 	ui_.configure_->setDefaultAction(ui_.actionConfigure_);
+        connect(ui_.actionSubscribe_, SIGNAL(activated()), SLOT(subscribe()));
 
 	connect(ui_.action_refresh_, SIGNAL(activated()), feeds_model_, SLOT(fetchMore()));
 	ui_.refresh_->setDefaultAction(ui_.action_refresh_);
@@ -542,4 +544,15 @@ void MainWindow::about() {
 
 void MainWindow::aboutQt() {
 	QMessageBox::aboutQt(this);
+}
+
+void MainWindow::subscribe() {
+	qDebug() << __PRETTY_FUNCTION__;
+	bool ok = false;
+	QString feed = QInputDialog::getText(this, "Enter a feed to subscribe to:",
+		QString::null, QLineEdit::Normal, QString(), &ok);
+
+	if (ok && !feed.isEmpty()) {
+		api_->subscribe(feed);
+	}
 }

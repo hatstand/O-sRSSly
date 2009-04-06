@@ -61,7 +61,8 @@ private slots:
 	void aboutQt();
 
 	void configureDone(int);
-	
+	void subscribe();
+
 private:
 	void updateProgressBar();
 	void closeEvent(QCloseEvent* event);

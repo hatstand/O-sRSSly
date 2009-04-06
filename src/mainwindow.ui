@@ -429,6 +429,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSubscribe_"/>
     <addaction name="actionConfigure_"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -457,6 +458,11 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSubscribe_">
+    <property name="text">
+      <string>Subscribe...</string>
+    </property>
+  </action>
   <action name="actionConfigure_">
    <property name="icon">
     <iconset resource="../data/data.qrc">
