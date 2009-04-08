@@ -4,12 +4,15 @@
 
 #include <QDebug>
 
-#define FOREACH_CHILD \
-	if (unique_feeds_dirty_) \
-		const_cast<AllItems*>(this)->regenerateFeedCache(); \
-	foreach (FeedItem* feed, unique_feeds_) {
-
 QIcon AllItems::sIcon;
+
+// This really isn't const :-(
+const QList<FeedItem*>& AllItems::iterableFeeds() const {
+	if (unique_feeds_dirty_)
+		const_cast<AllItems*>(this)->regenerateFeedCache();
+
+	return unique_feeds_;
+}
 
 AllItems::AllItems(TreeItem* parent, ReaderApi* api)
 	: TreeItem(parent, "All Items"),
@@ -51,7 +54,7 @@ int AllItems::rowCount(const QModelIndex& parent) const {
 		int& rowCountRef = const_cast<AllItems*>(this)->row_count_;
 		rowCountRef = 0;
 		
-		FOREACH_CHILD
+		foreach(FeedItem* feed, iterableFeeds()) {
 			rowCountRef += feed->rowCount(QModelIndex());
 		}
 	}
@@ -66,7 +69,7 @@ void AllItems::fetchMore(const QModelIndex& parent) {
 QModelIndex AllItems::getItem(const QModelIndex& index) const {
 	int rows = 0;
 	
-	FOREACH_CHILD
+	foreach(FeedItem* feed, iterableFeeds()) {
 		int row_count = feed->rowCount(QModelIndex());
 		rows += row_count;
 
@@ -97,7 +100,7 @@ void AllItems::childRowsInserted(TreeItem* sender, const QModelIndex& parent, in
 	row_count_ = -1; // Make it dirty
 	
 	int rows = 0;
-	FOREACH_CHILD
+	foreach(FeedItem* feed, iterableFeeds()) {
 		if (feed == sender)
 			break;
 

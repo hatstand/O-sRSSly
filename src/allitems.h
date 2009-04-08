@@ -38,7 +38,8 @@ public slots:
 private:
 	// Given an index for this item, returns an index for the correct child depending on the row.
 	QModelIndex getItem(const QModelIndex& index) const;
-	
+	const QList<FeedItem*>& iterableFeeds() const;
+
 	int row_count_;
 	bool unique_feeds_dirty_;
 	QList<FeedItem*> unique_feeds_;
